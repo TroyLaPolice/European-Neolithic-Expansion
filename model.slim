@@ -15,17 +15,17 @@
 
 initialize() {
 	initializeSLiMModelType("nonWF");
-	initializeSLiMOptions(dimensionality="xy", periodicity="xy");
+	initializeSLiMOptions(dimensionality="xy", periodicity="");
 	
 	// ---------------------------------------------------
 	//  PARAMETERS --> Initialize Constant Params
 	// ---------------------------------------------------
 
 	defineConstant("K", 1000);     // carrying capacity 
-	defineConstant("SF", 160);     // Starting number of farmers
-	defineConstant("SHG", 700);    // Starting number of HGs
+	//defineConstant("SF", 160);     // Starting number of farmers
+	defineConstant("SHG", 1000);    // Starting number of HGs
 	defineConstant("S", 0.1);      // spatial competition distance
-	defineConstant("L", 0.07);     // Learning rate 
+	defineConstant("L", 0.000000005);     // Learning rate 
 	defineConstant("M", 0.1);      // Mating rate
 	defineConstant("OMD", 0.02);   // Offspring movement away from parents
 	// Right now OMD is the same for both populations but we could make it unique
@@ -37,13 +37,13 @@ initialize() {
 	//  GENETIC COMPONENT --> Initialize Genomic Elements
 	// ----------------------------------------------------
 	
-	initializeMutationType("m1", 0.5, "f", 0.0);
-	m1.convertToSubstitution = T;
+	initializeMutationType("m1", 0.5, "f", 0.0);  // Tag farmer ancestry
+	m1.convertToSubstitution = F;
 	
 	initializeGenomicElementType("g1", m1, 1.0);
-	initializeGenomicElement(g1, 0, 99999);
-	initializeMutationRate(1e-7);
-	initializeRecombinationRate(1e-8);
+	initializeGenomicElement(g1, 0, 2999);
+	initializeMutationRate(0.0);
+	initializeRecombinationRate(0.01);
 	
 	// ---------------------------------------------------
 	//  INTERACTIONS --> Interaction Initialization
@@ -96,8 +96,9 @@ reproduction() {
 			}
 			
 			// set offspring position
-			pos = individual.spatialPosition + rnorm(2, 0, OMD);
-			offspring.setSpatialPosition(p1.pointPeriodic(pos));
+			do pos = individual.spatialPosition + rnorm(2, 0, OMD);
+         while (!p1.pointInBounds(pos));
+         offspring.setSpatialPosition(pos);
 			}
 	}
 	
@@ -135,11 +136,17 @@ reproduction() {
 	sim.addSubpop("p1", SHG);
 	
 	// random initial positions
-	p1.individuals.setSpatialPosition(p1.pointUniform(1));
+	p1.individuals.setSpatialPosition(p1.pointUniform(p1.individualCount));
 	
 	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
+	// Make individuals at right boundary farmers
 	p1.individuals.z = 0;
-	sample(p1.individuals, SF, replace=F).z = 1;
+	p1.individuals[p1.individuals.x > 0.9].z = 1;
+	
+	// Tag genomic ancestry of farmers with marker mutations (m1)
+	// Each marker mutation represents 1Mb
+	indFarmers = p1.individuals[p1.individuals.z == 1];
+	indFarmers.genomes.addNewMutation(m1, 0.0, 0:2999); 
 	
 	// Add color to represent phenotype
 	for (i in p1.individuals)
@@ -166,16 +173,18 @@ late()
 	{
 		if (ind.z == 1)
 		{
-			// How far farmers diffuse away from their location
-			newPos = ind.spatialPosition + runif(2, -FMD, FMD);
-			ind.setSpatialPosition(p1.pointPeriodic(newPos));
+			// How far farmers diffuse away from their location			
+			do newPos = ind.spatialPosition + runif(2, -FMD, FMD);
+         while (!p1.pointInBounds(newPos));
+         ind.setSpatialPosition(newPos);
 		}
 		
 		if (ind.z == 0)
 		{
 			// How far HGs diffuse away from their location
-			newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
-			ind.setSpatialPosition(p1.pointPeriodic(newPos));
+			do newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
+         while (!p1.pointInBounds(newPos));
+         ind.setSpatialPosition(newPos);
 		}
 	}
 	
@@ -183,7 +192,7 @@ late()
 }
 1:10000 late() {
 	// Echo the ratio of farmers in the total population to screen
-	catn(sum(p1.individuals.z)/p1.individuals.length());
+	catn(sum(p1.individuals.z)/p1.individuals.length() + " " + mean(p1.individuals.countOfMutationsOfType(m1)/6000));
 }
 10000 late() {
 	sim.outputFixedMutations();
