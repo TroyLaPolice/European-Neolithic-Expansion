@@ -1,0 +1,190 @@
+// ---------------------------------------------------
+// To Do:
+// ---------------------------------------------------
+
+// Make HGs move in groups
+// Learning based on number of farmers
+// Figure out realism of clustering
+// Make it not a continuously wrapped map
+// Individual K for each group (HGs and Farmers)
+// Set initial starting location for farmers
+// Parameter tuning
+// Add genetic component and output metrics on the spread
+
+// ---------------------------------------------------
+
+initialize() {
+	initializeSLiMModelType("nonWF");
+	initializeSLiMOptions(dimensionality="xy", periodicity="xy");
+	
+	// ---------------------------------------------------
+	//  PARAMETERS --> Initialize Constant Params
+	// ---------------------------------------------------
+
+	defineConstant("K", 1000);     // carrying capacity 
+	defineConstant("SF", 160);     // Starting number of farmers
+	defineConstant("SHG", 700);    // Starting number of HGs
+	defineConstant("S", 0.1);      // spatial competition distance
+	defineConstant("L", 0.07);     // Learning rate 
+	defineConstant("M", 0.1);      // Mating rate
+	defineConstant("OMD", 0.02);   // Offspring movement away from parents
+	// Right now OMD is the same for both populations but we could make it unique
+	defineConstant("FMD", 0.006);  // Farmer movement distance
+	defineConstant("HGMD", 0.02);  // HG movement distance
+	
+	
+	// ----------------------------------------------------
+	//  GENETIC COMPONENT --> Initialize Genomic Elements
+	// ----------------------------------------------------
+	
+	initializeMutationType("m1", 0.5, "f", 0.0);
+	m1.convertToSubstitution = T;
+	
+	initializeGenomicElementType("g1", m1, 1.0);
+	initializeGenomicElement(g1, 0, 99999);
+	initializeMutationRate(1e-7);
+	initializeRecombinationRate(1e-8);
+	
+	// ---------------------------------------------------
+	//  INTERACTIONS --> Interaction Initialization
+	// ---------------------------------------------------
+	
+	// spatial competition
+	initializeInteractionType(1, "xy", reciprocal=T, maxDistance=S);
+	
+	// spatial mate choice
+	initializeInteractionType(2, "xy", reciprocal=T, maxDistance=0.1);
+	
+}
+first() {
+	// look for mates
+	i2.evaluate();
+}
+reproduction() {
+
+	// ---------------------------------------------------
+	//  MATING --> Individuals mate with those close by
+	// ---------------------------------------------------
+	
+	// choose our nearest neighbor as a mate, within the max distance
+	mate = i2.nearestNeighbors(individual, 1);
+	
+	// Frequency of the interaction
+	for (i in seqLen(rpois(1, M)))
+	{
+		// Only runs if a mate is nearby
+		if (mate.size())
+		{
+			offspring = subpop.addCrossed(individual, mate);
+		
+			// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
+			offspring.z = 0;
+	
+			// If both parents are farmers the child is a farmer
+			if (individual.z == 1 & mate.z == 1) offspring.z = 1;
+		
+			// Add color to represent phenotype
+			if (offspring.z == 0) offspring.color = "red"; 
+			else offspring.color = "blue";
+			
+			// If the one parent is a farmer and one parent is a HG,
+			// 50% chance they become a farmer
+			if (individual.z != mate.z) 
+			{
+				offspring.z = rbinom(1,1,0.5);
+				if (offspring.z == 1) offspring.color = "purple"; 
+			}
+			
+			// set offspring position
+			pos = individual.spatialPosition + rnorm(2, 0, OMD);
+			offspring.setSpatialPosition(p1.pointPeriodic(pos));
+			}
+	}
+	
+	// ---------------------------------------------------
+	//  LEARNING --> HGs learn to farm from nearby farmers
+	// ---------------------------------------------------
+	
+	// choose our nearest neighbor as a teacher, within the max distance
+	teacher = i2.nearestNeighbors(individual, 1);
+	
+	// Frequency of the interaction
+	for (i in seqLen(rpois(1, L)))
+	{
+		// Only runs if a potential teacher is nearby
+		if (teacher.size())
+		{
+			// Binomial choice for teaching
+			chance = rbinom(1,1,0.5);
+	
+			// If teacher is a farmer and individual is a HG
+			if (teacher.z == 1 & individual.z == 0 & chance == 1) 
+			{
+				// Change the HG to green to see the interaction
+				// and change its phenotype (z coordinate) from 0 to 1
+				// to represent the conversion to farmer
+				// Only first generation HG -> F converts are green
+				individual.color = "green"; 
+				individual.z = 1;
+			}
+		}
+	}
+}
+
+1 early() {
+	sim.addSubpop("p1", SHG);
+	
+	// random initial positions
+	p1.individuals.setSpatialPosition(p1.pointUniform(1));
+	
+	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
+	p1.individuals.z = 0;
+	sample(p1.individuals, SF, replace=F).z = 1;
+	
+	// Add color to represent phenotype
+	for (i in p1.individuals)
+	{
+		// HGs are red, farmers are blue 
+		// and converted HG -> F indivduals (1st generation only) are green
+		if (i.z == 0) i.color = "red"; // 
+		else i.color = "blue";
+	}
+}
+early() {
+	i1.evaluate();
+	
+	// spatial competition provides density-dependent selection
+	inds = p1.individuals;
+	competition = i1.totalOfNeighborStrengths(inds);
+	competition = (competition + 1) / (PI * S^2);
+	inds.fitnessScaling = K / competition;
+}
+late()
+{
+	// move around a bit
+	for (ind in p1.individuals)
+	{
+		if (ind.z == 1)
+		{
+			// How far farmers diffuse away from their location
+			newPos = ind.spatialPosition + runif(2, -FMD, FMD);
+			ind.setSpatialPosition(p1.pointPeriodic(newPos));
+		}
+		
+		if (ind.z == 0)
+		{
+			// How far HGs diffuse away from their location
+			newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
+			ind.setSpatialPosition(p1.pointPeriodic(newPos));
+		}
+	}
+	
+
+}
+1:10000 late() {
+	// Echo the ratio of farmers in the total population to screen
+	catn(sum(p1.individuals.z)/p1.individuals.length());
+}
+10000 late() {
+	sim.outputFixedMutations();
+}
