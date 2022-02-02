@@ -1,45 +1,37 @@
 // ---------------------------------------------------
 // To Do:
 // ---------------------------------------------------
-
 // Make HGs move in groups
 // Learning based on number of farmers
 // Figure out realism of clustering
-// Make it not a continuously wrapped map
 // Individual K for each group (HGs and Farmers)
-// Set initial starting location for farmers
 // Parameter tuning
-// Add genetic component and output metrics on the spread
-
+// output metrics on the spread
 // ---------------------------------------------------
-
-initialize() {
+initialize()
+{
 	initializeSLiMModelType("nonWF");
 	initializeSLiMOptions(dimensionality="xy", periodicity="");
 	
 	// ---------------------------------------------------
 	//  PARAMETERS --> Initialize Constant Params
 	// ---------------------------------------------------
-
-	defineConstant("K", 1000);     // carrying capacity 
-	//defineConstant("SF", 160);     // Starting number of farmers
-	defineConstant("SHG", 1000);    // Starting number of HGs
-	defineConstant("S", 0.1);      // spatial competition distance
-	defineConstant("L", 0.000000005);     // Learning rate 
-	defineConstant("M", 0.1);      // Mating rate
-	defineConstant("OMD", 0.02);   // Offspring movement away from parents
-	// Right now OMD is the same for both populations but we could make it unique
-	defineConstant("FMD", 0.006);  // How far farmers diffuse away from their location
-	defineConstant("HGMD", 0.02);  // How far HGs diffuse away from their location
+	defineConstant("K", 1000); // carrying capacity 
+	defineConstant("SN", 1000); // Starting number of individuals
+	defineConstant("S", 0.1); // spatial competition distance
+	defineConstant("L", 0.005); // Learning rate 
+	defineConstant("M", 0.1); // Mating rate
+	defineConstant("OMD", 0.05); // Offspring movement away from parents
 	
+	// Right now OMD is the same for both populations but we could make it unique
+	defineConstant("FMD", 0.006); // How far farmers diffuse away from their location
+	defineConstant("HGMD", 0.01); // How far HGs diffuse away from their location
 	
 	// ----------------------------------------------------
 	//  GENETIC COMPONENT --> Initialize Genomic Elements
 	// ----------------------------------------------------
-	
-	initializeMutationType("m1", 0.5, "f", 0.0);  // Tag farmer ancestry
+	initializeMutationType("m1", 0.5, "f", 0.0); // Tag farmer ancestry
 	m1.convertToSubstitution = F;
-	
 	initializeGenomicElementType("g1", m1, 1.0);
 	initializeGenomicElement(g1, 0, 2999);
 	initializeMutationRate(0.0);
@@ -48,92 +40,114 @@ initialize() {
 	// ---------------------------------------------------
 	//  INTERACTIONS --> Interaction Initialization
 	// ---------------------------------------------------
-	
 	// spatial competition
 	initializeInteractionType(1, "xy", reciprocal=T, maxDistance=S);
 	
 	// spatial mate choice
 	initializeInteractionType(2, "xy", reciprocal=T, maxDistance=0.1);
-	
 }
-first() {
+
+first()
+{
 	// look for mates
 	i2.evaluate();
 }
-reproduction() {
 
+reproduction()
+{
 	// ---------------------------------------------------
 	//  MATING --> Individuals mate with those close by
 	// ---------------------------------------------------
-	
 	// choose our nearest neighbor as a mate, within the max distance
-	mate = i2.nearestNeighbors(individual, 1);
-	
-	// Frequency of the interaction
-	for (i in seqLen(rpois(1, M)))
+	if (individual.age > 12)
 	{
-		// Only runs if a mate is nearby
-		if (mate.size())
+		mate = i2.nearestNeighbors(individual, 1);
+		if (mate.age > 12)
 		{
-			offspring = subpop.addCrossed(individual, mate);
-		
-			// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
-			offspring.z = 0;
-	
-			// If both parents are farmers the child is a farmer
-			if (individual.z == 1 & mate.z == 1) offspring.z = 1;
-		
-			// Add color to represent phenotype
-			if (offspring.z == 0) offspring.color = "red"; 
-			else offspring.color = "blue";
-			
-			// If the one parent is a farmer and one parent is a HG,
-			// 50% chance they become a farmer
-			if (individual.z != mate.z) 
+			// Frequency of the interaction
+			for (i in seqLen(rpois(1, M)))
 			{
-				offspring.z = rbinom(1,1,0.5);
-				if (offspring.z == 1) offspring.color = "purple"; 
+				// Only runs if a mate is nearby
+				if (mate.size())
+				{
+					offspring = subpop.addCrossed(individual, mate);
+					
+					// -----------------------
+					// Color Based on Phenotype
+					// -----------------------
+					value = offspring.countOfMutationsOfType(m1) / 6000;
+					offspring.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
+					
+					// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
+					offspring.z = 0;
+					
+					// If both parents are farmers the child is a farmer
+					if (individual.z == 1 & mate.z == 1)
+						offspring.z = 1;
+					
+					// -----------------------
+					// Color Based on Behavior
+					// -----------------------
+					// Add color to represent phenotype
+					//if (offspring.z == 0)
+					//offspring.color = "red";
+					//else
+					//offspring.color = "blue";
+					// If the one parent is a farmer and one parent is a HG,
+					// 50% chance they become a farmer
+					if (individual.z != mate.z)
+					{
+						offspring.z = rbinom(1, 1, 0.5);
+						
+						//if (offspring.z == 1)
+						//offspring.color = "purple"; // Color Based on Behavior
+					}
+					
+					// set offspring position
+					do
+						pos = individual.spatialPosition + rnorm(2, 0, OMD);
+					while (!p1.pointInBounds(pos));
+					offspring.setSpatialPosition(pos);
+				}
 			}
-			
-			// set offspring position
-			do pos = individual.spatialPosition + rnorm(2, 0, OMD);
-         while (!p1.pointInBounds(pos));
-         offspring.setSpatialPosition(pos);
-			}
-	}
-	
-	// ---------------------------------------------------
-	//  LEARNING --> HGs learn to farm from nearby farmers
-	// ---------------------------------------------------
-	
-	// choose our nearest neighbor as a teacher, within the max distance
-	teacher = i2.nearestNeighbors(individual, 1);
-	
-	// Frequency of the interaction
-	for (i in seqLen(rpois(1, L)))
-	{
-		// Only runs if a potential teacher is nearby
-		if (teacher.size())
+		}
+		
+		// ---------------------------------------------------
+		//  LEARNING --> HGs learn to farm from nearby farmers
+		// ---------------------------------------------------
+		// choose our nearest neighbor as a teacher, within the max distance
+		teacher = i2.nearestNeighbors(individual, 1);
+		
+		// Frequency of the interaction
+		for (i in seqLen(rpois(1, L)))
 		{
-			// Binomial choice for teaching
-			chance = rbinom(1,1,0.5);
-	
-			// If teacher is a farmer and individual is a HG
-			if (teacher.z == 1 & individual.z == 0 & chance == 1) 
+			// Only runs if a potential teacher is nearby
+			if (teacher.size())
 			{
-				// Change the HG to green to see the interaction
-				// and change its phenotype (z coordinate) from 0 to 1
-				// to represent the conversion to farmer
-				// Only first generation HG -> F converts are green
-				individual.color = "green"; 
-				individual.z = 1;
+				// Binomial choice for teaching
+				chance = rbinom(1, 1, 0.5);
+				
+				// If teacher is a farmer and individual is a HG
+				if (teacher.z == 1 & individual.z == 0 & chance == 1)
+				{
+					// -----------------------
+					// Color Based on Behavior
+					// -----------------------
+					// Change the HG to green to see the interaction
+					// and change its phenotype (z coordinate) from 0 to 1
+					// to represent the conversion to farmer
+					// Only first generation HG -> F converts are green
+					individual.color = "green";
+					individual.z = 1;
+				}
 			}
 		}
 	}
 }
 
-1 early() {
-	sim.addSubpop("p1", SHG);
+1 early()
+{
+	sim.addSubpop("p1", SN);
 	
 	// random initial positions
 	p1.individuals.setSpatialPosition(p1.pointUniform(p1.individualCount));
@@ -146,18 +160,31 @@ reproduction() {
 	// Tag genomic ancestry of farmers with marker mutations (m1)
 	// Each marker mutation represents 1Mb
 	indFarmers = p1.individuals[p1.individuals.z == 1];
-	indFarmers.genomes.addNewMutation(m1, 0.0, 0:2999); 
+	indFarmers.genomes.addNewMutation(m1, 0.0, 0:2999);
 	
 	// Add color to represent phenotype
 	for (i in p1.individuals)
 	{
+		// -----------------------
+		// Color Based on Phenotype
+		// -----------------------
+		value = i.countOfMutationsOfType(m1) / 6000;
+		i.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
+		
+		// -----------------------
+		// Color Based on Behavior
+		// -----------------------
 		// HGs are red, farmers are blue 
 		// and converted HG -> F indivduals (1st generation only) are green
-		if (i.z == 0) i.color = "red"; // 
-		else i.color = "blue";
+		//if (i.z == 0)
+		//i.color = "red"; // 
+		//else
+		//i.color = "blue";
 	}
 }
-early() {
+
+early()
+{
 	i1.evaluate();
 	
 	// spatial competition provides density-dependent selection
@@ -166,6 +193,7 @@ early() {
 	competition = (competition + 1) / (PI * S^2);
 	inds.fitnessScaling = K / competition;
 }
+
 late()
 {
 	// move around a bit
@@ -174,26 +202,29 @@ late()
 		if (ind.z == 1)
 		{
 			// How far farmers diffuse away from their location			
-			do newPos = ind.spatialPosition + runif(2, -FMD, FMD);
-         while (!p1.pointInBounds(newPos));
-         ind.setSpatialPosition(newPos);
+			do
+				newPos = ind.spatialPosition + runif(2, -FMD, FMD);
+			while (!p1.pointInBounds(newPos));
+			ind.setSpatialPosition(newPos);
 		}
-		
 		if (ind.z == 0)
 		{
 			// How far HGs diffuse away from their location
-			do newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
-         while (!p1.pointInBounds(newPos));
-         ind.setSpatialPosition(newPos);
+			do
+				newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
+			while (!p1.pointInBounds(newPos));
+			ind.setSpatialPosition(newPos);
 		}
 	}
-	
+}
 
-}
-1:10000 late() {
+1:10000 late()
+{
 	// Echo the ratio of farmers in the total population to screen
-	catn(sum(p1.individuals.z)/p1.individuals.length() + " " + mean(p1.individuals.countOfMutationsOfType(m1)/6000));
+	//catn(sum(p1.individuals.z) / p1.individuals.length() + " " + mean(p1.individuals.countOfMutationsOfType(m1) / 6000));
 }
-10000 late() {
+
+10000 late()
+{
 	sim.outputFixedMutations();
 }
