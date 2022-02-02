@@ -62,7 +62,6 @@ reproduction()
 	if (individual.age > 12) // Reproductive age of the individual must be reached before mating
 	{
 		mate = i2.nearestNeighbors(individual, 1);
-		
 		if (mate.age > 12) // Reproductive age of the individual must be reached before mating
 		{
 			// Frequency of the interaction
@@ -112,35 +111,35 @@ reproduction()
 				}
 			}
 		}
-		
-		// ---------------------------------------------------
-		//  LEARNING --> HGs learn to farm from nearby farmers
-		// ---------------------------------------------------
-		// choose our nearest neighbor as a teacher, within the max distance
-		teacher = i2.nearestNeighbors(individual, 1);
-		
-		// Frequency of the interaction
-		for (i in seqLen(rpois(1, L)))
+	}
+	
+	// ---------------------------------------------------
+	//  LEARNING --> HGs learn to farm from nearby farmers
+	// ---------------------------------------------------
+	// choose nearest neighbor as a teacher, within the max distance
+	teacher = i2.nearestNeighbors(individual, 1);
+	
+	// Frequency of the interaction
+	for (i in seqLen(rpois(1, L)))
+	{
+		// Only runs if a potential teacher is nearby
+		if (teacher.size())
 		{
-			// Only runs if a potential teacher is nearby
-			if (teacher.size())
+			// Binomial choice for teaching
+			chance = rbinom(1, 1, 0.5);
+			
+			// If teacher is a farmer and individual is a HG
+			if (teacher.z == 1 & individual.z == 0 & chance == 1)
 			{
-				// Binomial choice for teaching
-				chance = rbinom(1, 1, 0.5);
-				
-				// If teacher is a farmer and individual is a HG
-				if (teacher.z == 1 & individual.z == 0 & chance == 1)
-				{
-					// -----------------------
-					// Color Based on Behavior
-					// -----------------------
-					// Change the HG to green to see the interaction
-					// and change its phenotype (z coordinate) from 0 to 1
-					// to represent the conversion to farmer
-					// Only first generation HG -> F converts are green
-					individual.color = "green";
-					individual.z = 1;
-				}
+				// -----------------------
+				// Color Based on Behavior
+				// -----------------------
+				// Change the HG to green to see the interaction
+				// and change its phenotype (z coordinate) from 0 to 1
+				// to represent the conversion to farmer
+				// Only first generation HG -> F converts are green
+				individual.color = "green";
+				individual.z = 1;
 			}
 		}
 	}
