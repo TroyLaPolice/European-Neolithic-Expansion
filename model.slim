@@ -58,11 +58,12 @@ reproduction()
 	// ---------------------------------------------------
 	//  MATING --> Individuals mate with those close by
 	// ---------------------------------------------------
-	// choose our nearest neighbor as a mate, within the max distance
-	if (individual.age > 12)
+	// choose nearest neighbor as a mate, within the max distance
+	if (individual.age > 12) // Reproductive age of the individual must be reached before mating
 	{
 		mate = i2.nearestNeighbors(individual, 1);
-		if (mate.age > 12)
+		
+		if (mate.age > 12) // Reproductive age of the individual must be reached before mating
 		{
 			// Frequency of the interaction
 			for (i in seqLen(rpois(1, M)))
