@@ -27,6 +27,14 @@ initialize()
 	defineConstant("FMD", 0.006); // How far farmers diffuse away from their location
 	defineConstant("HGMD", 0.01); // How far HGs diffuse away from their location
 	
+	// ---------------------------------------------------
+	//  PARAMETERS --> Determine Coloring Schemes
+	// ---------------------------------------------------
+	
+	defineConstant("Color_scheme", 1); // Parameter of 1 = Genomic Coloring, 2 = Behavoiral Coloring
+	defineConstant("Color_option1", 0); // Parameter of 0 = No special color for 1st generation 'hybrid' offspring, 1 = Coloring for 1st generation 'hybrid' offspring
+	defineConstant("Color_option2", 1); // Parameter of 0 = No special color for 1st generation HG individuals who have learned, 1 = Coloring for 1st generation HG individuals who have learned
+	
 	// ----------------------------------------------------
 	//  GENETIC COMPONENT --> Initialize Genomic Elements
 	// ----------------------------------------------------
@@ -84,23 +92,29 @@ reproduction()
 					// If both parents are farmers the child is a farmer
 					if (individual.z == 1 & mate.z == 1)
 						offspring.z = 1;
+						
+					if (Color_scheme == 2)
+					{
+						// -----------------------
+						// Color Based on Behavior
+						// -----------------------
+						// Add color to represent phenotype
+						if (offspring.z == 0)
+							offspring.color = "red";
+						else
+							offspring.color = "blue";
+					}
 					
-					// -----------------------
-					// Color Based on Behavior
-					// -----------------------
-					// Add color to represent phenotype
-					//if (offspring.z == 0)
-					//offspring.color = "red";
-					//else
-					//offspring.color = "blue";
 					// If the one parent is a farmer and one parent is a HG,
 					// 50% chance they become a farmer
 					if (individual.z != mate.z)
 					{
 						offspring.z = rbinom(1, 1, 0.5);
-						
-						//if (offspring.z == 1)
-						//offspring.color = "purple"; // Color Based on Behavior
+						if (Color_option1 == 1)
+						{
+							if (offspring.z == 1)
+								offspring.color = "purple"; // Color Based on Behavior
+						}
 					}
 					
 					// set offspring position
@@ -131,14 +145,17 @@ reproduction()
 			// If teacher is a farmer and individual is a HG
 			if (teacher.z == 1 & individual.z == 0 & chance == 1)
 			{
-				// -----------------------
-				// Color Based on Behavior
-				// -----------------------
-				// Change the HG to green to see the interaction
-				// and change its phenotype (z coordinate) from 0 to 1
-				// to represent the conversion to farmer
-				// Only first generation HG -> F converts are green
-				individual.color = "green";
+				if (Color_option2 == 1)
+				{
+					// -----------------------
+					// Color Based on Behavior
+					// -----------------------
+					// Change the HG to green to see the interaction
+					// and change its phenotype (z coordinate) from 0 to 1
+					// to represent the conversion to farmer
+					// Only first generation HG -> F converts are green
+					individual.color = "green";
+				}
 				individual.z = 1;
 			}
 		}
@@ -171,15 +188,18 @@ reproduction()
 		value = i.countOfMutationsOfType(m1) / 6000;
 		i.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
 		
-		// -----------------------
-		// Color Based on Behavior
-		// -----------------------
-		// HGs are red, farmers are blue 
-		// and converted HG -> F indivduals (1st generation only) are green
-		//if (i.z == 0)
-		//i.color = "red"; // 
-		//else
-		//i.color = "blue";
+		if (Color_scheme == 2)
+		{
+			// -----------------------
+			// Color Based on Behavior
+			// -----------------------
+			// HGs are red, farmers are blue 
+			// and converted HG -> F indivduals (1st generation only) are green
+			if (i.z == 0)
+				i.color = "red";
+			else
+				i.color = "blue";
+		}
 	}
 }
 
