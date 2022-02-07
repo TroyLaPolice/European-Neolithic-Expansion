@@ -21,6 +21,7 @@ initialize()
 	defineConstant("S", 0.1); // spatial competition distance
 	defineConstant("L", 0.005); // Learning rate 
 	defineConstant("M", 0.1); // Mating rate
+	defineConstant("D", 0.1); // Mating & learning distance
 	defineConstant("OMD", 0.05); // Offspring movement away from parents
 	
 	// Right now OMD is the same for both populations but we could make it unique
@@ -52,7 +53,7 @@ initialize()
 	initializeInteractionType(1, "xy", reciprocal=T, maxDistance=S);
 	
 	// spatial mate choice
-	initializeInteractionType(2, "xy", reciprocal=T, maxDistance=0.1);
+	initializeInteractionType(2, "xy", reciprocal=T, maxDistance=D);
 }
 
 first()
@@ -193,8 +194,9 @@ reproduction()
 			// -----------------------
 			// Color Based on Behavior
 			// -----------------------
-			// HGs are red, farmers are blue 
-			// and converted HG -> F indivduals (1st generation only) are green
+			
+			// HGs are red, farmers are blue
+			 
 			if (i.z == 0)
 				i.color = "red";
 			else
