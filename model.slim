@@ -21,7 +21,8 @@ initialize()
 	defineConstant("L", 0.005); // Learning rate 
 	defineConstant("LP", 0.6); // Learning pecentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer 
 	defineConstant("M", 0.1); // Mating rate
-	defineConstant("D", 0.1); // Mating & learning distance
+	defineConstant("MD", 0.1); // Mating distance
+	defineConstant("LD", 0.1); // Learning distance
 	defineConstant("OMD", 0.05); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
 	defineConstant("FMD", 0.006); // How far farmers diffuse away from their location
 	defineConstant("HGMD", 0.01); // How far HGs diffuse away from their location
@@ -50,7 +51,10 @@ initialize()
 	initializeInteractionType(1, "xy", reciprocal=T, maxDistance=S);
 	
 	// spatial mate choice
-	initializeInteractionType(2, "xy", reciprocal=T, maxDistance=D);
+	initializeInteractionType(2, "xy", reciprocal=T, maxDistance=MD);
+	
+	// spatial mate choice
+	initializeInteractionType(3, "xy", reciprocal=T, maxDistance=LD);
 }
 
 first()
@@ -123,51 +127,66 @@ reproduction()
 			}
 		}
 	}
-	
+}
+
+late()
+{
+
 	// ---------------------------------------------------
 	//  LEARNING --> HGs learn to farm from nearby farmers
 	// ---------------------------------------------------
 	
-	// Get a vector of up to 15 of the nearest neighbors within the learning distance (D) 
-	neighbors = i2.nearestNeighbors(individual, 15);
+	i3.evaluate();
 	
-	// Get ratio of HGs to farmers in the neighbors of the individual
-	neighbor_freq = (sum(neighbors.z) / 15);
-	
-	// If the HG is surrounded by a certain ratio of farmers (LP) it has the ablity to convert to farming by learning
-	if (neighbor_freq >= LP)
+	for (individual in p1.individuals)
 	{
-		// choose nearest neighbor as a teacher, within the max distance
-		teacher = i2.nearestNeighbors(individual, 1);
 		
-		// Frequency of the interaction
-		for (i in seqLen(rpois(1, L)))
+		if (individual.z == 1) next;
+		
+		// Get a vector the nearest neighbors within the learning distance (D) 
+		neighbors = i3.nearestNeighbors(individual);
+		
+		// Get ratio of HGs to farmers in the neighbors of the individual
+		neighbor_freq = (sum(neighbors.z) / length(neighbors));
+		
+		// If the HG is surrounded by a certain ratio of farmers (LP) it has the ablity to convert to farming by learning
+		if (neighbor_freq >= LP)
 		{
-			// Only runs if a potential teacher is nearby
-			if (teacher.size())
+			// choose nearest neighbor as a teacher, within the max distance
+			teacher = i3.nearestNeighbors(individual, 1);
+			
+			// Frequency of the interaction
+			for (i in seqLen(rpois(1, L)))
 			{
-				// Binomial choice for teaching
-				chance = rbinom(1, 1, 0.5);
-				
-				// If teacher is a farmer and individual is a HG
-				if (teacher.z == 1 & individual.z == 0 & chance == 1)
+				// Only runs if a potential teacher is nearby
+				if (teacher.size())
 				{
-					if (Color_option2 == 1)
+					// Binomial choice for teaching
+					chance = rbinom(1, 1, 0.5);
+					
+					// If teacher is a farmer and individual is a HG
+					if (teacher.z == 1 & chance == 1)
 					{
-						// -----------------------
-						// Color Based on Behavior
-						// -----------------------
-						// Change the HG to green to see the interaction
-						// and change its phenotype (z coordinate) from 0 to 1
-						// to represent the conversion to farmer
-						// Only first generation HG -> F converts are green
-						individual.color = "green";
+						if (Color_option2 == 1)
+						{
+							// -----------------------
+							// Color Based on Behavior
+							// -----------------------
+							// Change the HG to green to see the interaction
+							// and change its phenotype (z coordinate) from 0 to 1
+							// to represent the conversion to farmer
+							// Only first generation HG -> F converts are green
+							individual.color = "green";
+						}
+						individual.z = 2;
 					}
-					individual.z = 1;
 				}
 			}
 		}
 	}
+	
+	p1.individuals[p1.individuals.z==2].z = 1;
+
 }
 
 1 early()
