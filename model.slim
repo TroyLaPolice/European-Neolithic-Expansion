@@ -31,7 +31,7 @@ initialize()
 	//  PARAMETERS --> Determine Coloring Schemes
 	// ---------------------------------------------------
 	
-	defineConstant("Color_scheme", 1); // Parameter of 1 = Genomic Coloring, 2 = Behavoiral Coloring
+	defineConstant("Color_scheme", 0); // Parameter of 0 = Genomic Coloring, 1 = Behavoiral Coloring
 	defineConstant("Color_option1", 0); // Parameter of 0 = No special color for 1st generation 'hybrid' offspring, 1 = Coloring for 1st generation 'hybrid' offspring
 	defineConstant("Color_option2", 1); // Parameter of 0 = No special color for 1st generation HG individuals who have learned, 1 = Coloring for 1st generation HG individuals who have learned
 	
@@ -93,7 +93,7 @@ reproduction()
 					if (individual.z == 1 & mate.z == 1)
 						offspring.z = 1;
 						
-					if (Color_scheme == 2)
+					if (Color_scheme == 1)
 					{
 						// -----------------------
 						// Color Based on Behavior
@@ -188,7 +188,7 @@ reproduction()
 		value = i.countOfMutationsOfType(m1) / 6000;
 		i.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
 		
-		if (Color_scheme == 2)
+		if (Color_scheme == 1)
 		{
 			// -----------------------
 			// Color Based on Behavior
