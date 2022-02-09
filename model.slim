@@ -5,6 +5,7 @@
 // Figure out realism of clustering
 // Parameter tuning
 // output metrics on the spread
+// Size of map
 // ---------------------------------------------------
 initialize()
 {
@@ -26,6 +27,7 @@ initialize()
 	defineConstant("OMD", 0.05); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
 	defineConstant("FMD", 0.006); // How far farmers diffuse away from their location
 	defineConstant("HGMD", 0.01); // How far HGs diffuse away from their location
+	defineConstant("map", 0); // 0 = black square, 1 = map of europe
 	
 	// ---------------------------------------------------
 	//  PARAMETERS --> Determine Coloring Schemes
@@ -72,6 +74,7 @@ reproduction()
 	if (individual.age > 12) // Reproductive age of the individual must be reached before mating
 	{
 		mate = i2.nearestNeighbors(individual, 1);
+		if (mate.size()){
 		if (mate.age > 12) // Reproductive age of the individual must be reached before mating
 		{
 			// Frequency of the interaction
@@ -124,6 +127,7 @@ reproduction()
 					while (!p1.pointInBounds(pos));
 					offspring.setSpatialPosition(pos);
 				}
+			}
 			}
 		}
 	}
@@ -266,6 +270,23 @@ late()
 			ind.setSpatialPosition(newPos);
 		}
 	}
+}
+
+late(){
+
+if (map == 1){
+p1.setSpatialBounds(c(0.0, 0.0, 410.0, 356.0));
+
+ mapImage = Image("C:/Users/Troy LaPolice/OneDrive/School/Documents/Grad School/Huber Lab/europe.png");
+p1.defineSpatialMap("world", "xy", 1.0 - mapImage.floatK,
+ valueRange=c(0.0, 1.0), colors=c("#0000CC", "#2ec400"));
+
+// start near a specific map location
+for (ind in p1.individuals) {
+ ind.x = rnorm(1, 300.0, 1.0);
+ ind.y = rnorm(1, 100.0, 1.0); 
+}
+}
 }
 
 1:10000 late()
