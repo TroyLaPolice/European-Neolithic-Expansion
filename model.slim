@@ -3,7 +3,6 @@
 // ---------------------------------------------------
 // Make HGs move in groups
 // Figure out realism of clustering
-// Individual K for each group (HGs and Farmers)
 // Parameter tuning
 // output metrics on the spread
 // ---------------------------------------------------
@@ -15,7 +14,8 @@ initialize()
 	// ---------------------------------------------------
 	//  PARAMETERS --> Initialize Constant Params
 	// ---------------------------------------------------
-	defineConstant("K", 1000); // carrying capacity 
+	defineConstant("HGK", 600); // carrying capacity for HGs
+	defineConstant("FK", 1000); // carrying capacity for farmers
 	defineConstant("SN", 1000); // Starting number of individuals
 	defineConstant("S", 0.1); // spatial competition distance
 	defineConstant("L", 0.005); // Learning rate 
@@ -30,7 +30,7 @@ initialize()
 	// ---------------------------------------------------
 	//  PARAMETERS --> Determine Coloring Schemes
 	// ---------------------------------------------------
-	defineConstant("Color_scheme", 0); // Parameter of 0 = Genomic Coloring, 1 = Behavoiral Coloring
+	defineConstant("Color_scheme", 1); // Parameter of 0 = Genomic Coloring, 1 = Behavoiral Coloring
 	defineConstant("Color_option1", 0); // Parameter of 0 = No special color for 1st generation 'hybrid' offspring, 1 = Coloring for 1st generation 'hybrid' offspring
 	defineConstant("Color_option2", 1); // Parameter of 0 = No special color for 1st generation HG individuals who have learned, 1 = Coloring for 1st generation HG individuals who have learned
 	
@@ -233,10 +233,15 @@ early()
 	i1.evaluate();
 	
 	// spatial competition provides density-dependent selection
-	inds = p1.individuals;
-	competition = i1.totalOfNeighborStrengths(inds);
+	farmers = p1.individuals[p1.individuals.z == 1];
+	competition = i1.totalOfNeighborStrengths(farmers);
 	competition = (competition + 1) / (PI * S^2);
-	inds.fitnessScaling = K / competition;
+	farmers.fitnessScaling = FK / competition;
+	
+	HGs = p1.individuals[p1.individuals.z == 0];
+	competition = i1.totalOfNeighborStrengths(HGs);
+	competition = (competition + 1) / (PI * S^2);
+	HGs.fitnessScaling = HGK / competition;
 }
 
 late()
