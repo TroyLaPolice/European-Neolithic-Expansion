@@ -27,7 +27,8 @@ initialize()
 	defineConstant("OMD", 0.05); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
 	defineConstant("FMD", 0.006); // How far farmers diffuse away from their location
 	defineConstant("HGMD", 0.01); // How far HGs diffuse away from their location
-	defineConstant("map", 0); // 0 = black square, 1 = map of europe
+	defineConstant("map", 1); // 0 = black square, 1 = map of europe
+	defineConstant("mapfile", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/europe.png"); // Path to URL
 	
 	// ---------------------------------------------------
 	//  PARAMETERS --> Determine Coloring Schemes
@@ -271,8 +272,10 @@ late()
 {
 	if (map == 1)
 	{
+	
+		// Set up map
 		p1.setSpatialBounds(c(0.0, 0.0, 410.0, 356.0));
-		mapImage = Image("C:/Users/Troy LaPolice/OneDrive/School/Documents/Grad School/Huber Lab/europe.png");
+		mapImage = Image(mapfile);
 		p1.defineSpatialMap("world", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#0000CC", "#2ec400"));
 		
 		// start near a specific map location
