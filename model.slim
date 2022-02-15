@@ -2,10 +2,8 @@
 // To Do:
 // ---------------------------------------------------
 // Make HGs move in groups
-// Figure out realism of clustering
 // Parameter tuning
 // output metrics on the spread
-// Size of map
 // ---------------------------------------------------
 initialize()
 {
@@ -25,7 +23,7 @@ initialize()
 	defineConstant("MD", 0.1); // Mating distance
 	defineConstant("LD", 0.1); // Learning distance
 	defineConstant("OMD", 0.05); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
-	defineConstant("FMD", 0.006); // How far farmers diffuse away from their location
+	defineConstant("FMD", 0.00006); // How far farmers diffuse away from their location
 	defineConstant("HGMD", 0.01); // How far HGs diffuse away from their location
 	defineConstant("map", 1); // 0 = black square, 1 = map of europe
 	defineConstant("mapfile", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/europe.png"); // Path to URL
@@ -122,12 +120,22 @@ reproduction()
 									offspring.color = "purple"; // Color Based on Behavior
 							}
 						}
-						
-						// set offspring position
-						do
-							pos = individual.spatialPosition + rnorm(2, 0, OMD);
-						while (!p1.pointInBounds(pos));
-						offspring.setSpatialPosition(pos);
+						if (map == 1)
+						{
+							// set offspring position if map = 1
+							do
+								pos = individual.spatialPosition + rnorm(2, 0, OMD);
+							while (!p1.pointInBounds(pos) | p1.spatialMapValue("world", pos) == 0.0);
+							offspring.setSpatialPosition(pos);
+						}
+						if (map != 1)
+						{
+							// set offspring position if map != 1
+							do
+								pos = individual.spatialPosition + rnorm(2, 0, OMD);
+							while (!p1.pointInBounds(pos));
+							offspring.setSpatialPosition(pos);
+						}
 					}
 				}
 			}
@@ -200,31 +208,36 @@ late()
 	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
 	// Make individuals at right boundary farmers
 	p1.individuals.z = 0;
-	p1.individuals[p1.individuals.x > 0.9].z = 1;
-	
-	// Tag genomic ancestry of farmers with marker mutations (m1)
-	// Each marker mutation represents 1Mb
-	indFarmers = p1.individuals[p1.individuals.z == 1];
-	indFarmers.genomes.addNewMutation(m1, 0.0, 0:2999);
-	
-	// Add color to represent phenotype
-	for (i in p1.individuals)
+	if (map != 1)
 	{
-		// -----------------------
-		// Color Based on Phenotype
-		// -----------------------
-		value = i.countOfMutationsOfType(m1) / 6000;
-		i.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
-		if (Color_scheme == 1)
+		// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
+		// Make individuals at right boundary farmers
+		p1.individuals[p1.individuals.x > 0.9 & p1.individuals.y < 0.25].z = 1;
+		
+		// Tag genomic ancestry of farmers with marker mutations (m1)
+		// Each marker mutation represents 1Mb
+		indFarmers = p1.individuals[p1.individuals.z == 1];
+		indFarmers.genomes.addNewMutation(m1, 0.0, 0:2999);
+		
+		// Add color to represent phenotype
+		for (i in p1.individuals)
 		{
 			// -----------------------
-			// Color Based on Behavior
+			// Color Based on Phenotype
 			// -----------------------
-			// HGs are red, farmers are blue
-			if (i.z == 0)
-				i.color = "red";
-			else
-				i.color = "blue";
+			value = i.countOfMutationsOfType(m1) / 6000;
+			i.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
+			if (Color_scheme == 1)
+			{
+				// -----------------------
+				// Color Based on Behavior
+				// -----------------------
+				// HGs are red, farmers are blue
+				if (i.z == 0)
+					i.color = "red";
+				else
+					i.color = "blue";
+			}
 		}
 	}
 }
@@ -246,43 +259,99 @@ early()
 
 late()
 {
-	// move around a bit
+	// move around
 	for (ind in p1.individuals)
 	{
-		if (ind.z == 1)
+		if (map == 1)
 		{
-			// How far farmers diffuse away from their location			
-			do
-				newPos = ind.spatialPosition + runif(2, -FMD, FMD);
-			while (!p1.pointInBounds(newPos));
-			ind.setSpatialPosition(newPos);
+			if (ind.z == 1)
+			{
+				// How far farmers diffuse away from their location			
+				do
+					newPos = ind.spatialPosition + runif(2, -FMD, FMD);
+				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
+				ind.setSpatialPosition(newPos);
+			}
+			if (ind.z == 0)
+			{
+				// How far HGs diffuse away from their location
+				do
+					newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
+				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
+				ind.setSpatialPosition(newPos);
+			}
 		}
-		if (ind.z == 0)
+		if (map != 1)
 		{
-			// How far HGs diffuse away from their location
-			do
-				newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
-			while (!p1.pointInBounds(newPos));
-			ind.setSpatialPosition(newPos);
+			for (ind in p1.individuals)
+			{
+				if (ind.z == 1)
+				{
+					// How far farmers diffuse away from their location			
+					do
+						newPos = ind.spatialPosition + runif(2, -FMD, FMD);
+					while (!p1.pointInBounds(newPos));
+					ind.setSpatialPosition(newPos);
+				}
+				if (ind.z == 0)
+				{
+					// How far HGs diffuse away from their location
+					do
+						newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
+					while (!p1.pointInBounds(newPos));
+					ind.setSpatialPosition(newPos);
+				}
+			}
 		}
 	}
 }
 
-late()
+1 early()
 {
 	if (map == 1)
 	{
-	
 		// Set up map
-		p1.setSpatialBounds(c(0.0, 0.0, 410.0, 356.0));
+		p1.setSpatialBounds(c(0.0, 0.0, 1.0, 1.0));
 		mapImage = Image(mapfile);
-		p1.defineSpatialMap("world", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#0000CC", "#2ec400"));
+		p1.defineSpatialMap("world", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#111111"));
 		
 		// start near a specific map location
 		for (ind in p1.individuals)
 		{
-			ind.x = rnorm(1, 300.0, 1.0);
-			ind.y = rnorm(1, 100.0, 1.0);
+			do
+				newPos = c(runif(1, 0, 1.0), runif(1, 0, 1.0));
+			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
+			ind.setSpatialPosition(newPos);
+		}
+		
+		// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
+		// Make individuals near Turkey for farmers
+		p1.individuals[p1.individuals.x > 0.9 & p1.individuals.y < 0.25].z = 1;
+		
+		// Tag genomic ancestry of farmers with marker mutations (m1)
+		// Each marker mutation represents 1Mb
+		indFarmers = p1.individuals[p1.individuals.z == 1];
+		indFarmers.genomes.addNewMutation(m1, 0.0, 0:2999);
+		
+		// Add color to represent phenotype
+		for (i in p1.individuals)
+		{
+			// -----------------------
+			// Color Based on Phenotype
+			// -----------------------
+			value = i.countOfMutationsOfType(m1) / 6000;
+			i.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
+			if (Color_scheme == 1)
+			{
+				// -----------------------
+				// Color Based on Behavior
+				// -----------------------
+				// HGs are red, farmers are blue
+				if (i.z == 0)
+					i.color = "red";
+				else
+					i.color = "blue";
+			}
 		}
 	}
 }
