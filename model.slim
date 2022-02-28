@@ -1,10 +1,16 @@
-// ---------------------------------------------------
-// To Do:
-// ---------------------------------------------------
-// Make HGs move in groups
-// Parameter tuning
-// output metrics on the spread
-// ---------------------------------------------------
+// Parameters:
+// Width/Length Square Aproximation of Europe ~ 4,000 km
+// On the map on screen 1km = (1 / 4,000) = 0.00025
+
+
+// To DO:
+
+// Deal with age, make sure people can't live to 300
+// Output on a series of time points on the ancestry ratios and phenotype
+// Make a ReadMe methods sorta thing to describe all this
+// Tune parameters
+
+
 initialize()
 {
 	initializeSLiMModelType("nonWF");
@@ -13,27 +19,66 @@ initialize()
 	// ---------------------------------------------------
 	//  PARAMETERS --> Initialize Constant Params
 	// ---------------------------------------------------
+	
+	
+	// Carrying Capacities and Pop Sizes:
+	// ***********************************
 	defineConstant("HGK", 600); // carrying capacity for HGs
-	defineConstant("FK", 1000); // carrying capacity for farmers
+	defineConstant("FK", 2000); // carrying capacity for farmers 
+	
+	// http://reff.f.bg.ac.rs/bitstream/handle/123456789/1234/1231.pdf?sequence=1&isAllowed=y)
+	// https://bioone.org/journals/human-biology/volume-81/issue-3/027.081.0313/Estimations-of-Population-Density-for-Selected-Periods-Between-the-Neolithic/10.3378/027.081.0313.full
+	
 	defineConstant("SN", 1000); // Starting number of individuals
-	defineConstant("S", 0.1); // spatial competition distance
+	
+	
+	// Movement and interaction Distances (ENTER IN SQUARE KILOMETERS):
+	// ***********************************
+	defineConstant("S_km", 100); // spatial competition distance
+	defineConstant("MD_km", 100); // Mating distance
+	defineConstant("LD_km", 100); // Learning distance
+	defineConstant("OMD_km", 100); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
+	defineConstant("FMD_km", 100); // How far farmers diffuse away from their location
+	defineConstant("HGMD_km", 500); // How far HGs diffuse away from their location
+	
+	
+	// Learning and mating rate params:
+	// ***********************************
 	defineConstant("L", 0.005); // Learning rate 
 	defineConstant("LP", 0.6); // Learning pecentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer 
 	defineConstant("M", 0.1); // Mating rate
-	defineConstant("MD", 0.1); // Mating distance
-	defineConstant("LD", 0.1); // Learning distance
-	defineConstant("OMD", 0.05); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
-	defineConstant("FMD", 0.00006); // How far farmers diffuse away from their location
-	defineConstant("HGMD", 0.01); // How far HGs diffuse away from their location
-	defineConstant("map", 1); // 0 = black square, 1 = map of europe
-	defineConstant("mapfile", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/europe.png"); // Path to URL
+	
 	
 	// ---------------------------------------------------
-	//  PARAMETERS --> Determine Coloring Schemes
+	// RUN TIME PREFERENCE PARAMETERS
 	// ---------------------------------------------------
+	
+	
+	// Determine Coloring Schemes:
+	// ***********************************	
 	defineConstant("Color_scheme", 1); // Parameter of 0 = Genomic Coloring, 1 = Behavoiral Coloring
 	defineConstant("Color_option1", 0); // Parameter of 0 = No special color for 1st generation 'hybrid' offspring, 1 = Coloring for 1st generation 'hybrid' offspring
 	defineConstant("Color_option2", 1); // Parameter of 0 = No special color for 1st generation HG individuals who have learned, 1 = Coloring for 1st generation HG individuals who have learned
+	
+	
+	// Map Prefs:
+	// ***********************************	
+	defineConstant("map", 1); // 0 = black square, 1 = map of europe
+	defineConstant("mapfile", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/europe_crop.png"); // Path to URL
+	defineConstant("map_size_km2", 4000);
+	
+	
+	// ---------------------------------------------------
+	//  PARAMETERS FOR MAP SCALING (NO NEED TO ADJUST)
+	// ---------------------------------------------------
+	
+	defineConstant("S", (S_km / map_size_km2)); // spatial competition distance
+	defineConstant("MD", (MD_km / map_size_km2)); // Mating distance
+	defineConstant("LD", (LD_km / map_size_km2)); // Learning distance
+	defineConstant("OMD", (OMD_km / map_size_km2)); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
+	defineConstant("FMD", (FMD_km / map_size_km2)); // How far farmers diffuse away from their location
+	defineConstant("HGMD", (HGMD_km / map_size_km2)); // How far HGs diffuse away from their location
+
 	
 	// ----------------------------------------------------
 	//  GENETIC COMPONENT --> Initialize Genomic Elements
