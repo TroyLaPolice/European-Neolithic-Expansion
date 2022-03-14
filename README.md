@@ -15,7 +15,7 @@ The simulation can be run either on the map of Europe or on a simple black box.
 
 ### Color schemes:
 
-## Phenotypic coloring
+#### Phenotypic coloring
 Hunter gatherers (HGs) and farmers can be represented as colors by phenotype: The general defaults are listed below.
 Another color can also be turned on to represent first generation offspring of a farmer and a HG. By default this is off.
 ```
@@ -24,7 +24,7 @@ Blue: Farmer
 Green: Hunter Gatherer who became a farmer by learning (Phenotypically now a farmer)
 ```
 
-## Genotypic coloring
+#### Genotypic coloring
 The genotypic coloring scheme shows the proportion of farmer ancestry in the population rather than the phenotype of HG vs farmer.
 The coloring is a spectrum from black to blue. The gradation is as follows:
 ```
@@ -35,7 +35,7 @@ Black: HG
 
 ## Code:
 
-## Initialize function
+### Initialize function
 
 ```
 initialize()
@@ -46,7 +46,7 @@ initialize()
 
 This bit of code begins the model and creates the non-WF model and the xy dimensionality of the map.
 
-### Parameters
+#### Parameters
 
 ```
   // ---------------------------------------------------
@@ -56,7 +56,7 @@ This bit of code begins the model and creates the non-WF model and the xy dimens
 
 *Next begins the set up where parameters for the model will be set. Some of these will not need to be touched but some should be tuned to your liking.*
 
-#### Parameters for how the population grows, interacts and moves
+##### Parameters for how the population grows, interacts and moves
 
 ```
   // Carrying Capacities and Pop Sizes:
@@ -110,7 +110,7 @@ a population that was not limited by its density." -Benjamin C. Haller and Phili
 The ages of individuals correspond to the indices of the life table.
  
  
-#### Parameters for user preferences on how the model will look and run
+##### Parameters for user preferences on how the model will look and run
 
 ```
 	// ---------------------------------------------------
