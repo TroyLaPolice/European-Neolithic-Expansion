@@ -102,10 +102,10 @@ The actual map will use the fraction of the 1x1 square that is equivalent to 1km
  
  Lastly, the age related mortality table is a life table. It is implimented similarly to SLiM recipe 16.2 Age structure (a life table model) by Benjamin C. Haller and Philipp W. Messer. It is decribed in the [manual](http://benhaller.com/slim/SLiM_Manual.pdf) in a succinct and useful way:
  
-```
-"the addition of the defined constant [age_scale] ... is our life table. It gives the probability of mortality for each age; newly generated juveniles have a mortality of 0.7 (i.e., 70%), then the mortality drops to zero for several years, and then it ramps gradually upward with increasing age until it reaches 1.0 [at which all individuals of this age] will die. Note that this is only the age-related mortality; density-dependence will also cause mortality, as we will see below, but that will be additional to this age-related mortality, which would occur even in
-a population that was not limited by its density." -Benjamin C. Haller and Philipp W. Messer (SLiM Manual)
-```
+*"the addition of the defined constant [age_scale] ... is our life table. 
+It gives the probability of mortality for each age; newly generated juveniles have a mortality of 0.7 (i.e., 70%), then the mortality drops to zero for several years, and then it ramps gradually upward with increasing age until it reaches 1.0 [at which all individuals of this age] will die. Note that this is only the age-related mortality; density-dependence will also cause mortality, as we will see below, but that will be additional to this age-related mortality, which would occur even in
+a population that was not limited by its density." -Benjamin C. Haller and Philipp W. Messer (SLiM Manual)*
+
 
 The ages of individuals correspond to the indices of the life table.
  
