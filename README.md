@@ -15,7 +15,7 @@ The simulation can be run either on the map of Europe or on a simple black box.
 
 ### Color schemes:
 
-#### Phenotypic coloring
+#### Behavioral coloring
 Hunter gatherers (HGs) and farmers can be represented as colors by phenotype: The general defaults are listed below.
 Another color can also be turned on to represent first generation offspring of a farmer and a HG. By default this is off.
 ```
