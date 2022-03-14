@@ -132,7 +132,7 @@ Color_scheme is a binary choice for if you want genomic coloring gradient or phe
 
 The next two are options that determine if you want special colors for specific conditons like those who have recently learned or first generation "hybrids"
 
-*Preferences regarding the map the individuals move around on*
+*Preferences regarding the map on which the individuals move*
 
 ```
 	
@@ -146,3 +146,59 @@ The next two are options that determine if you want special colors for specific 
 The first parameter determines if you would like a black square for simplicity or a map of europe
 
 The next is a path in YOUR file system that the map file can be found in. The map is avaliable for download in the repo. This path points to where the map is in your system so it MUST be changed to fit your file stucture.
+
+*Next are several parameters that will not typically need to be changed but some can be if you want*
+
+```
+// ---------------------------------------------------
+	//  PARAMETERS FOR MAP SCALING (NO NEED TO ADJUST)
+	// ---------------------------------------------------
+	
+	defineConstant("S", (S_km / map_size_km2)); // spatial competition distance
+	defineConstant("MD", (MD_km / map_size_km2)); // Mating distance
+	defineConstant("LD", (LD_km / map_size_km2)); // Learning distance
+	defineConstant("OMD", (OMD_km / map_size_km2)); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
+	defineConstant("FMD", (FMD_km / map_size_km2)); // How far farmers diffuse away from their location
+	defineConstant("HGMD", (HGMD_km / map_size_km2)); // How far HGs diffuse away from their location
+```
+
+This block of code simply does the conversion from the values we input in km to make the model work in a 1x1 square.
+This is handy becuase it avoids you having to do the math yourself. **This does not need to be adjusted**
+
+*The next two blocks simply initialize the genetic component that is the marker for farmer ancesty and the interactions between individuals*
+
+```
+	
+	// ----------------------------------------------------
+	//  GENETIC COMPONENT --> Initialize Genomic Elements
+	// ----------------------------------------------------
+	initializeMutationType("m1", 0.5, "f", 0.0); // Tag farmer ancestry
+	m1.convertToSubstitution = F;
+	initializeGenomicElementType("g1", m1, 1.0);
+	initializeGenomicElement(g1, 0, 2999);
+	initializeMutationRate(0.0);
+	initializeRecombinationRate(0.01);
+```
+
+This introduces a marker mutation for farmers that we can see recombine with HGs as the simulation progresses. This is how genotypic coloring works.
+
+```
+	// ---------------------------------------------------
+	//  INTERACTIONS --> Interaction Initialization
+	// ---------------------------------------------------
+	// spatial competition
+	initializeInteractionType(1, "xy", reciprocal=T, maxDistance=S);
+	
+	// spatial mate choice
+	initializeInteractionType(2, "xy", reciprocal=T, maxDistance=MD);
+	
+	// spatial mate choice
+	initializeInteractionType(3, "xy", reciprocal=T, maxDistance=LD);
+```
+
+This initializes the interaction types between individuals:
+*1) Spatial competion between nearby individuals
+*2) Mating
+*3) Learning
+
+These all take place within a certain distance range specified by params above.
