@@ -35,7 +35,7 @@ Black: HG
 
 ## Code:
 
-### Initialize function
+#### Initialize function
 
 ```
 initialize()
@@ -46,7 +46,7 @@ initialize()
 
 This bit of code begins the model and creates the non-WF model and the xy dimensionality of the map.
 
-#### Parameters
+##### Parameters
 
 ```
   // ---------------------------------------------------
@@ -56,7 +56,7 @@ This bit of code begins the model and creates the non-WF model and the xy dimens
 
 *Next begins the set up where parameters for the model will be set. Some of these will not need to be touched but some should be tuned to your liking.*
 
-##### Parameters for how the population grows, interacts and moves
+###### Parameters for how the population grows, interacts and moves
 
 ```
   // Carrying Capacities and Pop Sizes:
@@ -110,7 +110,7 @@ a population that was not limited by its density." -Benjamin C. Haller and Phili
 The ages of individuals correspond to the indices of the life table.
  
  
-##### Parameters for user preferences on how the model will look and run
+###### Parameters for user preferences on how the model will look and run
 
 ```
 	// ---------------------------------------------------
