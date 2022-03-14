@@ -249,7 +249,7 @@ It defines the map and its bounds.
 	for (i in p1.individuals)
 	{
 		// -----------------------
-		// Color Based on Phenotype
+		// Color Based on Genotype
 		// -----------------------
 		value = i.countOfMutationsOfType(m1) / 6000;
 		i.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
@@ -310,7 +310,7 @@ reproduction()
 						offspring = subpop.addCrossed(individual, mate);
 						
 						// -----------------------
-						// Color Based on Phenotype
+						// Color Based on Genotype
 						// -----------------------
 						value = offspring.countOfMutationsOfType(m1) / 6000;
 						offspring.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
@@ -369,5 +369,169 @@ reproduction()
 ```
 
 First the simulation looks for possible mates nearby and then the reproduction function is run.
+
 This reproduction function runs for each individual each generation.
 In the reproduction function the phenotype of new offspring is tagged with the Z coordinate of the individual. We also see this in the function where the individuals are initialized at the start of the simulation.
+
+The offspring then moves away from its parents within a specified distance range. The code is slightly different given the map or square. This is becuase the individuals can't persist in the ocean.
+
+Color is also specified here. It can be based on ancestry proportion or simply what the individual is behaviorally- HG or farmer.
+
+#### Learning
+
+```
+late()
+{
+	// ---------------------------------------------------
+	//  LEARNING --> HGs learn to farm from nearby farmers
+	// ---------------------------------------------------
+	i3.evaluate();
+	for (individual in p1.individuals)
+	{
+		if (individual.z == 1)
+			next;
+		
+		// Get a vector the nearest neighbors within the learning distance (D) 
+		neighbors = i3.nearestNeighbors(individual);
+		
+		// Get ratio of HGs to farmers in the neighbors of the individual
+		neighbor_freq = (sum(neighbors.z) / length(neighbors));
+		
+		// If the HG is surrounded by a certain ratio of farmers (LP) it has the ablity to convert to farming by learning
+		if (neighbor_freq >= LP)
+		{
+			// choose nearest neighbor as a teacher, within the max distance
+			teacher = i3.nearestNeighbors(individual, 1);
+			
+			// Frequency of the interaction
+			for (i in seqLen(rpois(1, L)))
+			{
+				// Only runs if a potential teacher is nearby
+				if (teacher.size())
+				{
+					// Binomial choice for teaching
+					chance = rbinom(1, 1, 0.5);
+					
+					// If teacher is a farmer and individual is a HG
+					if (teacher.z == 1 & chance == 1)
+					{
+						if (Color_option2 == 1)
+						{
+							// -----------------------
+							// Color Based on Behavior
+							// -----------------------
+							// Change the HG to green to see the interaction
+							// and change its phenotype (z coordinate) from 0 to 1
+							// to represent the conversion to farmer
+							// Only first generation HG -> F converts are green
+							individual.color = "green";
+						}
+						individual.z = 2;
+					}
+				}
+			}
+		}
+	}
+	p1.individuals[p1.individuals.z == 2].z = 1;
+}
+```
+
+Learning is implemented in a similar way to reproduction. Where it differs is that a specified ratio of farmers to HGs must be met for learning to happen.
+
+Individual HGs can learn from farmers and their z coordinate changes but their ancestry stays the same.
+
+#### Competition
+
+```
+early()
+{
+	i1.evaluate();
+	
+	// spatial competition provides density-dependent selection
+	farmers = p1.individuals[p1.individuals.z == 1];
+	competition = i1.totalOfNeighborStrengths(farmers);
+	competition = (competition + 1) / (PI * S^2);
+	farmers.fitnessScaling = FK / competition;
+	HGs = p1.individuals[p1.individuals.z == 0];
+	competition = i1.totalOfNeighborStrengths(HGs);
+	competition = (competition + 1) / (PI * S^2);
+	HGs.fitnessScaling = HGK / competition;
+```
+
+This part handles competion between nearby individuals. This is density dependent. There can be different K's for HGs and farmers here.
+
+```
+	// life table based individual mortality
+	inds = p1.individuals;
+	ages = inds.age;
+	mortality = age_scale[ages];
+	survival = 1 - mortality;
+	inds.fitnessScaling = survival;
+	
+	// density-dependence, factoring in individual mortality
+	p1.fitnessScaling = K / (p1.individualCount * mean(survival));
+}
+```
+
+This next part keeps individuals from living beyond realistic limits. Without this individuals in the sim can live hundreds of years becuase death it not dependent on age, only population density. (See life table above)
+
+#### Movement of individuals
+
+```
+late()
+{
+	// move around
+	for (ind in p1.individuals)
+	{
+		if (map == 1)
+		{
+			if (ind.z == 1)
+			{
+				// How far farmers diffuse away from their location			
+				do
+					newPos = ind.spatialPosition + runif(2, -FMD, FMD);
+				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
+				ind.setSpatialPosition(newPos);
+			}
+			if (ind.z == 0)
+			{
+				// How far HGs diffuse away from their location
+				do
+					newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
+				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
+				ind.setSpatialPosition(newPos);
+			}
+		}
+		if (map != 1)
+		{
+			for (ind in p1.individuals)
+			{
+				if (ind.z == 1)
+				{
+					// How far farmers diffuse away from their location			
+					do
+						newPos = ind.spatialPosition + runif(2, -FMD, FMD);
+					while (!p1.pointInBounds(newPos));
+					ind.setSpatialPosition(newPos);
+				}
+				if (ind.z == 0)
+				{
+					// How far HGs diffuse away from their location
+					do
+						newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
+					while (!p1.pointInBounds(newPos));
+					ind.setSpatialPosition(newPos);
+				}
+			}
+		}
+	}
+}
+```
+
+Movement here is implemented in two different ways depending on if you want a map or not. This is becuase individuals cant persist in the ocean.
+
+If the map is specified the individuals cant move to locations outside of the bounds of the map. They can potentially jump across the water (simulating water travel) to other land masses assuming it is not beyond their movement range, but they cannot stay in the ocean.
+
+If the square is used movement is a bit more simple.
+
+In both cases the individuals have different distances they can travel based on if they are a HG or a farmer. This is set up above in the parameters. This allows for simulation that HGs are more migratory but farmers are more localized around their farm.
