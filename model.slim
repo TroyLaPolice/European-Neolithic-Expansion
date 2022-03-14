@@ -118,7 +118,7 @@ reproduction()
 						offspring = subpop.addCrossed(individual, mate);
 						
 						// -----------------------
-						// Color Based on Phenotype
+						// Color Based on Genotype
 						// -----------------------
 						value = offspring.countOfMutationsOfType(m1) / 6000;
 						offspring.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
@@ -255,7 +255,7 @@ late()
 		for (i in p1.individuals)
 		{
 			// -----------------------
-			// Color Based on Phenotype
+			// Color Based on Genotype
 			// -----------------------
 			value = i.countOfMutationsOfType(m1) / 6000;
 			i.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
@@ -384,7 +384,6 @@ late()
 		// -----------------------
 		value = i.countOfMutationsOfType(m1) / 6000;
 		i.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
-		
 		if (Color_scheme == 1)
 		{
 			// -----------------------
@@ -401,7 +400,7 @@ late()
 
 1:10000 late()
 {
-	// log the ratio of farmers in the total population
+	// log the ratio of farmers in the total population to file
 	ratio = paste(sim.generation, (sum(p1.individuals.z) / p1.individuals.length()));
 	writeFile("C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/sim_farmer_ratio.txt", ratio, append=T);
 }
