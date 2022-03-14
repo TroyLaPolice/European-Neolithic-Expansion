@@ -118,9 +118,8 @@ The ages of individuals correspond to the indices of the life table.
 	// ---------------------------------------------------
 ```
 
-First, we will look at coloring schemes. These are discribed at the top of the markdown.
+*First, we will look at coloring schemes. These are discribed at the top of the markdown.*
 
-*Color schemes*
 ```
 	// Determine Coloring Schemes:
 	// ***********************************	
