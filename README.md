@@ -267,9 +267,13 @@ It defines the map and its bounds.
 ```
 
 This portion sets up the z cordinate for indivuals and adds the marker mutation.
-The z cordinate here represents the behavoral phenotype- farming vs HGing
+
+The z cordinate here represents the behavoral phenotype- farming vs HGing.
+
 Individuals located near Turkey on the map begin as farmers and slowly expand throughout Europe.
+
 This portion also sets up how the coloring schemes work. 
+
 It sets it up both by phenotype (behavorial) coloring and genomic coloring based on user provided preference above.
 
 #### Reproduction
