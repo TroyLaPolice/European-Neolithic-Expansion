@@ -3,7 +3,7 @@
 
 ## About the simulation
 
-This simulation models the interaction between Hunter Gatherers and Farmers in Neolthic Europe.
+This simulation models the interaction between Hunter Gatherers and Farmers in Neolithic Europe.
 It represents the expansion of farming throughout Europe during this time period.
 It is a Non-WF model featuring spatial competition, reproduction and learning. It is a 2D spatial model that can be displayed on a map.
 
@@ -67,7 +67,7 @@ This bit of code begins the model and creates the non-WF model and the xy dimens
 	defineConstant("FK", 2000); // carrying capacity for farmers for density dependent scaling
 	defineConstant("K", 1300); // general k for age fitness scaling
  ```
-These parameters discribe the starting number of individuals and the carrying capacity for HGs and farmers as well as a number used for the fitness scaling by age.
+These parameters describe the starting number of individuals and the carrying capacity for HGs and farmers as well as a number used for the fitness scaling by age.
 These parameters should be adjusted to your liking.
 
 ```
@@ -88,7 +88,7 @@ The actual map will use the fraction of the 1x1 square that is equivalent to 1km
 	// Learning, death and mating rate params:
 	// ***********************************
 	defineConstant("L", 0.005); // Learning rate 
-	defineConstant("LP", 0.6); // Learning pecentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer 
+	defineConstant("LP", 0.6); // Learning percentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer 
 	defineConstant("M", 0.1); // Mating rate
 	defineConstant("min_repro_age", 12); // Individuals MUST be OLDER than this age to reproduce
 	
@@ -101,9 +101,9 @@ The actual map will use the fraction of the 1x1 square that is equivalent to 1km
  For example, if a given area is majority HG it may be less likely that the minority farmers teach. 
  This of course can be changed as you see fit. By default here we see the param is 60%.
  
- Next is a minimum age required for reproduction. Inidividuals MUST BE OLDER than the provided age in this parameter for them to be able to reproduce. This prevents infants and small children from being able to reproduce which is unrealistic.
+ Next is a minimum age required for reproduction. Individuals MUST BE OLDER than the provided age in this parameter for them to be able to reproduce. This prevents infants and small children from being able to reproduce which is unrealistic.
  
- Lastly, the age related mortality table is a life table. It is implimented similarly to SLiM recipe 16.2 Age structure (a life table model) by Benjamin C. Haller and Philipp W. Messer. It is decribed in the [manual](http://benhaller.com/slim/SLiM_Manual.pdf) in a succinct and useful way:
+ Lastly, the age related mortality table is a life table. It is implemented similarly to SLiM recipe 16.2 Age structure (a life table model) by Benjamin C. Haller and Philipp W. Messer. It is described in the [manual](http://benhaller.com/slim/SLiM_Manual.pdf) in a succinct and useful way:
  
 *"the addition of the defined constant [age_scale] ... is our life table. 
 It gives the probability of mortality for each age; newly generated juveniles have a mortality of 0.7 (i.e., 70%), then the mortality drops to zero for several years, and then it ramps gradually upward with increasing age until it reaches 1.0 [at which all individuals of this age] will die. Note that this is only the age-related mortality; density-dependence will also cause mortality, as we will see below, but that will be additional to this age-related mortality, which would occur even in
@@ -121,18 +121,18 @@ The ages of individuals correspond to the indices of the life table.
 	// ---------------------------------------------------
 ```
 
-*First, we will look at coloring schemes. These are discribed at the top of the markdown.*
+*First, we will look at coloring schemes. These are described at the top of the markdown.*
 
 ```
 	// Determine Coloring Schemes:
 	// ***********************************	
-	defineConstant("Color_scheme", 1); // Parameter of 0 = Genomic Coloring, 1 = Behavoiral Coloring
+	defineConstant("Color_scheme", 1); // Parameter of 0 = Genomic Coloring, 1 = Behavioral Coloring
 	defineConstant("Color_option1", 0); // Parameter of 0 = No special color for 1st generation 'hybrid' offspring, 1 = Coloring for 1st generation 'hybrid' offspring
 	defineConstant("Color_option2", 1); // Parameter of 0 = No special color for 1st generation HG individuals who have learned, 1 = Coloring for 1st generation HG individuals who have learned
 ```
-Color_scheme is a binary choice for if you want genomic coloring gradient or phenotypic behavorial coloring
+Color_scheme is a binary choice for if you want genomic coloring gradient or phenotypic behavioral coloring
 
-The next two are options that determine if you want special colors for specific conditons like those who have recently learned or first generation "hybrids"
+The next two are options that determine if you want special colors for specific conditions like those who have recently learned or first generation "hybrids"
 
 *Preferences regarding the map on which the individuals move*
 
@@ -145,9 +145,9 @@ The next two are options that determine if you want special colors for specific 
 	defineConstant("map_size_km2", 4000);
 ```
 
-The first parameter determines if you would like a black square for simplicity or a map of europe
+The first parameter determines if you would like a black square for simplicity or a map of Europe
 
-The next is a path in YOUR file system that the map file can be found in. The map is avaliable for download in the repo. This path points to where the map is in your system so it MUST be changed to fit your file stucture.
+The next is a path in YOUR file system that the map file can be found in. The map is available for download in the repo. This path points to where the map is in your system so it MUST be changed to fit your file structure.
 
 *Next are several parameters that will not typically need to be changed but some can be if you want*
 
@@ -165,9 +165,9 @@ The next is a path in YOUR file system that the map file can be found in. The ma
 ```
 
 This block of code simply does the conversion from the values we input in km to make the model work in a 1x1 square.
-This is handy becuase it avoids you having to do the math yourself. **This does not need to be adjusted**
+This is handy because it avoids you having to do the math yourself. **This does not need to be adjusted**
 
-*The next two blocks simply initialize the genetic component that is the marker for farmer ancesty and the interactions between individuals*
+*The next two blocks simply initialize the genetic component that is the marker for farmer ancestry and the interactions between individuals*
 
 ```
 	
@@ -200,7 +200,7 @@ This introduces a marker mutation for farmers that we can see recombine with HGs
 
 This initializes the interaction types between individuals:
 
-*1) Spatial competion between nearby individuals*
+*1) Spatial competition between nearby individuals*
 
 *2) Mating*
 
@@ -208,7 +208,7 @@ This initializes the interaction types between individuals:
 
 These all take place within a certain distance range specified by parameters above.
 
-#### First generation of the simulation- building inital population
+#### First generation of the simulation- building initial population
 ```
 1 early()
 {
@@ -269,15 +269,15 @@ It defines the map and its bounds.
 }
 ```
 
-This portion sets up the z cordinate for indivuals and adds the marker mutation.
+This portion sets up the z coordinate for individuals and adds the marker mutation.
 
-The z cordinate here represents the behavoral phenotype- farming vs HGing.
+The z coordinate here represents the behavioral phenotype- farming vs HGing.
 
 Individuals located near Turkey on the map begin as farmers and slowly expand throughout Europe.
 
 This portion also sets up how the coloring schemes work. 
 
-It sets it up both by phenotype (behavorial) coloring and genomic coloring based on user provided preference above.
+It sets it up both by phenotype (behavioral) coloring and genomic coloring based on user provided preference above.
 
 #### Reproduction
 
@@ -373,7 +373,7 @@ First the simulation looks for possible mates nearby and then the reproduction f
 This reproduction function runs for each individual each generation.
 In the reproduction function the phenotype of new offspring is tagged with the Z coordinate of the individual. We also see this in the function where the individuals are initialized at the start of the simulation.
 
-The offspring then moves away from its parents within a specified distance range. The code is slightly different given the map or square. This is becuase the individuals can't persist in the ocean.
+The offspring then moves away from its parents within a specified distance range. The code is slightly different given the map or square. This is because the individuals can't persist in the ocean.
 
 Color is also specified here. It can be based on ancestry proportion or simply what the individual is behaviorally- HG or farmer.
 
@@ -458,7 +458,7 @@ early()
 	HGs.fitnessScaling = HGK / competition;
 ```
 
-This part handles competion between nearby individuals. This is density dependent. There can be different K's for HGs and farmers here.
+This part handles competition between nearby individuals. This is density dependent. There can be different K's for HGs and farmers here.
 
 ```
 	// life table based individual mortality
@@ -473,7 +473,7 @@ This part handles competion between nearby individuals. This is density dependen
 }
 ```
 
-This next part keeps individuals from living beyond realistic limits. Without this individuals in the sim can live hundreds of years becuase death it not dependent on age, only population density. (See life table above)
+This next part keeps individuals from living beyond realistic limits. Without this individuals in the sim can live hundreds of years because death it not dependent on age, only population density. (See life table above)
 
 #### Movement of individuals
 
@@ -528,7 +528,7 @@ late()
 }
 ```
 
-Movement here is implemented in two different ways depending on if you want a map or not. This is becuase individuals cant persist in the ocean.
+Movement here is implemented in two different ways depending on if you want a map or not. This is because individuals cant persist in the ocean.
 
 If the map is specified the individuals cant move to locations outside of the bounds of the map. They can potentially jump across the water (simulating water travel) to other land masses assuming it is not beyond their movement range, but they cannot stay in the ocean.
 
