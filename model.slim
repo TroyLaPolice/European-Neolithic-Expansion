@@ -5,7 +5,6 @@
 
 // To DO:
 
-// Deal with age, make sure people can't live to 300
 // Output on a series of time points on the ancestry ratios and phenotype
 // Make a ReadMe methods sorta thing to describe all this
 // Tune parameters
@@ -23,23 +22,27 @@ initialize()
 	
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
-	defineConstant("HGK", 600); // carrying capacity for HGs
-	defineConstant("FK", 2000); // carrying capacity for farmers 
-	
-	// http://reff.f.bg.ac.rs/bitstream/handle/123456789/1234/1231.pdf?sequence=1&isAllowed=y)
-	// https://bioone.org/journals/human-biology/volume-81/issue-3/027.081.0313/Estimations-of-Population-Density-for-Selected-Periods-Between-the-Neolithic/10.3378/027.081.0313.full
-	
 	defineConstant("SN", 1000); // Starting number of individuals
 	
 	
+	defineConstant("HGK", 400); // carrying capacity for HGs for density dependent scaling
+	defineConstant("FK", 2000); // carrying capacity for farmers for density dependent scaling
+	defineConstant("K", 1300); // general k for age fitness scaling
+	
+	// Some papers that discuss population sizes
+	// http://reff.f.bg.ac.rs/bitstream/handle/123456789/1234/1231.pdf?sequence=1&isAllowed=y)
+	// https://bioone.org/journals/human-biology/volume-81/issue-3/027.081.0313/Estimations-of-Population-Density-for-Selected-Periods-Between-the-Neolithic/10.3378/027.081.0313.full
+	
+
+	
 	// Movement and interaction Distances (ENTER IN SQUARE KILOMETERS):
 	// ***********************************
-	defineConstant("S_km", 100); // spatial competition distance
+	defineConstant("S_km", 200); // spatial competition distance
 	defineConstant("MD_km", 100); // Mating distance
 	defineConstant("LD_km", 100); // Learning distance
 	defineConstant("OMD_km", 100); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
-	defineConstant("FMD_km", 100); // How far farmers diffuse away from their location
-	defineConstant("HGMD_km", 500); // How far HGs diffuse away from their location
+	defineConstant("FMD_km", 300); // How far farmers diffuse away from their location
+	defineConstant("HGMD_km", 400); // How far HGs diffuse away from their location
 	
 	
 	// Learning and mating rate params:
@@ -101,6 +104,9 @@ initialize()
 	
 	// spatial mate choice
 	initializeInteractionType(3, "xy", reciprocal=T, maxDistance=LD);
+	
+	defineConstant("age_scale", c(0.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0));
+	
 }
 
 first()
@@ -257,7 +263,7 @@ late()
 	{
 		// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
 		// Make individuals at right boundary farmers
-		p1.individuals[p1.individuals.x > 0.9 & p1.individuals.y < 0.25].z = 1;
+		p1.individuals[p1.individuals.x > 0.5 & p1.individuals.y < 0.5].z = 1;
 		
 		// Tag genomic ancestry of farmers with marker mutations (m1)
 		// Each marker mutation represents 1Mb
@@ -300,6 +306,17 @@ early()
 	competition = i1.totalOfNeighborStrengths(HGs);
 	competition = (competition + 1) / (PI * S^2);
 	HGs.fitnessScaling = HGK / competition;
+	
+	// life table based individual mortality
+ 	inds = p1.individuals;
+	ages = inds.age;
+	mortality = age_scale[ages];
+	survival = 1 - mortality;
+	inds.fitnessScaling = survival;
+
+	// density-dependence, factoring in individual mortality
+	p1.fitnessScaling = K / (p1.individualCount * mean(survival));
+
 }
 
 late()
@@ -403,11 +420,9 @@ late()
 
 1:10000 late()
 {
-	// Echo the ratio of farmers in the total population to screen
-	//catn(sum(p1.individuals.z) / p1.individuals.length() + " " + mean(p1.individuals.countOfMutationsOfType(m1) / 6000));
-}
+	
+	// log the ratio of farmers in the total population
+ 	ratio = paste(sim.generation, (sum(p1.individuals.z) / p1.individuals.length()));
+ 	writeFile("C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/sim_farmer_ratio.txt", line, append=T); 
 
-10000 late()
-{
-	sim.outputFixedMutations();
 }
