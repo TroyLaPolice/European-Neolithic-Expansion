@@ -199,9 +199,12 @@ This introduces a marker mutation for farmers that we can see recombine with HGs
 ```
 
 This initializes the interaction types between individuals:
-*1) Spatial competion between nearby individuals
-*2) Mating
-*3) Learning
+
+*1) Spatial competion between nearby individuals*
+
+*2) Mating*
+
+*3) Learning*
 
 These all take place within a certain distance range specified by parameters above.
 
