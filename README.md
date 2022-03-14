@@ -90,15 +90,18 @@ The actual map will use the fraction of the 1x1 square that is equivalent to 1km
 	defineConstant("L", 0.005); // Learning rate 
 	defineConstant("LP", 0.6); // Learning pecentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer 
 	defineConstant("M", 0.1); // Mating rate
+	defineConstant("min_repro_age", 12); // Individuals MUST be OLDER than this age to reproduce
 	
 	// Age related mortality table
 	defineConstant("age_scale", c(0.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0));
  ```
  
- These parameters are all about rates. This is the likelihood that farmers will teach a HG how to farm. The first param L is just simply how often this interaction happens.
+ These parameters are all about rates for mating, learning and death. This is the likelihood that farmers will teach a HG how to farm. The first param L is just simply how often this interaction happens.
  The second (LP) is the ratio of farmers to HGs in an area that is required for a HG to learn. 
  For example, if a given area is majority HG it may be less likely that the minority farmers teach. 
  This of course can be changed as you see fit. By default here we see the param is 60%.
+ 
+ Next is a minimum age required for reproduction. Inidividuals MUST BE OLDER than the provided age in this parameter for them to be able to reproduce. This prevents infants and small children from being able to reproduce which is unrealistic.
  
  Lastly, the age related mortality table is a life table. It is implimented similarly to SLiM recipe 16.2 Age structure (a life table model) by Benjamin C. Haller and Philipp W. Messer. It is decribed in the [manual](http://benhaller.com/slim/SLiM_Manual.pdf) in a succinct and useful way:
  
@@ -200,4 +203,164 @@ This initializes the interaction types between individuals:
 *2) Mating
 *3) Learning
 
-These all take place within a certain distance range specified by params above.
+These all take place within a certain distance range specified by parameters above.
+
+#### First generation of the simulation- building inital population
+```
+1 early()
+{
+	if (map == 1)
+	{
+		// Set up map
+		p1.setSpatialBounds(c(0.0, 0.0, 1.0, 1.0));
+		mapImage = Image(mapfile);
+		p1.defineSpatialMap("world", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#111111"));
+		
+		// start near a specific map location
+		for (ind in p1.individuals)
+		{
+			do
+				newPos = c(runif(1, 0, 1.0), runif(1, 0, 1.0));
+			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
+			ind.setSpatialPosition(newPos);
+		}
+	}
+	
+```
+
+This section sets up how the image file of the map of Europe works if the user specifies they want to run a sim with the map.
+
+It defines the map and its bounds.
+
+```
+	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
+	// Make individuals near Turkey for farmers
+	p1.individuals[p1.individuals.x > 0.7 & p1.individuals.y < 0.3].z = 1;
+	
+	// Tag genomic ancestry of farmers with marker mutations (m1)
+	// Each marker mutation represents 1Mb
+	indFarmers = p1.individuals[p1.individuals.z == 1];
+	indFarmers.genomes.addNewMutation(m1, 0.0, 0:2999);
+	
+	// Add color to represent phenotype
+	for (i in p1.individuals)
+	{
+		// -----------------------
+		// Color Based on Phenotype
+		// -----------------------
+		value = i.countOfMutationsOfType(m1) / 6000;
+		i.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
+		
+		if (Color_scheme == 1)
+		{
+			// -----------------------
+			// Color Based on Behavior
+			// -----------------------
+			// HGs are red, farmers are blue
+			if (i.z == 0)
+				i.color = "red";
+			else
+				i.color = "blue";
+		}
+	}
+}
+```
+
+This portion sets up the z cordinate for indivuals and adds the marker mutation.
+The z cordinate here represents the behavoral phenotype- farming vs HGing
+Individuals located near Turkey on the map begin as farmers and slowly expand throughout Europe.
+This portion also sets up how the coloring schemes work. 
+It sets it up both by phenotype (behavorial) coloring and genomic coloring based on user provided preference above.
+
+#### Reproduction
+
+```
+first()
+{
+	// look for mates
+	i2.evaluate();
+}
+
+reproduction()
+{
+	// ---------------------------------------------------
+	//  MATING --> Individuals mate with those close by
+	// ---------------------------------------------------
+	// choose nearest neighbor as a mate, within the max distance
+	if (individual.age > 12) // Reproductive age of the individual must be reached before mating
+	{
+		mate = i2.nearestNeighbors(individual, 1);
+		if (mate.size())
+		{
+			if (mate.age > min_repro_age) // Reproductive age of the individual must be reached before mating
+			{
+				// Frequency of the interaction
+				for (i in seqLen(rpois(1, M)))
+				{
+					// Only runs if a mate is nearby
+					if (mate.size())
+					{
+						offspring = subpop.addCrossed(individual, mate);
+						
+						// -----------------------
+						// Color Based on Phenotype
+						// -----------------------
+						value = offspring.countOfMutationsOfType(m1) / 6000;
+						offspring.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
+						
+						// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
+						offspring.z = 0;
+						
+						// If both parents are farmers the child is a farmer
+						if (individual.z == 1 & mate.z == 1)
+							offspring.z = 1;
+						if (Color_scheme == 1)
+						{
+							// -----------------------
+							// Color Based on Behavior
+							// -----------------------
+							// Add color to represent phenotype
+							if (offspring.z == 0)
+								offspring.color = "red";
+							else
+								offspring.color = "blue";
+						}
+						
+						// If the one parent is a farmer and one parent is a HG,
+						// 50% chance they become a farmer
+						if (individual.z != mate.z)
+						{
+							offspring.z = rbinom(1, 1, 0.5);
+							if (Color_option1 == 1)
+							{
+								if (offspring.z == 1)
+									offspring.color = "purple"; // Color Based on Behavior
+							}
+						}
+						if (map == 1)
+						{
+							// set offspring position if map = 1
+							do
+								pos = individual.spatialPosition + rnorm(2, 0, OMD);
+							while (!p1.pointInBounds(pos) | p1.spatialMapValue("world", pos) == 0.0);
+							offspring.setSpatialPosition(pos);
+						}
+						if (map != 1)
+						{
+							// set offspring position if map != 1
+							do
+								pos = individual.spatialPosition + rnorm(2, 0, OMD);
+							while (!p1.pointInBounds(pos));
+							offspring.setSpatialPosition(pos);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+```
+
+First the simulation looks for possible mates nearby and then the reproduction function is run.
+This reproduction function runs for each individual each generation.
+In the reproduction function the phenotype of new offspring is tagged with the Z coordinate of the individual. We also see this in the function where the individuals are initialized at the start of the simulation.
