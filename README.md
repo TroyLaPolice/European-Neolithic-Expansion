@@ -29,7 +29,7 @@ The genotypic coloring scheme shows the proportion of farmer ancestry in the pop
 The coloring is a spectrum from black to blue. The gradation is as follows:
 ```
 Blue: Farmer
- |
+ to
 Black: HG
 ```
 
