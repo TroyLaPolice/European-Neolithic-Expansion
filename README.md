@@ -149,7 +149,7 @@ The first parameter determines if you would like a black square for simplicity o
 
 The next is a path in YOUR file system that the map file can be found in. The map is available for download in the repo. This path points to where the map is in your system so it MUST be changed to fit your file structure.
 
-*Next are several parameters that will not typically need to be changed but some can be if you want*
+*Next are several parameters that **will not typically need to be changed** but some can be if you want*
 
 ```
 // ---------------------------------------------------
