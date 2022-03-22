@@ -528,10 +528,10 @@ late()
 }
 ```
 
-Movement here is implemented in two different ways depending on if you want a map or not. This is because individuals cant persist in the ocean.
+Movement here is implemented in two different ways depending on if you want a map or a black square. This is because when using the map, individuals cannot persist in the ocean but in the square there is no such restriction.
 
-If the map is specified the individuals cant move to locations outside of the bounds of the map. They can potentially jump across the water (simulating water travel) to other land masses assuming it is not beyond their movement range, but they cannot stay in the ocean.
+If the map is specified, the individuals cannot move to locations outside of the bounds of the map. They can potentially jump across the water (simulating water travel) to other land masses, assuming it is not beyond their movement range, but they cannot stay in the ocean.
 
 If the square is used movement is a bit more simple.
 
-In both cases the individuals have different distances they can travel based on if they are a HG or a farmer. This is set up above in the parameters. This allows for simulation that HGs are more migratory but farmers are more localized around their farm.
+In both cases, the individuals have different distances they can travel based on if they are a HG or a farmer. This is set up above in the parameters. This allows for simulation of HGs being more migratory and farmers being more localized around their farm.
