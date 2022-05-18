@@ -1,5 +1,5 @@
 // Parameters:
-// Width/Length Square Aproximation of Europe ~ 4,000 km
+// Width/Length Aproximation of Europe ~ 4,000 km
 // On the map on screen 1km = (1 / 4,000) = 0.00025
 // To DO:
 // Output on a series of time points on the ancestry ratios and phenotype
@@ -15,32 +15,33 @@ initialize()
 	// ---------------------------------------------------
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
-	defineConstant("SN", 1000); // Starting number of individuals
-	defineConstant("HGK", 400); // carrying capacity for HGs for density dependent scaling
-	defineConstant("FK", 2000); // carrying capacity for farmers for density dependent scaling
-	defineConstant("K", 1300); // general k for age fitness scaling
+	defineConstant("SN", 9000); // Starting number of individuals
+	defineConstant("HGK", 10000); // carrying capacity for HGs for density dependent scaling
+	defineConstant("FK", 10000); // carrying capacity for farmers for density dependent scaling
+	defineConstant("K", 10000); // general k for age fitness scaling
 	
 	// Some papers that discuss population sizes
 	// http://reff.f.bg.ac.rs/bitstream/handle/123456789/1234/1231.pdf?sequence=1&isAllowed=y)
 	// https://bioone.org/journals/human-biology/volume-81/issue-3/027.081.0313/Estimations-of-Population-Density-for-Selected-Periods-Between-the-Neolithic/10.3378/027.081.0313.full
+	
 	// Movement and interaction Distances (ENTER IN SQUARE KILOMETERS):
 	// ***********************************
 	defineConstant("S_km", 200); // spatial competition distance
-	defineConstant("MD_km", 100); // Mating distance
-	defineConstant("LD_km", 100); // Learning distance
-	defineConstant("OMD_km", 100); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
-	defineConstant("FMD_km", 300); // How far farmers diffuse away from their location
-	defineConstant("HGMD_km", 400); // How far HGs diffuse away from their location
+	defineConstant("MD_km", 36); // Mating distance
+	defineConstant("LD_km", 36); // Learning distance
+	defineConstant("OMD_km", 36); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
+	defineConstant("FMD_km", 36); // How far farmers diffuse away from their location
+	defineConstant("HGMD_km", 36); // How far HGs diffuse away from their location
 	
 	// Learning, death and mating rate params:
 	// ***********************************
-	defineConstant("L", 0.005); // Learning rate 
+	defineConstant("L", 0.009); // Learning rate 
 	defineConstant("LP", 0.6); // Learning percentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer 
 	defineConstant("M", 0.1); // Mating rate
 	defineConstant("min_repro_age", 12); // Individuals MUST be OLDER than this age to reproduce
 	
 	// Age related mortality table
-	defineConstant("age_scale", c(0.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0));
+	defineConstant("age_scale", c(0.211180124,0.211180124,0.211180124,0.211180124,0.211180124,0.251968504,0.251968504,0.251968504,0.251968504,0.251968504,0.105263158,0.105263158,0.105263158,0.105263158,0.105263158,0.164705882,0.164705882,0.164705882,0.164705882,0.164705882,0.164705882,0.253521127,0.253521127,0.253521127,0.253521127,0.253521127,0.301886792,0.301886792,0.301886792,0.301886792,0.301886792,0.378378378,0.378378378,0.378378378,0.378378378,0.378378378,0.47826087,0.47826087,0.47826087,0.47826087,0.47826087,0.583333333,0.583333333,0.583333333,0.583333333,0.583333333,0.6,0.6,0.6,0.6,0.6,1.0));
 	
 	// ---------------------------------------------------
 	// RUN TIME PREFERENCE PARAMETERS
@@ -287,7 +288,7 @@ early()
 	competition = i1.totalOfNeighborStrengths(HGs);
 	competition = (competition + 1) / (PI * S^2);
 	HGs.fitnessScaling = HGK / competition;
-	
+
 	// life table based individual mortality
 	inds = p1.individuals;
 	ages = inds.age;
@@ -368,7 +369,8 @@ late()
 	}
 	
 	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
-	// Make individuals near Turkey for farmers
+	// Make individuals near agegeans for farmers
+	// https://www.pnas.org/doi/full/10.1073/pnas.1523951113
 	p1.individuals[p1.individuals.x > 0.7 & p1.individuals.y < 0.3].z = 1;
 	
 	// Tag genomic ancestry of farmers with marker mutations (m1)
