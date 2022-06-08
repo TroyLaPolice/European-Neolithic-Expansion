@@ -47,7 +47,7 @@ This bit of code begins the model and creates the non-WF model and the xy dimens
 ##### Parameters
 
 ```
-  // ---------------------------------------------------
+  	// ---------------------------------------------------
 	//  PARAMETERS --> Initialize Constant Params
 	// ---------------------------------------------------
 ```
@@ -57,41 +57,40 @@ This bit of code begins the model and creates the non-WF model and the xy dimens
 ###### Parameters for how the population grows, interacts and moves
 
 ```
-  // Carrying Capacities and Pop Sizes:
+  	// Carrying Capacities and Pop Sizes:
 	// ***********************************
-	defineConstant("SN", 1000); // Starting number of individuals
+	defineConstant("SN", 10000); // Starting number of individuals
+	defineConstant("HGK", 0.064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
+	defineConstant("FK", 1.28); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
-	defineConstant("HGK", 400); // carrying capacity for HGs for density dependent scaling
-	defineConstant("FK", 2000); // carrying capacity for farmers for density dependent scaling
-	defineConstant("K", 1300); // general k for age fitness scaling
  ```
-These parameters describe the starting number of individuals and the carrying capacity for HGs and farmers as well as a number used for the fitness scaling by age.
+These parameters describe the starting number of individuals in the sim and the carrying capacity (given in individuals per km^2) for HGs and farmers.
 These parameters should be adjusted to your liking.
 
 ```
-  // Movement and interaction Distances (ENTER IN SQUARE KILOMETERS):
+	// Movement and interaction Distances (ENTER IN KILOMETERS):
 	// ***********************************
-	defineConstant("S_km", 200); // spatial competition distance
-	defineConstant("MD_km", 100); // Mating distance
-	defineConstant("LD_km", 100); // Learning distance
-	defineConstant("OMD_km", 100); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
-	defineConstant("FMD_km", 300); // How far farmers diffuse away from their location
-	defineConstant("HGMD_km", 400); // How far HGs diffuse away from their location
+	defineConstant("S", 50); // spatial competition distance
+	defineConstant("MD", 30); // Mating distance
+	defineConstant("LD", 20); // Learning distance
+	defineConstant("OMD", 20); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
+	defineConstant("FMD", 10); // How far farmers diffuse away from their location
+	defineConstant("HGMD", 70); // How far HGs diffuse away from their location
+	
 ```
 
-These parameters are all distance related and will be entered in km. This is for simplicity for the map.
-The actual map will use the fraction of the 1x1 square that is equivalent to 1km. 
+These parameters are all distance related and will be entered in km.
 
 ```
 	// Learning, death and mating rate params:
 	// ***********************************
-	defineConstant("L", 0.005); // Learning rate 
+	defineConstant("L", 0.009); // Learning rate 
 	defineConstant("LP", 0.6); // Learning percentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer 
 	defineConstant("M", 0.1); // Mating rate
-	defineConstant("min_repro_age", 12); // Individuals MUST be OLDER than this age to reproduce
+	defineConstant("min_repro_age", 0); // Individuals MUST be OLDER than this age to reproduce
 	
 	// Age related mortality table
-	defineConstant("age_scale", c(0.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0));
+	defineConstant("age_scale", c(0.211180124, 0.211180124, 0.211180124, 0.211180124, 0.211180124, 0.251968504, 0.251968504, 0.251968504, 0.251968504, 0.251968504, 0.105263158, 0.105263158, 0.105263158, 0.105263158, 0.105263158, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.253521127, 0.253521127, 0.253521127, 0.253521127, 0.253521127, 0.301886792, 0.301886792, 0.301886792, 0.301886792, 0.301886792, 0.378378378, 0.378378378, 0.378378378, 0.378378378, 0.378378378, 0.47826087, 0.47826087, 0.47826087, 0.47826087, 0.47826087, 0.583333333, 0.583333333, 0.583333333, 0.583333333, 0.583333333, 0.6, 0.6, 0.6, 0.6, 0.6, 1.0));
  ```
  
  These parameters are all about rates for mating, learning and death. This is the likelihood that farmers will teach a HG how to farm. The first param L is just simply how often this interaction happens.
@@ -101,7 +100,7 @@ The actual map will use the fraction of the 1x1 square that is equivalent to 1km
  
  Next is a minimum age required for reproduction. Individuals MUST BE OLDER than the provided age in this parameter for them to be able to reproduce. This prevents infants and small children from being able to reproduce which is unrealistic.
  
- Lastly, the age related mortality table is a life table. It is implemented similarly to SLiM recipe 16.2 Age structure (a life table model) by Benjamin C. Haller and Philipp W. Messer. It is described in the [manual](http://benhaller.com/slim/SLiM_Manual.pdf) in a succinct and useful way:
+ Lastly, the age related mortality table is a life table. This data comes from "age at death" studies. It is implemented similarly to SLiM recipe 16.2 Age structure (a life table model) by Benjamin C. Haller and Philipp W. Messer. It is described in the [manual](http://benhaller.com/slim/SLiM_Manual.pdf) in a succinct and useful way:
  
 *"the addition of the defined constant [age_scale] ... is our life table. 
 It gives the probability of mortality for each age; newly generated juveniles have a mortality of 0.7 (i.e., 70%), then the mortality drops to zero for several years, and then it ramps gradually upward with increasing age until it reaches 1.0 [at which all individuals of this age] will die. Note that this is only the age-related mortality; density-dependence will also cause mortality, as we will see below, but that will be additional to this age-related mortality, which would occur even in
@@ -138,32 +137,22 @@ The next two are options that determine if you want special colors for specific 
 	
 	// Map Prefs:
 	// ***********************************	
-	defineConstant("map", 1); // 0 = black square, 1 = map of europe
+	defineConstant("map", 1); // 1 = map of europe
 	defineConstant("mapfile", "C:/PATH/GOES/HERE/TO/MAP/europe.png"); // Path to URL
-	defineConstant("map_size_km2", 4000);
+	defineConstant("map_size_length_and_width", 3700);
 ```
+The second parameter is a path in YOUR file system that the map file can be found in. The map is available for download in the repo. This path points to where the map is in your system so it MUST be changed to fit your file structure.
 
-The first parameter determines if you would like a black square for simplicity or a map of Europe
-
-The next is a path in YOUR file system that the map file can be found in. The map is available for download in the repo. This path points to where the map is in your system so it MUST be changed to fit your file structure.
+The third parameter is the length and width of the map. This will be used when building the map.
 
 *Next are several parameters that **will not typically need to be changed** but some can be if you want*
 
 ```
-// ---------------------------------------------------
+	// ---------------------------------------------------
 	//  PARAMETERS FOR MAP SCALING (NO NEED TO ADJUST)
 	// ---------------------------------------------------
-	
-	defineConstant("S", (S_km / map_size_km2)); // spatial competition distance
-	defineConstant("MD", (MD_km / map_size_km2)); // Mating distance
-	defineConstant("LD", (LD_km / map_size_km2)); // Learning distance
-	defineConstant("OMD", (OMD_km / map_size_km2)); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
-	defineConstant("FMD", (FMD_km / map_size_km2)); // How far farmers diffuse away from their location
-	defineConstant("HGMD", (HGMD_km / map_size_km2)); // How far HGs diffuse away from their location
+	defineConstant("map_size_km2", (map_size_length_and_width * map_size_length_and_width));
 ```
-
-This block of code simply does the conversion from the values we input in km to make the model work in a 1x1 square.
-This is handy because it avoids you having to do the math yourself. **This does not need to be adjusted**
 
 *The next two blocks simply initialize the genetic component that is the marker for farmer ancestry and the interactions between individuals*
 
@@ -213,15 +202,15 @@ These all take place within a certain distance range specified by parameters abo
 	if (map == 1)
 	{
 		// Set up map
-		p1.setSpatialBounds(c(0.0, 0.0, 1.0, 1.0));
+		p1.setSpatialBounds(c(0.0, 0.0, map_size_length_and_width, map_size_length_and_width));
 		mapImage = Image(mapfile);
-		p1.defineSpatialMap("world", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#111111"));
+		p1.defineSpatialMap("world", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#000000"));
 		
 		// start near a specific map location
 		for (ind in p1.individuals)
 		{
 			do
-				newPos = c(runif(1, 0, 1.0), runif(1, 0, 1.0));
+				newPos = c(runif(1, 0, map_size_length_and_width), runif(1, 0, map_size_length_and_width));
 			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
 			ind.setSpatialPosition(newPos);
 		}
@@ -229,14 +218,15 @@ These all take place within a certain distance range specified by parameters abo
 	
 ```
 
-This section sets up how the image file of the map of Europe works if the user specifies they want to run a sim with the map.
+This section sets up how the image file of the map of Europe works.
 
 It defines the map and its bounds.
 
 ```
 	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
-	// Make individuals near Turkey for farmers
-	p1.individuals[p1.individuals.x > 0.7 & p1.individuals.y < 0.3].z = 1;
+	// Make individuals near Anatolia and Greece farmers
+
+	p1.individuals[p1.individuals.x > (0.8 * map_size_length_and_width) & p1.individuals.y < (0.2 * map_size_length_and_width)].z = 1;
 	
 	// Tag genomic ancestry of farmers with marker mutations (m1)
 	// Each marker mutation represents 1Mb
@@ -247,11 +237,10 @@ It defines the map and its bounds.
 	for (i in p1.individuals)
 	{
 		// -----------------------
-		// Color Based on Genotype
+		// Color Based on Phenotype
 		// -----------------------
 		value = i.countOfMutationsOfType(m1) / 6000;
 		i.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
-		
 		if (Color_scheme == 1)
 		{
 			// -----------------------
@@ -271,7 +260,7 @@ This portion sets up the z coordinate for individuals and adds the marker mutati
 
 The z coordinate here represents the behavioral phenotype- farming vs HGing.
 
-Individuals located near Turkey on the map begin as farmers and slowly expand throughout Europe.
+Individuals located near Anatolia and Greece on the map begin as farmers and slowly expand throughout Europe.
 
 This portion also sets up how the coloring schemes work. 
 
@@ -292,7 +281,7 @@ reproduction()
 	//  MATING --> Individuals mate with those close by
 	// ---------------------------------------------------
 	// choose nearest neighbor as a mate, within the max distance
-	if (individual.age > 12) // Reproductive age of the individual must be reached before mating
+	if (individual.age > min_repro_age) // Reproductive age of the individual must be reached before mating
 	{
 		mate = i2.nearestNeighbors(individual, 1);
 		if (mate.size())
@@ -332,10 +321,10 @@ reproduction()
 						}
 						
 						// If the one parent is a farmer and one parent is a HG,
-						// 50% chance they become a farmer
+						// they become a farmer
 						if (individual.z != mate.z)
 						{
-							offspring.z = rbinom(1, 1, 0.5);
+							offspring.z = 1;
 							if (Color_option1 == 1)
 							{
 								if (offspring.z == 1)
@@ -348,14 +337,6 @@ reproduction()
 							do
 								pos = individual.spatialPosition + rnorm(2, 0, OMD);
 							while (!p1.pointInBounds(pos) | p1.spatialMapValue("world", pos) == 0.0);
-							offspring.setSpatialPosition(pos);
-						}
-						if (map != 1)
-						{
-							// set offspring position if map != 1
-							do
-								pos = individual.spatialPosition + rnorm(2, 0, OMD);
-							while (!p1.pointInBounds(pos));
 							offspring.setSpatialPosition(pos);
 						}
 					}
