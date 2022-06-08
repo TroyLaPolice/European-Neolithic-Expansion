@@ -137,13 +137,13 @@ The next two are options that determine if you want special colors for specific 
 	
 	// Map Prefs:
 	// ***********************************	
-	defineConstant("map", 1); // 1 = map of europe
+
 	defineConstant("mapfile", "C:/PATH/GOES/HERE/TO/MAP/europe.png"); // Path to URL
 	defineConstant("map_size_length_and_width", 3700);
 ```
-The second parameter is a path in YOUR file system that the map file can be found in. The map is available for download in the repo. This path points to where the map is in your system so it MUST be changed to fit your file structure.
+The first parameter is a path in YOUR file system that the map file can be found in. The map is available for download in the repo. This path points to where the map is in your system so it MUST be changed to fit your file structure.
 
-The third parameter is the length and width of the map. This will be used when building the map.
+The next parameter is the length and width of the map. This will be used when building the map.
 
 *Next are several parameters that **will not typically need to be changed** but some can be if you want*
 
@@ -199,21 +199,18 @@ These all take place within a certain distance range specified by parameters abo
 ```
 1 early()
 {
-	if (map == 1)
+	// Set up map
+	p1.setSpatialBounds(c(0.0, 0.0, map_size_length_and_width, map_size_length_and_width));
+	mapImage = Image(mapfile);
+	p1.defineSpatialMap("world", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#000000"));
+	
+	// start near a specific map location
+	for (ind in p1.individuals)
 	{
-		// Set up map
-		p1.setSpatialBounds(c(0.0, 0.0, map_size_length_and_width, map_size_length_and_width));
-		mapImage = Image(mapfile);
-		p1.defineSpatialMap("world", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#000000"));
-		
-		// start near a specific map location
-		for (ind in p1.individuals)
-		{
-			do
-				newPos = c(runif(1, 0, map_size_length_and_width), runif(1, 0, map_size_length_and_width));
-			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
-			ind.setSpatialPosition(newPos);
-		}
+		do
+			newPos = c(runif(1, 0, map_size_length_and_width), runif(1, 0, map_size_length_and_width));
+		while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
+		ind.setSpatialPosition(newPos);
 	}
 	
 ```
@@ -224,8 +221,7 @@ It defines the map and its bounds.
 
 ```
 	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
-	// Make individuals near Anatolia and Greece farmers
-
+	// Make individuals near anatolia and greece farmers
 	p1.individuals[p1.individuals.x > (0.8 * map_size_length_and_width) & p1.individuals.y < (0.2 * map_size_length_and_width)].z = 1;
 	
 	// Tag genomic ancestry of farmers with marker mutations (m1)
@@ -331,14 +327,12 @@ reproduction()
 									offspring.color = "purple"; // Color Based on Behavior
 							}
 						}
-						if (map == 1)
-						{
-							// set offspring position if map = 1
-							do
-								pos = individual.spatialPosition + rnorm(2, 0, OMD);
-							while (!p1.pointInBounds(pos) | p1.spatialMapValue("world", pos) == 0.0);
-							offspring.setSpatialPosition(pos);
-						}
+						
+						// set offspring position
+						do
+							pos = individual.spatialPosition + rnorm(2, 0, OMD);
+						while (!p1.pointInBounds(pos) | p1.spatialMapValue("world", pos) == 0.0);
+						offspring.setSpatialPosition(pos);
 					}
 				}
 			}
@@ -421,38 +415,48 @@ Individual HGs can learn from farmers and their z coordinate changes but their a
 
 #### Competition
 
+
+First we evaluate the interaction type and define vectors of the two groups
+
 ```
 early()
 {
 	i1.evaluate();
 	
-	// spatial competition provides density-dependent selection
+	// define vector of farmers and vector of HGs
 	farmers = p1.individuals[p1.individuals.z == 1];
-	competition = i1.totalOfNeighborStrengths(farmers);
-	competition = (competition + 1) / (PI * S^2);
-	farmers.fitnessScaling = FK / competition;
 	HGs = p1.individuals[p1.individuals.z == 0];
-	competition = i1.totalOfNeighborStrengths(HGs);
-	competition = (competition + 1) / (PI * S^2);
-	HGs.fitnessScaling = HGK / competition;
 ```
 
-This part handles competition between nearby individuals. This is density dependent. There can be different K's for HGs and farmers here.
+This part handles competition between nearby individuals. This is density dependent. There can be different K's for HGs and farmers here which we will see later. First we count the number nearby competing individuals.
 
 ```
-	// life table based individual mortality
-	inds = p1.individuals;
-	ages = inds.age;
-	mortality = age_scale[ages];
-	survival = 1 - mortality;
-	inds.fitnessScaling = survival;
-	
-	// density-dependence, factoring in individual mortality
-	p1.fitnessScaling = K / (p1.individualCount * mean(survival));
-}
+	// spatial competition provides density-dependent selection
+	// Count number of neighbors within S for farmers and hunter gatherers
+	farmers_num_in_s = i1.interactingNeighborCount(farmers);
+	HG_num_in_s = i1.interactingNeighborCount(HGs);
 ```
 
 This next part keeps individuals from living beyond realistic limits. Without this individuals in the sim can live hundreds of years because death it not dependent on age, only population density. (See life table above)
+
+```
+	// life table based individual mortality
+	farmer_ages = farmers.age;
+	HG_ages = HGs.age;
+	
+	// calculate chance of survival by refering to the mortality table by age and subtracting the chance of mortality from one
+	farmer_survival = 1 - age_scale[farmer_ages];
+	HG_survival = 1 - age_scale[HG_ages];
+```
+
+Finally we bring the two parts together.
+
+```
+	// density-dependence, factoring in individual mortality
+	farmers.fitnessScaling = ((PI * (S^2) * FK) / (farmers_num_in_s + 1) * farmer_survival);
+	HGs.fitnessScaling = ((PI * (S^2) * HGK) / (HG_num_in_s + 1) * HG_survival);
+```
+
 
 #### Movement of individuals
 
@@ -462,55 +466,26 @@ late()
 	// move around
 	for (ind in p1.individuals)
 	{
-		if (map == 1)
+		if (ind.z == 1)
 		{
-			if (ind.z == 1)
-			{
-				// How far farmers diffuse away from their location			
-				do
-					newPos = ind.spatialPosition + runif(2, -FMD, FMD);
-				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
-				ind.setSpatialPosition(newPos);
-			}
-			if (ind.z == 0)
-			{
-				// How far HGs diffuse away from their location
-				do
-					newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
-				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
-				ind.setSpatialPosition(newPos);
-			}
+			// How far farmers diffuse away from their location			
+			do
+				newPos = ind.spatialPosition + runif(2, -FMD, FMD);
+			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
+			ind.setSpatialPosition(newPos);
 		}
-		if (map != 1)
+		if (ind.z == 0)
 		{
-			for (ind in p1.individuals)
-			{
-				if (ind.z == 1)
-				{
-					// How far farmers diffuse away from their location			
-					do
-						newPos = ind.spatialPosition + runif(2, -FMD, FMD);
-					while (!p1.pointInBounds(newPos));
-					ind.setSpatialPosition(newPos);
-				}
-				if (ind.z == 0)
-				{
-					// How far HGs diffuse away from their location
-					do
-						newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
-					while (!p1.pointInBounds(newPos));
-					ind.setSpatialPosition(newPos);
-				}
-			}
+			// How far HGs diffuse away from their location
+			do
+				newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
+			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
+			ind.setSpatialPosition(newPos);
 		}
 	}
 }
 ```
 
-Movement here is implemented in two different ways depending on if you want a map or a black square. This is because when using the map, individuals cannot persist in the ocean but in the square there is no such restriction.
-
 If the map is specified, the individuals cannot move to locations outside of the bounds of the map. They can potentially jump across the water (simulating water travel) to other land masses, assuming it is not beyond their movement range, but they cannot stay in the ocean.
 
-If the square is used movement is a bit more simple.
-
-In both cases, the individuals have different distances they can travel based on if they are a HG or a farmer. This is set up above in the parameters. This allows for simulation of HGs being more migratory and farmers being more localized around their farm.
+The individuals can have different distances they can travel based on if they are a HG or a farmer. This is set up above in the parameters. This allows for simulation of HGs being more migratory and farmers being more localized around their farm.
