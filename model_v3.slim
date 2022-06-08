@@ -17,8 +17,8 @@ initialize()
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
 	defineConstant("SN", 10000); // Starting number of individuals
-	defineConstant("HGK", 0.00064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
-	defineConstant("FK", 0.00128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
+	defineConstant("HGK", 0.064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
+	defineConstant("FK", 1.28); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
 	// Movement and interaction Distances (ENTER IN KILOMETERS):
 	// ***********************************
@@ -50,7 +50,6 @@ initialize()
 	
 	// Map Prefs:
 	// ***********************************	
-	defineConstant("map", 1); // 0 = black square, 1 = map of europe
 	defineConstant("mapfile", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/europe_crop_fixed2.png"); // Path to URL
 	defineConstant("map_size_length_and_width", 3700);
 	
@@ -144,22 +143,12 @@ reproduction()
 									offspring.color = "purple"; // Color Based on Behavior
 							}
 						}
-						if (map == 1)
-						{
-							// set offspring position if map = 1
-							do
-								pos = individual.spatialPosition + rnorm(2, 0, OMD);
-							while (!p1.pointInBounds(pos) | p1.spatialMapValue("world", pos) == 0.0);
-							offspring.setSpatialPosition(pos);
-						}
-						if (map != 1)
-						{
-							// set offspring position if map != 1
-							do
-								pos = individual.spatialPosition + rnorm(2, 0, OMD);
-							while (!p1.pointInBounds(pos));
-							offspring.setSpatialPosition(pos);
-						}
+						
+						// set offspring position if map = 1
+						do
+							pos = individual.spatialPosition + rnorm(2, 0, OMD);
+						while (!p1.pointInBounds(pos) | p1.spatialMapValue("world", pos) == 0.0);
+						offspring.setSpatialPosition(pos);
 					}
 				}
 			}
@@ -225,12 +214,10 @@ late()
 1 early()
 {
 	sim.addSubpop("p1", SN);
-
 }
 
 late()
 {
-	
 	i1.evaluate();
 	
 	// define vector of farmers and vector of HGs
@@ -245,6 +232,7 @@ late()
 	// life table based individual mortality
 	farmer_ages = farmers.age;
 	HG_ages = HGs.age;
+	
 	// calculate chance of survival by refering to the mortality table by age and subtracting the chance of mortality from one
 	farmer_survival = 1 - age_scale[farmer_ages];
 	HG_survival = 1 - age_scale[HG_ages];
@@ -253,7 +241,6 @@ late()
 	print((PI * (S^2) * FK) / (farmers_num_in_s + 1) * farmer_survival);
 	farmers.fitnessScaling = ((PI * (S^2) * FK) / (farmers_num_in_s + 1) * farmer_survival);
 	HGs.fitnessScaling = ((PI * (S^2) * HGK) / (HG_num_in_s + 1) * HG_survival);
-		
 }
 
 late()
@@ -261,72 +248,43 @@ late()
 	// move around
 	for (ind in p1.individuals)
 	{
-		if (map == 1)
+		if (ind.z == 1)
 		{
-			if (ind.z == 1)
-			{
-				// How far farmers diffuse away from their location			
-				do
-					newPos = ind.spatialPosition + runif(2, -FMD, FMD);
-				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
-				ind.setSpatialPosition(newPos);
-			}
-			if (ind.z == 0)
-			{
-				// How far HGs diffuse away from their location
-				do
-					newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
-				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
-				ind.setSpatialPosition(newPos);
-			}
+			// How far farmers diffuse away from their location			
+			do
+				newPos = ind.spatialPosition + runif(2, -FMD, FMD);
+			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
+			ind.setSpatialPosition(newPos);
 		}
-		if (map != 1)
+		if (ind.z == 0)
 		{
-			for (ind in p1.individuals)
-			{
-				if (ind.z == 1)
-				{
-					// How far farmers diffuse away from their location			
-					do
-						newPos = ind.spatialPosition + runif(2, -FMD, FMD);
-					while (!p1.pointInBounds(newPos));
-					ind.setSpatialPosition(newPos);
-				}
-				if (ind.z == 0)
-				{
-					// How far HGs diffuse away from their location
-					do
-						newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
-					while (!p1.pointInBounds(newPos));
-					ind.setSpatialPosition(newPos);
-				}
-			}
+			// How far HGs diffuse away from their location
+			do
+				newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
+			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
+			ind.setSpatialPosition(newPos);
 		}
 	}
 }
 
 1 early()
 {
-	if (map == 1)
+	// Set up map
+	p1.setSpatialBounds(c(0.0, 0.0, map_size_length_and_width, map_size_length_and_width));
+	mapImage = Image(mapfile);
+	p1.defineSpatialMap("world", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#000000"));
+	
+	// start near a specific map location
+	for (ind in p1.individuals)
 	{
-		// Set up map
-		p1.setSpatialBounds(c(0.0, 0.0, map_size_length_and_width, map_size_length_and_width));
-		mapImage = Image(mapfile);
-		p1.defineSpatialMap("world", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#000000"));
-		
-		// start near a specific map location
-		for (ind in p1.individuals)
-		{
-			do
-				newPos = c(runif(1, 0, map_size_length_and_width), runif(1, 0, map_size_length_and_width));
-			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
-			ind.setSpatialPosition(newPos);
-		}
+		do
+			newPos = c(runif(1, 0, map_size_length_and_width), runif(1, 0, map_size_length_and_width));
+		while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
+		ind.setSpatialPosition(newPos);
 	}
 	
 	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
 	// Make individuals near anatolia and greece farmers
-
 	p1.individuals[p1.individuals.x > (0.8 * map_size_length_and_width) & p1.individuals.y < (0.2 * map_size_length_and_width)].z = 1;
 	
 	// Tag genomic ancestry of farmers with marker mutations (m1)
