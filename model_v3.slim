@@ -16,18 +16,18 @@ initialize()
 	// ---------------------------------------------------
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
-	defineConstant("SN", 3000); // Starting number of individuals
-	defineConstant("HGK", 0.64); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
-	defineConstant("FK", 1.28); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
+	defineConstant("SN", 10000); // Starting number of individuals
+	defineConstant("HGK", 0.00064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
+	defineConstant("FK", 0.00128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
 	// Movement and interaction Distances (ENTER IN KILOMETERS):
 	// ***********************************
 	defineConstant("S", 50); // spatial competition distance
-	defineConstant("MD", 50); // Mating distance
-	defineConstant("LD", 50); // Learning distance
-	defineConstant("OMD", 50); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
-	defineConstant("FMD", 50); // How far farmers diffuse away from their location
-	defineConstant("HGMD", 50); // How far HGs diffuse away from their location
+	defineConstant("MD", 30); // Mating distance
+	defineConstant("LD", 20); // Learning distance
+	defineConstant("OMD", 20); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
+	defineConstant("FMD", 10); // How far farmers diffuse away from their location
+	defineConstant("HGMD", 70); // How far HGs diffuse away from their location
 	
 	// Learning, death and mating rate params:
 	// ***********************************
@@ -44,7 +44,7 @@ initialize()
 	// ---------------------------------------------------
 	// Determine Coloring Schemes:
 	// ***********************************	
-	defineConstant("Color_scheme", 1); // Parameter of 0 = Genomic Coloring, 1 = Behavioral Coloring
+	defineConstant("Color_scheme", 0); // Parameter of 0 = Genomic Coloring, 1 = Behavioral Coloring
 	defineConstant("Color_option1", 0); // Parameter of 0 = No special color for 1st generation 'hybrid' offspring, 1 = Coloring for 1st generation 'hybrid' offspring
 	defineConstant("Color_option2", 1); // Parameter of 0 = No special color for 1st generation HG individuals who have learned, 1 = Coloring for 1st generation HG individuals who have learned
 	
@@ -238,17 +238,18 @@ late()
 	HGs = p1.individuals[p1.individuals.z == 0];
 	
 	// spatial competition provides density-dependent selection
+	// Count number of neighbors within S for farmers and hunter gatherers
 	farmers_num_in_s = i1.interactingNeighborCount(farmers);
 	HG_num_in_s = i1.interactingNeighborCount(HGs);
 	
-	//life table based individual mortality
+	// life table based individual mortality
 	farmer_ages = farmers.age;
 	HG_ages = HGs.age;
+	// calculate chance of survival by refering to the mortality table by age and subtracting the chance of mortality from one
 	farmer_survival = 1 - age_scale[farmer_ages];
 	HG_survival = 1 - age_scale[HG_ages];
 	
 	// density-dependence, factoring in individual mortality
-	
 	print((PI * (S^2) * FK) / (farmers_num_in_s + 1) * farmer_survival);
 	farmers.fitnessScaling = ((PI * (S^2) * FK) / (farmers_num_in_s + 1) * farmer_survival);
 	HGs.fitnessScaling = ((PI * (S^2) * HGK) / (HG_num_in_s + 1) * HG_survival);
