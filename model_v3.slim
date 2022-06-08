@@ -1,0 +1,363 @@
+// Width/Length aproximation of Europe ~ 3,700 km
+// On the map on screen 1km = (1 / 3,700) = 0.00027
+// Map size (km2) = 4,000 x 4,000 = 13,690,000 km2
+// Number of pixles in map image = 506,944
+// Number of land pixles (Pixles that == 1) = 225,332
+// % of map that is land = 225332/506944 = 0.44449091023
+// km2 of land = 0.44449091023 * 13,690,000 = 6,085,080.5
+
+initialize()
+{
+	initializeSLiMModelType("nonWF");
+	initializeSLiMOptions(dimensionality="xy", periodicity="");
+	
+	// ---------------------------------------------------
+	//  PARAMETERS --> Initialize Constant Params
+	// ---------------------------------------------------
+	// Carrying Capacities and Pop Sizes:
+	// ***********************************
+	defineConstant("SN", 3000); // Starting number of individuals
+	defineConstant("HGK", 0.64); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
+	defineConstant("FK", 1.28); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
+	
+	// Movement and interaction Distances (ENTER IN KILOMETERS):
+	// ***********************************
+	defineConstant("S", 50); // spatial competition distance
+	defineConstant("MD", 50); // Mating distance
+	defineConstant("LD", 50); // Learning distance
+	defineConstant("OMD", 50); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
+	defineConstant("FMD", 50); // How far farmers diffuse away from their location
+	defineConstant("HGMD", 50); // How far HGs diffuse away from their location
+	
+	// Learning, death and mating rate params:
+	// ***********************************
+	defineConstant("L", 0.009); // Learning rate 
+	defineConstant("LP", 0.6); // Learning percentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer 
+	defineConstant("M", 0.1); // Mating rate
+	defineConstant("min_repro_age", 0); // Individuals MUST be OLDER than this age to reproduce
+	
+	// Age related mortality table
+	defineConstant("age_scale", c(0.211180124, 0.211180124, 0.211180124, 0.211180124, 0.211180124, 0.251968504, 0.251968504, 0.251968504, 0.251968504, 0.251968504, 0.105263158, 0.105263158, 0.105263158, 0.105263158, 0.105263158, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.253521127, 0.253521127, 0.253521127, 0.253521127, 0.253521127, 0.301886792, 0.301886792, 0.301886792, 0.301886792, 0.301886792, 0.378378378, 0.378378378, 0.378378378, 0.378378378, 0.378378378, 0.47826087, 0.47826087, 0.47826087, 0.47826087, 0.47826087, 0.583333333, 0.583333333, 0.583333333, 0.583333333, 0.583333333, 0.6, 0.6, 0.6, 0.6, 0.6, 1.0));
+	
+	// ---------------------------------------------------
+	// RUN TIME PREFERENCE PARAMETERS
+	// ---------------------------------------------------
+	// Determine Coloring Schemes:
+	// ***********************************	
+	defineConstant("Color_scheme", 1); // Parameter of 0 = Genomic Coloring, 1 = Behavioral Coloring
+	defineConstant("Color_option1", 0); // Parameter of 0 = No special color for 1st generation 'hybrid' offspring, 1 = Coloring for 1st generation 'hybrid' offspring
+	defineConstant("Color_option2", 1); // Parameter of 0 = No special color for 1st generation HG individuals who have learned, 1 = Coloring for 1st generation HG individuals who have learned
+	
+	// Map Prefs:
+	// ***********************************	
+	defineConstant("map", 1); // 0 = black square, 1 = map of europe
+	defineConstant("mapfile", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/europe_crop_fixed2.png"); // Path to URL
+	defineConstant("map_size_length_and_width", 3700);
+	
+	// ---------------------------------------------------
+	//  PARAMETERS FOR MAP SCALING (NO NEED TO ADJUST)
+	// ---------------------------------------------------
+	defineConstant("map_size_km2", (map_size_length_and_width * map_size_length_and_width));
+	
+	// ----------------------------------------------------
+	//  GENETIC COMPONENT --> Initialize Genomic Elements
+	// ----------------------------------------------------
+	initializeMutationType("m1", 0.5, "f", 0.0); // Tag farmer ancestry
+	m1.convertToSubstitution = F;
+	initializeGenomicElementType("g1", m1, 1.0);
+	initializeGenomicElement(g1, 0, 2999);
+	initializeMutationRate(0.0);
+	initializeRecombinationRate(0.01);
+	
+	// ---------------------------------------------------
+	//  INTERACTIONS --> Interaction Initialization
+	// ---------------------------------------------------
+	// spatial competition
+	initializeInteractionType(1, "xy", reciprocal=T, maxDistance=S);
+	
+	// spatial mate choice
+	initializeInteractionType(2, "xy", reciprocal=T, maxDistance=MD);
+	
+	// spatial mate choice
+	initializeInteractionType(3, "xy", reciprocal=T, maxDistance=LD);
+}
+
+first()
+{
+	// look for mates
+	i2.evaluate();
+}
+
+reproduction()
+{
+	// ---------------------------------------------------
+	//  MATING --> Individuals mate with those close by
+	// ---------------------------------------------------
+	// choose nearest neighbor as a mate, within the max distance
+	if (individual.age > min_repro_age) // Reproductive age of the individual must be reached before mating
+	{
+		mate = i2.nearestNeighbors(individual, 1);
+		if (mate.size())
+		{
+			if (mate.age > min_repro_age) // Reproductive age of the individual must be reached before mating
+			{
+				// Frequency of the interaction
+				for (i in seqLen(rpois(1, M)))
+				{
+					// Only runs if a mate is nearby
+					if (mate.size())
+					{
+						offspring = subpop.addCrossed(individual, mate);
+						
+						// -----------------------
+						// Color Based on Genotype
+						// -----------------------
+						value = offspring.countOfMutationsOfType(m1) / 6000;
+						offspring.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
+						
+						// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
+						offspring.z = 0;
+						
+						// If both parents are farmers the child is a farmer
+						if (individual.z == 1 & mate.z == 1)
+							offspring.z = 1;
+						if (Color_scheme == 1)
+						{
+							// -----------------------
+							// Color Based on Behavior
+							// -----------------------
+							// Add color to represent phenotype
+							if (offspring.z == 0)
+								offspring.color = "red";
+							else
+								offspring.color = "blue";
+						}
+						
+						// If the one parent is a farmer and one parent is a HG,
+						// they become a farmer
+						if (individual.z != mate.z)
+						{
+							offspring.z = 1;
+							if (Color_option1 == 1)
+							{
+								if (offspring.z == 1)
+									offspring.color = "purple"; // Color Based on Behavior
+							}
+						}
+						if (map == 1)
+						{
+							// set offspring position if map = 1
+							do
+								pos = individual.spatialPosition + rnorm(2, 0, OMD);
+							while (!p1.pointInBounds(pos) | p1.spatialMapValue("world", pos) == 0.0);
+							offspring.setSpatialPosition(pos);
+						}
+						if (map != 1)
+						{
+							// set offspring position if map != 1
+							do
+								pos = individual.spatialPosition + rnorm(2, 0, OMD);
+							while (!p1.pointInBounds(pos));
+							offspring.setSpatialPosition(pos);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+late()
+{
+	// ---------------------------------------------------
+	//  LEARNING --> HGs learn to farm from nearby farmers
+	// ---------------------------------------------------
+	i3.evaluate();
+	for (individual in p1.individuals)
+	{
+		if (individual.z == 1)
+			next;
+		
+		// Get a vector the nearest neighbors within the learning distance (D) 
+		neighbors = i3.nearestNeighbors(individual);
+		
+		// Get ratio of HGs to farmers in the neighbors of the individual
+		neighbor_freq = (sum(neighbors.z) / length(neighbors));
+		
+		// If the HG is surrounded by a certain ratio of farmers (LP) it has the ablity to convert to farming by learning
+		if (neighbor_freq >= LP)
+		{
+			// choose nearest neighbor as a teacher, within the max distance
+			teacher = i3.nearestNeighbors(individual, 1);
+			
+			// Frequency of the interaction
+			for (i in seqLen(rpois(1, L)))
+			{
+				// Only runs if a potential teacher is nearby
+				if (teacher.size())
+				{
+					// Binomial choice for teaching
+					chance = rbinom(1, 1, 0.5);
+					
+					// If teacher is a farmer and individual is a HG
+					if (teacher.z == 1 & chance == 1)
+					{
+						if (Color_option2 == 1)
+						{
+							// -----------------------
+							// Color Based on Behavior
+							// -----------------------
+							// Change the HG to green to see the interaction
+							// and change its phenotype (z coordinate) from 0 to 1
+							// to represent the conversion to farmer
+							// Only first generation HG -> F converts are green
+							individual.color = "green";
+						}
+						individual.z = 2;
+					}
+				}
+			}
+		}
+	}
+	p1.individuals[p1.individuals.z == 2].z = 1;
+}
+
+1 early()
+{
+	sim.addSubpop("p1", SN);
+
+}
+
+late()
+{
+	
+	i1.evaluate();
+	
+	// define vector of farmers and vector of HGs
+	farmers = p1.individuals[p1.individuals.z == 1];
+	HGs = p1.individuals[p1.individuals.z == 0];
+	
+	// spatial competition provides density-dependent selection
+	farmers_num_in_s = i1.interactingNeighborCount(farmers);
+	HG_num_in_s = i1.interactingNeighborCount(HGs);
+	
+	//life table based individual mortality
+	farmer_ages = farmers.age;
+	HG_ages = HGs.age;
+	farmer_survival = 1 - age_scale[farmer_ages];
+	HG_survival = 1 - age_scale[HG_ages];
+	
+	// density-dependence, factoring in individual mortality
+	
+	print((PI * (S^2) * FK) / (farmers_num_in_s + 1) * farmer_survival);
+	farmers.fitnessScaling = ((PI * (S^2) * FK) / (farmers_num_in_s + 1) * farmer_survival);
+	HGs.fitnessScaling = ((PI * (S^2) * HGK) / (HG_num_in_s + 1) * HG_survival);
+		
+}
+
+late()
+{
+	// move around
+	for (ind in p1.individuals)
+	{
+		if (map == 1)
+		{
+			if (ind.z == 1)
+			{
+				// How far farmers diffuse away from their location			
+				do
+					newPos = ind.spatialPosition + runif(2, -FMD, FMD);
+				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
+				ind.setSpatialPosition(newPos);
+			}
+			if (ind.z == 0)
+			{
+				// How far HGs diffuse away from their location
+				do
+					newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
+				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
+				ind.setSpatialPosition(newPos);
+			}
+		}
+		if (map != 1)
+		{
+			for (ind in p1.individuals)
+			{
+				if (ind.z == 1)
+				{
+					// How far farmers diffuse away from their location			
+					do
+						newPos = ind.spatialPosition + runif(2, -FMD, FMD);
+					while (!p1.pointInBounds(newPos));
+					ind.setSpatialPosition(newPos);
+				}
+				if (ind.z == 0)
+				{
+					// How far HGs diffuse away from their location
+					do
+						newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
+					while (!p1.pointInBounds(newPos));
+					ind.setSpatialPosition(newPos);
+				}
+			}
+		}
+	}
+}
+
+1 early()
+{
+	if (map == 1)
+	{
+		// Set up map
+		p1.setSpatialBounds(c(0.0, 0.0, map_size_length_and_width, map_size_length_and_width));
+		mapImage = Image(mapfile);
+		p1.defineSpatialMap("world", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#000000"));
+		
+		// start near a specific map location
+		for (ind in p1.individuals)
+		{
+			do
+				newPos = c(runif(1, 0, map_size_length_and_width), runif(1, 0, map_size_length_and_width));
+			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
+			ind.setSpatialPosition(newPos);
+		}
+	}
+	
+	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
+	// Make individuals near anatolia and greece farmers
+
+	p1.individuals[p1.individuals.x > (0.8 * map_size_length_and_width) & p1.individuals.y < (0.2 * map_size_length_and_width)].z = 1;
+	
+	// Tag genomic ancestry of farmers with marker mutations (m1)
+	// Each marker mutation represents 1Mb
+	indFarmers = p1.individuals[p1.individuals.z == 1];
+	indFarmers.genomes.addNewMutation(m1, 0.0, 0:2999);
+	
+	// Add color to represent phenotype
+	for (i in p1.individuals)
+	{
+		// -----------------------
+		// Color Based on Phenotype
+		// -----------------------
+		value = i.countOfMutationsOfType(m1) / 6000;
+		i.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
+		if (Color_scheme == 1)
+		{
+			// -----------------------
+			// Color Based on Behavior
+			// -----------------------
+			// HGs are red, farmers are blue
+			if (i.z == 0)
+				i.color = "red";
+			else
+				i.color = "blue";
+		}
+	}
+}
+
+1:10000 late()
+{
+	// log the ratio of farmers in the total population to file
+	ratio = paste(sim.generation, (sum(p1.individuals.z) / p1.individuals.length()));
+	writeFile("C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/sim_farmer_ratio.txt", ratio, append=T);
+}
