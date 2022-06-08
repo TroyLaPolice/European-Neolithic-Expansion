@@ -9,9 +9,7 @@ It is a Non-WF model featuring spatial competition, reproduction and learning. I
 
 ### About the map:
 
-The map is a square approximation of Europe which by default is 4,000 km^2.
-This means that 1km on the screen (which is a 1x1) box is 0.00025.
-The simulation can be run either on the map of Europe or on a simple black box.
+The map is a square approximation of Europe which by default is 3,700 km^2.
 
 ### Color schemes:
 
