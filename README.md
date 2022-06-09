@@ -138,7 +138,7 @@ The next two are options that determine if you want special colors for specific 
 	// Map Prefs:
 	// ***********************************	
 
-	defineConstant("mapfile", "C:/PATH/GOES/HERE/TO/MAP/europe.png"); // Path to URL
+	defineConstant("mapfile", "C:/PATH/GOES/HERE/TO/MAP/europe.png"); // File Path to Map Image
 	defineConstant("map_size_length_and_width", 3700);
 ```
 The first parameter is a path in YOUR file system that the map file can be found in. The map is available for download in the repo. This path points to where the map is in your system so it MUST be changed to fit your file structure.
