@@ -106,7 +106,7 @@ These parameters are all distance related and will be entered in km.
  
  The other parameters are the same idea- FM is the mating probability for two farmers.
  
- IM is how often a farmer and huntergatherer interbreed and produce an offspring (controls assortative mating)
+ IM is how often a farmer and hunter gatherer interbreed and produce an offspring (controls assortative mating)
  
  Next is a minimum age required for reproduction. Individuals MUST BE OLDER than the provided age in this parameter for them to be able to reproduce. This prevents infants and small children from being able to reproduce which is unrealistic.
  
