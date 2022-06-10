@@ -197,11 +197,8 @@ late()
 				// Only runs if a potential teacher is nearby
 				if (teacher.size())
 				{
-					// Binomial choice for teaching
-					chance = rbinom(1, 1, 0.5);
-					
 					// If teacher is a farmer and individual is a HG
-					if (teacher.z == 1 & chance == 1)
+					if (teacher.z == 1)
 					{
 						if (Color_option2 == 1)
 						{
@@ -214,13 +211,12 @@ late()
 							// Only first generation HG -> F converts are green
 							individual.color = "green";
 						}
-						individual.z = 2;
+						individual.z = 1;
 					}
 				}
 			}
 		}
 	}
-	p1.individuals[p1.individuals.z == 2].z = 1;
 }
 
 1 early()
@@ -292,7 +288,7 @@ late()
 		mapImage = Image(mapfile_topo_regular); //regular
 	if (map_style == 4)
 		mapImage = Image(mapfile_topo_heavy); //heavy
-			if (map_style == 4)
+	if (map_style == 5)
 		mapImage = Image(square); //square
 		
 	// Set up map
