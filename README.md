@@ -156,15 +156,6 @@ The first parameter is a path in YOUR file system that the map file can be found
 
 The next parameter is the length and width of the map. This will be used when building the map.
 
-*Next are several parameters that **will not typically need to be changed** but some can be if you want*
-
-```
-	// ---------------------------------------------------
-	//  PARAMETERS FOR MAP SCALING (NO NEED TO ADJUST)
-	// ---------------------------------------------------
-	defineConstant("map_size_km2", (map_size_length_and_width * map_size_length_and_width));
-```
-
 *The next two blocks simply initialize the genetic component that is the marker for farmer ancestry and the interactions between individuals*
 
 ```
@@ -210,17 +201,31 @@ These all take place within a certain distance range specified by parameters abo
 ```
 1 early()
 {
+
+	// Check user input for what style of topogrpahy they want on the map
+	if (map_style == 0)
+		mapImage = Image(mapfile_none); //none
+	if (map_style == 1)
+		mapImage = Image(mapfile_topo_superlight); //superlight
+	if (map_style == 2)
+		mapImage = Image(mapfile_topo_light); //light
+	if (map_style == 3)
+		mapImage = Image(mapfile_topo_regular); //regular
+	if (map_style == 4)
+		mapImage = Image(mapfile_topo_heavy); //heavy
+	if (map_style == 5)
+		mapImage = Image(square); //square
+		
 	// Set up map
-	p1.setSpatialBounds(c(0.0, 0.0, map_size_length_and_width, map_size_length_and_width));
-	mapImage = Image(mapfile);
-	p1.defineSpatialMap("world", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#000000"));
+	p1.setSpatialBounds(c(0.0, 0.0, map_size_width, map_size_length));
+	p1.defineSpatialMap("map_object", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#000000"));
 	
 	// start near a specific map location
 	for (ind in p1.individuals)
 	{
 		do
-			newPos = c(runif(1, 0, map_size_length_and_width), runif(1, 0, map_size_length_and_width));
-		while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
+			newPos = c(runif(1, 0, map_size_width), runif(1, 0, map_size_length));
+		while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
 		ind.setSpatialPosition(newPos);
 	}
 	
@@ -233,7 +238,7 @@ It defines the map and its bounds.
 ```
 	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
 	// Make individuals near anatolia and greece farmers
-	p1.individuals[p1.individuals.x > (0.8 * map_size_length_and_width) & p1.individuals.y < (0.2 * map_size_length_and_width)].z = 1;
+	p1.individuals[p1.individuals.x > (0.72 * map_size_width) & p1.individuals.y < (0.09 * map_size_length)].z = 1;
 	
 	// Tag genomic ancestry of farmers with marker mutations (m1)
 	// Each marker mutation represents 1Mb
@@ -295,6 +300,13 @@ reproduction()
 		{
 			if (mate.age > min_repro_age) // Reproductive age of the individual must be reached before mating
 			{
+				if (individual.z != mate.z)
+					M = IM;
+				if (individual.z == mate.z & individual.z == 1)
+					M = FM;
+				if (individual.z == mate.z & individual.z == 0)
+					M = HGM;
+				
 				// Frequency of the interaction
 				for (i in seqLen(rpois(1, M)))
 				{
@@ -339,10 +351,10 @@ reproduction()
 							}
 						}
 						
-						// set offspring position
+						// set offspring position 
 						do
 							pos = individual.spatialPosition + rnorm(2, 0, OMD);
-						while (!p1.pointInBounds(pos) | p1.spatialMapValue("world", pos) == 0.0);
+						while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
 						offspring.setSpatialPosition(pos);
 					}
 				}
@@ -393,11 +405,8 @@ late()
 				// Only runs if a potential teacher is nearby
 				if (teacher.size())
 				{
-					// Binomial choice for teaching
-					chance = rbinom(1, 1, 0.5);
-					
 					// If teacher is a farmer and individual is a HG
-					if (teacher.z == 1 & chance == 1)
+					if (teacher.z == 1)
 					{
 						if (Color_option2 == 1)
 						{
@@ -410,13 +419,12 @@ late()
 							// Only first generation HG -> F converts are green
 							individual.color = "green";
 						}
-						individual.z = 2;
+						individual.z = 1;
 					}
 				}
 			}
 		}
 	}
-	p1.individuals[p1.individuals.z == 2].z = 1;
 }
 ```
 
@@ -482,7 +490,7 @@ late()
 			// How far farmers diffuse away from their location			
 			do
 				newPos = ind.spatialPosition + runif(2, -FMD, FMD);
-			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
+			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
 			ind.setSpatialPosition(newPos);
 		}
 		if (ind.z == 0)
@@ -490,7 +498,7 @@ late()
 			// How far HGs diffuse away from their location
 			do
 				newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
-			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
+			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
 			ind.setSpatialPosition(newPos);
 		}
 	}
