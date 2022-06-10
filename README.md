@@ -514,3 +514,5 @@ late()
 The individuals cannot move to locations outside of the bounds of the map. They can potentially jump across the water (simulating water travel) to other land masses, assuming it is not beyond their movement range, but they cannot stay in the ocean.
 
 The individuals can have different distances they can travel based on if they are a HG or a farmer. This is set up above in the parameters. This allows for simulation of HGs being more migratory and farmers being more localized around their farm.
+
+Of course if you chose to run the simulation with the simple black square the individuals can move anywhere within the given map size.
