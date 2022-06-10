@@ -154,7 +154,7 @@ reproduction()
 						// set offspring position 
 						do
 							pos = individual.spatialPosition + rnorm(2, 0, OMD);
-						while (!p1.pointInBounds(pos) | p1.spatialMapValue("europe", pos) == 0.0);
+						while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
 						offspring.setSpatialPosition(pos);
 					}
 				}
@@ -255,7 +255,7 @@ late()
 			// How far farmers diffuse away from their location			
 			do
 				newPos = ind.spatialPosition + runif(2, -FMD, FMD);
-			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("europe", newPos) == 0.0);
+			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
 			ind.setSpatialPosition(newPos);
 		}
 		if (ind.z == 0)
@@ -263,7 +263,7 @@ late()
 			// How far HGs diffuse away from their location
 			do
 				newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
-			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("europe", newPos) == 0.0);
+			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
 			ind.setSpatialPosition(newPos);
 		}
 	}
@@ -288,14 +288,14 @@ late()
 		
 	// Set up map
 	p1.setSpatialBounds(c(0.0, 0.0, map_size_width, map_size_length));
-	p1.defineSpatialMap("europe", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#000000"));
+	p1.defineSpatialMap("map_object", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#000000"));
 	
 	// start near a specific map location
 	for (ind in p1.individuals)
 	{
 		do
 			newPos = c(runif(1, 0, map_size_width), runif(1, 0, map_size_length));
-		while (!p1.pointInBounds(newPos) | p1.spatialMapValue("europe", newPos) == 0.0);
+		while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
 		ind.setSpatialPosition(newPos);
 	}
 	
