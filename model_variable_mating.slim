@@ -24,17 +24,17 @@ initialize()
 	defineConstant("S", 50); // spatial competition distance
 	defineConstant("MD", 30); // Mating distance
 	defineConstant("LD", 20); // Learning distance
-	defineConstant("OMD", 20); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
-	defineConstant("FMD", 10); // How far farmers diffuse away from their location
+	defineConstant("OMD", 16); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
+	defineConstant("FMD", 7); // How far farmers diffuse away from their location
 	defineConstant("HGMD", 70); // How far HGs diffuse away from their location
 	
 	// Learning, death and mating rate params:
 	// ***********************************
-	defineConstant("L", 0.009); // Learning rate 
+	defineConstant("L", 0.003); // Learning rate 
 	defineConstant("LP", 0.6); // Learning percentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer 
 	defineConstant("HGM", 0.1); // HG fertility rate
 	defineConstant("FM", 0.2); // Farmer fertility rate
-	defineConstant("IM", 0.03); // Interbreeding fertility rate
+	defineConstant("IM", 0.02); // Interbreeding fertility rate
 	defineConstant("min_repro_age", 0); // Individuals MUST be OLDER than this age to reproduce
 	
 	// Age related mortality table
@@ -45,7 +45,7 @@ initialize()
 	// ---------------------------------------------------
 	// Determine Coloring Schemes:
 	// ***********************************	
-	defineConstant("Color_scheme", 1); // Parameter of 0 = Genomic Coloring, 1 = Behavioral Coloring
+	defineConstant("Color_scheme", 0); // Parameter of 0 = Genomic Coloring, 1 = Behavioral Coloring
 	defineConstant("Color_option1", 0); // Parameter of 0 = No special color for 1st generation 'hybrid' offspring, 1 = Coloring for 1st generation 'hybrid' offspring
 	defineConstant("Color_option2", 1); // Parameter of 0 = No special color for 1st generation HG individuals who have learned, 1 = Coloring for 1st generation HG individuals who have learned
 	
@@ -252,7 +252,6 @@ late()
 	HG_survival = 1 - age_scale[HG_ages];
 	
 	// density-dependence, factoring in individual mortality
-	print((PI * (S^2) * FK) / (farmers_num_in_s + 1) * farmer_survival);
 	farmers.fitnessScaling = ((PI * (S^2) * FK) / (farmers_num_in_s + 1) * farmer_survival);
 	HGs.fitnessScaling = ((PI * (S^2) * HGK) / (HG_num_in_s + 1) * HG_survival);
 }
@@ -268,7 +267,7 @@ late()
 			do
 				newPos = ind.spatialPosition + runif(2, -FMD, FMD);
 			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
-			ind.setSpatialPosition(newPos);
+				ind.setSpatialPosition(newPos);
 		}
 		if (ind.z == 0)
 		{
@@ -276,7 +275,7 @@ late()
 			do
 				newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
 			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("world", newPos) == 0.0);
-			ind.setSpatialPosition(newPos);
+				ind.setSpatialPosition(newPos);
 		}
 	}
 }
