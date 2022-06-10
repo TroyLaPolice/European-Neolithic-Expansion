@@ -84,20 +84,24 @@ These parameters are all distance related and will be entered in km.
 ```
 	// Learning, death and mating rate params:
 	// ***********************************
-	defineConstant("L", 0.009); // Learning rate 
+	defineConstant("L", 0.1); // Learning rate 
 	defineConstant("LP", 0.6); // Learning percentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer 
-	defineConstant("M", 0.1); // Mating rate
+	defineConstant("HGM", 0.1); // HG fertility rate
+	defineConstant("FM", 0.2); // Farmer fertility rate
+	defineConstant("IM", 0.02); // Interbreeding fertility rate
 	defineConstant("min_repro_age", 0); // Individuals MUST be OLDER than this age to reproduce
-	
 	// Age related mortality table
 	defineConstant("age_scale", c(0.211180124, 0.211180124, 0.211180124, 0.211180124, 0.211180124, 0.251968504, 0.251968504, 0.251968504, 0.251968504, 0.251968504, 0.105263158, 0.105263158, 0.105263158, 0.105263158, 0.105263158, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.253521127, 0.253521127, 0.253521127, 0.253521127, 0.253521127, 0.301886792, 0.301886792, 0.301886792, 0.301886792, 0.301886792, 0.378378378, 0.378378378, 0.378378378, 0.378378378, 0.378378378, 0.47826087, 0.47826087, 0.47826087, 0.47826087, 0.47826087, 0.583333333, 0.583333333, 0.583333333, 0.583333333, 0.583333333, 0.6, 0.6, 0.6, 0.6, 0.6, 1.0));
  ```
  
- These parameters are all about rates for mating, learning and death. This is the likelihood that farmers will teach a HG how to farm. The first param L is just simply how often this interaction happens.
- The second (LP) is the ratio of farmers to HGs in an area that is required for a HG to learn. 
- For example, if a given area is majority HG it may be less likely that the minority farmers teach. 
- This of course can be changed as you see fit. By default here we see the param is 60%.
+ These parameters are all about rates for mating, learning and death. 
  
+ The first perameter L refers to likelihood that farmers will teach a HG how to farm.
+ The second (LP) is the ratio of farmers to HGs in an area that is required for a HG to learn. For example, if a given area is majority HG it may be less likely that the minority farmers teach. This of course can be changed as you see fit. By default here we see the param is 60%.
+ The next block of parameters handles reproduction probabilities (i.e., the probability that a pair mates and produces an offspring) 
+ HGM is this rate for a pairing of two hunter gatherers will produce an offspring (HGM * 100) percent of the time. 
+ The other parameters are the same idea- FM is the mating probability for two farmers.
+ IM is how often a farmer and huntergatherer interbreed and produce an offspring (controls assortative mating)
  Next is a minimum age required for reproduction. Individuals MUST BE OLDER than the provided age in this parameter for them to be able to reproduce. This prevents infants and small children from being able to reproduce which is unrealistic.
  
  Lastly, the age related mortality table is a life table. This data comes from "age at death" studies. It is implemented similarly to SLiM recipe 16.2 Age structure (a life table model) by Benjamin C. Haller and Philipp W. Messer. It is described in the [manual](http://benhaller.com/slim/SLiM_Manual.pdf) in a succinct and useful way:
@@ -137,11 +141,18 @@ The next two are options that determine if you want special colors for specific 
 	
 	// Map Prefs:
 	// ***********************************	
-
-	defineConstant("mapfile", "C:/PATH/GOES/HERE/TO/MAP/europe.png"); // File Path to Map Image
-	defineConstant("map_size_length_and_width", 3700);
+	defineConstant("map_style", 0); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square
+	defineConstant("mapfile", "C:/PATH/GOES/HERE/TO/MAP/map_no_topology.png"); // File Path to Map Image without topology
+	defineConstant("mapfile_topo_superlight", "C:/PATH/GOES/HERE/TO/MAP/map_superlight_topology.png"); // File Path to Map Image with superlight topology
+	defineConstant("mapfile_topo_light", "C:/PATH/GOES/HERE/TO/MAP/map_light_topology.png"); // File Path to Map Image with light topology
+	defineConstant("mapfile_topo_regular", "C:/PATH/GOES/HERE/TO/MAP/map_regular_topology.png"); // File Path to Map Image with regular topology
+	defineConstant("mapfile_topo_heavy", "C:/PATH/GOES/HERE/TO/MAP/map_heavy_topology.png"); // File Path to Map Image with heavy topology
+	defineConstant("square", "C:/PATH/GOES/HERE/TO/MAP/square.png"); // File Path to square image
+	
+	defineConstant("map_size_length", 3700);
+	defineConstant("map_size_width", 3700);
 ```
-The first parameter is a path in YOUR file system that the map file can be found in. The map is available for download in the repo. This path points to where the map is in your system so it MUST be changed to fit your file structure.
+The first parameter is a path in YOUR file system that the map file can be found in. The maps are available for download in the repo. This path points to where the map is in your system so it MUST be changed to fit your file structure.
 
 The next parameter is the length and width of the map. This will be used when building the map.
 
