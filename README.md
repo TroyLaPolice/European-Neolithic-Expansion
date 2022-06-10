@@ -97,11 +97,17 @@ These parameters are all distance related and will be entered in km.
  These parameters are all about rates for mating, learning and death. 
  
  The first perameter L refers to likelihood that farmers will teach a HG how to farm.
+ 
  The second (LP) is the ratio of farmers to HGs in an area that is required for a HG to learn. For example, if a given area is majority HG it may be less likely that the minority farmers teach. This of course can be changed as you see fit. By default here we see the param is 60%.
+ 
  The next block of parameters handles reproduction probabilities (i.e., the probability that a pair mates and produces an offspring) 
+ 
  HGM is this rate for a pairing of two hunter gatherers will produce an offspring (HGM * 100) percent of the time. 
+ 
  The other parameters are the same idea- FM is the mating probability for two farmers.
+ 
  IM is how often a farmer and huntergatherer interbreed and produce an offspring (controls assortative mating)
+ 
  Next is a minimum age required for reproduction. Individuals MUST BE OLDER than the provided age in this parameter for them to be able to reproduce. This prevents infants and small children from being able to reproduce which is unrealistic.
  
  Lastly, the age related mortality table is a life table. This data comes from "age at death" studies. It is implemented similarly to SLiM recipe 16.2 Age structure (a life table model) by Benjamin C. Haller and Philipp W. Messer. It is described in the [manual](http://benhaller.com/slim/SLiM_Manual.pdf) in a succinct and useful way:
