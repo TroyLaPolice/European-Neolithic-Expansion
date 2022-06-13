@@ -211,22 +211,22 @@ These all take place within a certain distance range specified by parameters abo
 	// Check user input for what style of topogrpahy they want on the map
 	if (map_style == 0)
 		mapImage = Image(mapfile_none); //none
-	if (map_style == 1)
+	else if (map_style == 1)
 		mapImage = Image(mapfile_topo_superlight); //superlight
-	if (map_style == 2)
+	else if (map_style == 2)
 		mapImage = Image(mapfile_topo_light); //light
-	if (map_style == 3)
+	else if (map_style == 3)
 		mapImage = Image(mapfile_topo_regular); //regular
-	if (map_style == 4)
+	else if (map_style == 4)
 		mapImage = Image(mapfile_topo_heavy); //heavy
-	if (map_style == 5)
+	else if (map_style == 5)
 		mapImage = Image(square); //square
 		
 	// Set up map
 	p1.setSpatialBounds(c(0.0, 0.0, map_size_width, map_size_length));
 	p1.defineSpatialMap("map_object", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#000000"));
 	
-	// start near a specific map location
+	// place individuals on the map
 	for (ind in p1.individuals)
 	{
 		do
@@ -243,8 +243,12 @@ It defines the map and its bounds.
 
 ```
 	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
-	// Make individuals near anatolia and greece farmers
-	p1.individuals[p1.individuals.x > (0.72 * map_size_width) & p1.individuals.y < (0.09 * map_size_length)].z = 1;
+	// Make individuals near anatolia and greece farmers or near the edge if using the square
+	//
+	if (map_style == 5)
+		p1.individuals[p1.individuals.x > (0.98 * map_size_width)].z = 1;
+	else
+		p1.individuals[p1.individuals.x > (0.72 * map_size_width) & p1.individuals.y < (0.09 * map_size_length)].z = 1;
 	
 	// Tag genomic ancestry of farmers with marker mutations (m1)
 	// Each marker mutation represents 1Mb
@@ -334,7 +338,6 @@ reproduction()
 						if (individual.z == 1 & mate.z == 1)
 							offspring.z = 1;
 						if (Color_scheme == 1)
-						{
 							// -----------------------
 							// Color Based on Behavior
 							// -----------------------
@@ -358,10 +361,20 @@ reproduction()
 						}
 						
 						// set offspring position 
-						do
-							pos = individual.spatialPosition + rnorm(2, 0, OMD);
-						while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
-						offspring.setSpatialPosition(pos);
+						if (map_style != 5 & individual.y > northern_slowdown_distance * map_size_length)
+						{
+							do
+								pos = individual.spatialPosition + rnorm(2, 0, OMD / northern_slowdown_effect);
+							while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
+							offspring.setSpatialPosition(pos);
+						}
+						else
+						{
+							do
+								pos = individual.spatialPosition + rnorm(2, 0, OMD);
+							while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
+							offspring.setSpatialPosition(pos);
+						}
 					}
 				}
 			}
@@ -491,13 +504,23 @@ late()
 	// move around
 	for (ind in p1.individuals)
 	{
+		// How far farmers diffuse away from their location
 		if (ind.z == 1)
 		{
-			// How far farmers diffuse away from their location			
-			do
-				newPos = ind.spatialPosition + runif(2, -FMD, FMD);
-			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
-			ind.setSpatialPosition(newPos);
+			if (map_style != 5 & ind.y > northern_slowdown_distance * map_size_length)
+			{
+				do
+					newPos = ind.spatialPosition + runif(2, -FMD / northern_slowdown_effect, FMD / northern_slowdown_effect);
+				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
+				ind.setSpatialPosition(newPos);
+			}
+			else
+			{
+				do
+					newPos = ind.spatialPosition + runif(2, -FMD, FMD);
+				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
+				ind.setSpatialPosition(newPos);
+			}
 		}
 		if (ind.z == 0)
 		{
