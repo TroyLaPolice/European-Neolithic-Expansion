@@ -16,14 +16,16 @@ initialize()
 	// ***********************************
 	defineConstant("S", 30); // spatial competition distance
 	defineConstant("MD", 30); // Mating distance
-	defineConstant("LD", 20); // Learning distance
-	defineConstant("OMD", 20); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
-	defineConstant("FMD", 7); // How far farmers diffuse away from their location
-	defineConstant("HGMD", 70); // How far HGs diffuse away from their location
+	defineConstant("LD", 10); // Learning distance
+	defineConstant("OMD", 15); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
+	defineConstant("FMD", 5); // How far farmers diffuse away from their location
+	defineConstant("HGMD", 30); // How far HGs diffuse away from their location
+	defineConstant("northern_slowdown_effect", 2); // Number equals the effect of the slowdown in the north (i.e., how many times slower do they move
+	defineConstant("northern_slowdown_distance", 0.3); // 
 	
 	// Learning, death and mating rate params:
 	// ***********************************
-	defineConstant("L", 0.1); // Learning rate 
+	defineConstant("L", 0.02); // Learning rate 
 	defineConstant("LP", 0.6); // Learning percentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer 
 	defineConstant("HGM", 0.1); // HG fertility rate
 	defineConstant("FM", 0.2); // Farmer fertility rate
@@ -44,20 +46,19 @@ initialize()
 	
 	// Map Prefs: 
 	// ***********************************	
-	defineConstant("map_style", 0); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square
-	
-	defineConstant("mapfile_none", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map.png"); // File Path to Map Image
-	defineConstant("mapfile_topo_superlight", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_topo_superlight.png"); // File Path to Map Image
-	defineConstant("mapfile_topo_light", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_topo_light.png"); // File Path to Map Image
-	defineConstant("mapfile_topo_regular", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_topo_regular.png"); // File Path to Map Image
-	defineConstant("mapfile_topo_heavy", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_topo_heavy.png"); // File Path to Map Image
+	defineConstant("map_style", 4); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square
+	defineConstant("mapfile_none", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_water.png"); // File Path to Map Image
+	defineConstant("mapfile_topo_superlight", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_topo_superlight_water.png"); // File Path to Map Image
+	defineConstant("mapfile_topo_light", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_topo_light_water.png"); // File Path to Map Image
+	defineConstant("mapfile_topo_regular", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_topo_regular_water.png"); // File Path to Map Image
+	defineConstant("mapfile_topo_heavy", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_topo_heavy_water.png"); // File Path to Map Image
 	defineConstant("square", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/square.png"); // File Path to Map Image
 	
+	// If using provided EEA maps, length and width for map style images should be kept at a 1 to 1 aspect ratio (square) to avoid distortion
 	defineConstant("map_size_length", 3700);
 	defineConstant("map_size_width", 3700);
 	
 	// Map citation: https://www.eea.europa.eu/data-and-maps/figures/elevation-map-of-europe
-	
 	// ----------------------------------------------------
 	//  GENETIC COMPONENT --> Initialize Genomic Elements
 	// ----------------------------------------------------
@@ -152,10 +153,20 @@ reproduction()
 						}
 						
 						// set offspring position 
-						do
-							pos = individual.spatialPosition + rnorm(2, 0, OMD);
-						while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
-						offspring.setSpatialPosition(pos);
+						if (map_style != 5 & individual.y > northern_slowdown_distance * map_size_length)
+						{
+							do
+								pos = individual.spatialPosition + rnorm(2, 0, OMD / northern_slowdown_effect);
+							while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
+							offspring.setSpatialPosition(pos);
+						}
+						else
+						{
+							do
+								pos = individual.spatialPosition + rnorm(2, 0, OMD);
+							while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
+							offspring.setSpatialPosition(pos);
+						}
 					}
 				}
 			}
@@ -250,13 +261,23 @@ late()
 	// move around
 	for (ind in p1.individuals)
 	{
+		// How far farmers diffuse away from their location
 		if (ind.z == 1)
 		{
-			// How far farmers diffuse away from their location			
-			do
-				newPos = ind.spatialPosition + runif(2, -FMD, FMD);
-			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
-			ind.setSpatialPosition(newPos);
+			if (map_style != 5 & ind.y > northern_slowdown_distance * map_size_length)
+			{
+				do
+					newPos = ind.spatialPosition + runif(2, -FMD / northern_slowdown_effect, FMD / northern_slowdown_effect);
+				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
+				ind.setSpatialPosition(newPos);
+			}
+			else
+			{
+				do
+					newPos = ind.spatialPosition + runif(2, -FMD, FMD);
+				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
+				ind.setSpatialPosition(newPos);
+			}
 		}
 		if (ind.z == 0)
 		{
@@ -271,21 +292,20 @@ late()
 
 1 early()
 {
-
 	// Check user input for what style of topogrpahy they want on the map
 	if (map_style == 0)
 		mapImage = Image(mapfile_none); //none
-	if (map_style == 1)
+	else if (map_style == 1)
 		mapImage = Image(mapfile_topo_superlight); //superlight
-	if (map_style == 2)
+	else if (map_style == 2)
 		mapImage = Image(mapfile_topo_light); //light
-	if (map_style == 3)
+	else if (map_style == 3)
 		mapImage = Image(mapfile_topo_regular); //regular
-	if (map_style == 4)
+	else if (map_style == 4)
 		mapImage = Image(mapfile_topo_heavy); //heavy
-	if (map_style == 5)
+	else if (map_style == 5)
 		mapImage = Image(square); //square
-		
+	
 	// Set up map
 	p1.setSpatialBounds(c(0.0, 0.0, map_size_width, map_size_length));
 	p1.defineSpatialMap("map_object", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#000000"));
@@ -300,8 +320,12 @@ late()
 	}
 	
 	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
-	// Make individuals near anatolia and greece farmers
-	p1.individuals[p1.individuals.x > (0.72 * map_size_width) & p1.individuals.y < (0.09 * map_size_length)].z = 1;
+	// Make individuals near anatolia and greece farmers or near the edge if using the square
+	//
+	if (map_style == 5)
+		p1.individuals[p1.individuals.x > (0.98 * map_size_width)].z = 1;
+	else
+		p1.individuals[p1.individuals.x > (0.72 * map_size_width) & p1.individuals.y < (0.09 * map_size_length)].z = 1;
 	
 	// Tag genomic ancestry of farmers with marker mutations (m1)
 	// Each marker mutation represents 1Mb
