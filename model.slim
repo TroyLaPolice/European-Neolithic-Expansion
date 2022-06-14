@@ -18,7 +18,7 @@ initialize()
 	defineConstant("MD", 30); // Mating distance
 	defineConstant("LD", 10); // Learning distance
 	defineConstant("OMD", 15); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
-	defineConstant("FMD", 5); // How far farmers diffuse away from their location
+	defineConstant("FMD", 7); // How far farmers diffuse away from their location
 	defineConstant("HGMD", 30); // How far HGs diffuse away from their location
 	defineConstant("northern_slowdown_effect", 2); // Number equals the effect of the slowdown in the north (i.e., how many times slower do they move
 	defineConstant("northern_slowdown_distance", 0.3); // 
@@ -46,7 +46,7 @@ initialize()
 	
 	// Map Prefs: 
 	// ***********************************	
-	defineConstant("map_style", 4); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square
+	defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square
 	defineConstant("mapfile_none", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_water.png"); // File Path to Map Image
 	defineConstant("mapfile_topo_superlight", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_topo_superlight_water.png"); // File Path to Map Image
 	defineConstant("mapfile_topo_light", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_topo_light_water.png"); // File Path to Map Image
@@ -310,7 +310,7 @@ late()
 	p1.setSpatialBounds(c(0.0, 0.0, map_size_width, map_size_length));
 	p1.defineSpatialMap("map_object", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#000000"));
 	
-	// start near a specific map location
+	// place individuals on the map
 	for (ind in p1.individuals)
 	{
 		do
