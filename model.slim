@@ -6,6 +6,11 @@ initialize()
 	// ---------------------------------------------------
 	//  PARAMETERS --> Initialize Constant Params
 	// ---------------------------------------------------
+	
+	//SET WORKING DIRECTORY AND CUSTOM MAP NAME IF DESIRED
+	defineConstant("wd", "~/Documents/HuberLab/HunterGatherFarmerInteractions/");
+	defineConstant("custom_map_filename", 0); // Parameter = file name of map if user wants to use their own map and override the built in maps, else == 0
+	
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
 	defineConstant("SN", 2000); // Starting number of individuals
@@ -17,9 +22,6 @@ initialize()
 	defineConstant("S", 30); // spatial competition distance
 	defineConstant("MD", 30); // Mating distance
 	defineConstant("LD", 10); // Learning distance
-	defineConstant("OMD", 15); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
-	defineConstant("FMD", 7); // How far farmers diffuse away from their location
-	defineConstant("HGMD", 30); // How far HGs diffuse away from their location
 	defineConstant("northern_slowdown_effect", 2); // Number equals the effect of the slowdown in the north (i.e., how many times slower do they move
 	defineConstant("northern_slowdown_distance", 0.3); // 
 	
@@ -46,13 +48,22 @@ initialize()
 	
 	// Map Prefs: 
 	// ***********************************	
-	defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square
-	defineConstant("mapfile_none", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_water.png"); // File Path to Map Image
-	defineConstant("mapfile_topo_superlight", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_topo_superlight_water.png"); // File Path to Map Image
-	defineConstant("mapfile_topo_light", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_topo_light_water.png"); // File Path to Map Image
-	defineConstant("mapfile_topo_regular", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_topo_regular_water.png"); // File Path to Map Image
-	defineConstant("mapfile_topo_heavy", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_topo_heavy_water.png"); // File Path to Map Image
-	defineConstant("square", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/square.png"); // File Path to Map Image
+	defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
+	
+	defineConstant("water_crossings", 0); //Parameter of 0 = no water crossing paths, 1 = water crossing paths
+	
+	if (water_crossings == 0)
+		defineConstant("file_extention", "_water.png");
+	else
+		defineConstant("file_extention", ".png");
+	
+	defineConstant("mapfile_none", wd + "EEA_map" + file_extention); // File Path to Map Image
+	defineConstant("mapfile_topo_superlight", wd + "EEA_map_topo_superlight" + file_extention); // File Path to Map Image
+	defineConstant("mapfile_topo_light", wd + "EEA_map_topo_light" + file_extention); // File Path to Map Image
+	defineConstant("mapfile_topo_regular", wd + "EEA_map_topo_regular" + file_extention); // File Path to Map Image
+	defineConstant("mapfile_topo_heavy", wd + "EEA_map_topo_heavy" + file_extention); // File Path to Map Image
+	defineConstant("square", wd + "square.png"); // File Path to Map Image
+	defineConstant("custom_map", wd + custom_map_filename); // File Path to Map Image
 	
 	// If using provided EEA maps, length and width for map style images should be kept at a 1 to 1 aspect ratio (square) to avoid distortion
 	defineConstant("map_size_length", 3700);
@@ -156,14 +167,25 @@ reproduction()
 						if (map_style != 5 & individual.y > northern_slowdown_distance * map_size_length)
 						{
 							do
-								pos = individual.spatialPosition + rnorm(2, 0, OMD / northern_slowdown_effect);
+							{
+								distance = sample(x = c(2.4, 14.5, 36.3, 60.4), size = 1, replace = T, weights = c(0.54, 0.17, 0.04, 0.25));
+								radian_angle = runif(1, 0, 2*PI);
+								coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance) / northern_slowdown_effect;
+								pos = individual.spatialPosition + coordiates;
+							}
 							while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
 							offspring.setSpatialPosition(pos);
 						}
 						else
 						{
 							do
-								pos = individual.spatialPosition + rnorm(2, 0, OMD);
+							{
+								distance = sample(x = c(2.3, 7.3, 15, 25, 35, 45, 55, 100), size = 1, replace = T, weights = c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02,
+0.01, 0.01));
+								radian_angle = runif(1, 0, 2*PI);
+								coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
+								pos = individual.spatialPosition + coordiates;
+							}
 							while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
 							offspring.setSpatialPosition(pos);
 						}
@@ -267,14 +289,26 @@ late()
 			if (map_style != 5 & ind.y > northern_slowdown_distance * map_size_length)
 			{
 				do
-					newPos = ind.spatialPosition + runif(2, -FMD / northern_slowdown_effect, FMD / northern_slowdown_effect);
+				{
+					distance = sample(x = c(2.3, 7.3, 15, 25, 35, 45, 55, 100), size = 1, replace = T, weights = c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02,
+0.01, 0.01));
+					radian_angle = runif(1, 0, 2*PI);
+					coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance) / northern_slowdown_effect;
+					newPos = ind.spatialPosition + coordiates;
+				}
 				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
 				ind.setSpatialPosition(newPos);
 			}
 			else
 			{
 				do
-					newPos = ind.spatialPosition + runif(2, -FMD, FMD);
+				{
+					distance = sample(x = c(2.3, 7.3, 15, 25, 35, 45, 55, 100), size = 1, replace = T, weights = c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02,
+0.01, 0.01));
+					radian_angle = runif(1, 0, 2*PI);
+					coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
+					newPos = ind.spatialPosition + coordiates;
+				}
 				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
 				ind.setSpatialPosition(newPos);
 			}
@@ -283,7 +317,13 @@ late()
 		{
 			// How far HGs diffuse away from their location
 			do
-				newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
+			{
+					distance = sample(x = c(2.3, 7.3, 15, 25, 35, 45, 55, 100), size = 1, replace = T, weights = c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02,
+0.01, 0.01));
+				radian_angle = runif(1, 0, 2*PI);
+				coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
+				newPos = ind.spatialPosition + coordiates;
+			}
 			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
 			ind.setSpatialPosition(newPos);
 		}
@@ -296,7 +336,7 @@ late()
 	if (map_style == 0)
 		mapImage = Image(mapfile_none); //none
 	else if (map_style == 1)
-		mapImage = Image(mapfile_topo_superlight); //superlight
+		mapImage = Image(mapfile_topo_superlight); //superlight topo
 	else if (map_style == 2)
 		mapImage = Image(mapfile_topo_light); //light
 	else if (map_style == 3)
@@ -305,6 +345,8 @@ late()
 		mapImage = Image(mapfile_topo_heavy); //heavy
 	else if (map_style == 5)
 		mapImage = Image(square); //square
+	else if (map_style == 6)
+		mapImage = Image(custom_map); //square
 	
 	// Set up map
 	p1.setSpatialBounds(c(0.0, 0.0, map_size_width, map_size_length));
@@ -358,5 +400,12 @@ late()
 {
 	// log the ratio of farmers in the total population to file
 	ratio = paste(sim.generation, (sum(p1.individuals.z) / p1.individuals.length()));
-	writeFile("C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/sim_farmer_ratio.txt", ratio, append=T);
+	writeFile("~/Documents/HuberLab/HunterGatherFarmerInteractions/sim_farmer_ratio.txt", ratio, append=T);
+	print(sim.generation);
+	
+	//for (ind in p1.individuals)
+	//{
+		//individuals = paste(sim.generation, ind.z, ind.x, ind.y);
+		//writeFile("C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/sim_individuals.txt", individuals, append=T);
+	//}
 }
