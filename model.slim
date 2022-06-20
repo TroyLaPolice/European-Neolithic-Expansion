@@ -21,6 +21,9 @@ initialize()
 	// ***********************************
 	defineConstant("S", 30); // spatial competition distance
 	defineConstant("MD", 30); // Mating distance
+	defineConstant("movement_distances", c(2.3, 7.3, 15, 25, 35, 45, 55, 100)); // Distances sampled from
+	defineConstant("movement_distance_weights", c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02,
+0.01, 0.01)); // Weights for movement distance sampling
 	defineConstant("LD", 10); // Learning distance
 	defineConstant("northern_slowdown_effect", 2); // Number equals the effect of the slowdown in the north (i.e., how many times slower do they move
 	defineConstant("northern_slowdown_distance", 0.3); // 
@@ -48,7 +51,7 @@ initialize()
 	
 	// Map Prefs: 
 	// ***********************************	
-	defineConstant("map_style", 0); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
+	defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
 	
 	defineConstant("water_crossings", 1); //Parameter of 0 = no water crossing paths, 1 = water crossing paths
 	
@@ -168,7 +171,7 @@ reproduction()
 						{
 							do
 							{
-								distance = sample(x = c(2.4, 14.5, 36.3, 60.4), size = 1, replace = T, weights = c(0.54, 0.17, 0.04, 0.25));
+								distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
 								radian_angle = runif(1, 0, 2*PI);
 								coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance) / northern_slowdown_effect;
 								pos = individual.spatialPosition + coordiates;
@@ -180,8 +183,7 @@ reproduction()
 						{
 							do
 							{
-								distance = sample(x = c(2.3, 7.3, 15, 25, 35, 45, 55, 100), size = 1, replace = T, weights = c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02,
-0.01, 0.01));
+								distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
 								radian_angle = runif(1, 0, 2*PI);
 								coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
 								pos = individual.spatialPosition + coordiates;
@@ -290,8 +292,7 @@ late()
 			{
 				do
 				{
-					distance = sample(x = c(2.3, 7.3, 15, 25, 35, 45, 55, 100), size = 1, replace = T, weights = c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02,
-0.01, 0.01));
+					distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
 					radian_angle = runif(1, 0, 2*PI);
 					coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance) / northern_slowdown_effect;
 					newPos = ind.spatialPosition + coordiates;
@@ -303,8 +304,7 @@ late()
 			{
 				do
 				{
-					distance = sample(x = c(2.3, 7.3, 15, 25, 35, 45, 55, 100), size = 1, replace = T, weights = c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02,
-0.01, 0.01));
+					distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
 					radian_angle = runif(1, 0, 2*PI);
 					coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
 					newPos = ind.spatialPosition + coordiates;
@@ -318,8 +318,7 @@ late()
 			// How far HGs diffuse away from their location
 			do
 			{
-					distance = sample(x = c(2.3, 7.3, 15, 25, 35, 45, 55, 100), size = 1, replace = T, weights = c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02,
-0.01, 0.01));
+				distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
 				radian_angle = runif(1, 0, 2*PI);
 				coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
 				newPos = ind.spatialPosition + coordiates;
@@ -396,13 +395,41 @@ late()
 	}
 }
 
+1 early()
+{
+	param_string = paste(SN, HGK, FK, S, MD, LD, northern_slowdown_effect, northern_slowdown_distance, L, LP, HGM, FM, IM, min_repro_age, map_style, water_crossings, "[", age_scale, "]", "[", movement_distances, "]", "[", movement_distance_weights, "]");
+	param_heading = paste("SN HGK FK S MD LD northern_slowdown_effect northern_slowdown_distance L LP HGM FM IM min_repro_age map_style water_crossings [ age_scale ]  [ movement_distances ]  [ movement_distance_weights ]");
+	writeFile(wd + "/sim_runtime_params.txt", param_heading, append=T);
+	writeFile(wd + "/sim_runtime_params.txt", param_string, append=T);
+	
+	output_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmersToHG");
+	writeFile(wd + "/sim_pop_stats_per_year.txt", output_header_string, append=T);
+}
+
 1:10000 late()
 {
-	// log the ratio of farmers in the total population to file
-	ratio = paste(sim.generation, (sum(p1.individuals.z) / p1.individuals.length()));
-	writeFile(wd + "/sim_farmer_ratio.txt", ratio, append=T);
-	print(sim.generation);
+
+	// provide feedback on progress for command line users
+	year_counter = paste("Simulation Year: ", sim.generation);
+	print(year_counter);
 	
+	// calculate num farmers
+	num_farmers = sum(p1.individuals.z);
+	
+	//calculate num HGs
+	num_HGs = (p1.individuals.length() - sum(p1.individuals.z));
+		
+	// calculate the ratio of farmers in the total population to file
+	ratio = (sum(p1.individuals.z) / p1.individuals.length());
+	
+	// calculate population size statistics
+	pop_size = p1.individuals.length();
+
+	// write outputs
+	output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio);
+	writeFile(wd + "/sim_pop_stats_per_year.txt", output_string, append=T);
+	
+	// log individual data
 	//for (ind in p1.individuals)
 	//{
 		//individuals = paste(sim.generation, ind.z, ind.x, ind.y);
