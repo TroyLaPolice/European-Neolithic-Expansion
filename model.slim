@@ -8,7 +8,7 @@ initialize()
 	// ---------------------------------------------------
 	
 	//SET WORKING DIRECTORY AND CUSTOM MAP NAME IF DESIRED
-	defineConstant("wd", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/");
+	defineConstant("wd", "~/Documents/HuberLab/HunterGatherFarmerInteractions");
 	defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
 	
 	// Carrying Capacities and Pop Sizes:
@@ -48,7 +48,7 @@ initialize()
 	
 	// Map Prefs: 
 	// ***********************************	
-	defineConstant("map_style", 1); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
+	defineConstant("map_style", 0); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
 	
 	defineConstant("water_crossings", 1); //Parameter of 0 = no water crossing paths, 1 = water crossing paths
 	
@@ -57,12 +57,12 @@ initialize()
 	else
 		defineConstant("file_extention", ".png");
 	
-	defineConstant("mapfile_none", wd + "EEA_map" + file_extention); // File Path to Map Image
-	defineConstant("mapfile_topo_superlight", wd + "EEA_map_topo_superlight" + file_extention); // File Path to Map Image
-	defineConstant("mapfile_topo_light", wd + "EEA_map_topo_light" + file_extention); // File Path to Map Image
-	defineConstant("mapfile_topo_regular", wd + "EEA_map_topo_regular" + file_extention); // File Path to Map Image
-	defineConstant("mapfile_topo_heavy", wd + "EEA_map_topo_heavy" + file_extention); // File Path to Map Image
-	defineConstant("square", wd + "square.png"); // File Path to Map Image
+	defineConstant("mapfile_none", wd + "/EEA_map" + file_extention); // File Path to Map Image
+	defineConstant("mapfile_topo_superlight", wd + "/EEA_map_topo_superlight" + file_extention); // File Path to Map Image
+	defineConstant("mapfile_topo_light", wd + "/EEA_map_topo_light" + file_extention); // File Path to Map Image
+	defineConstant("mapfile_topo_regular", wd + "/EEA_map_topo_regular" + file_extention); // File Path to Map Image
+	defineConstant("mapfile_topo_heavy", wd + "/EEA_map_topo_heavy" + file_extention); // File Path to Map Image
+	defineConstant("square", wd + "/square.png"); // File Path to Map Image
 	defineConstant("custom_map", wd + custom_map_filename); // File Path to Map Image
 	
 	// If using provided EEA maps, length and width for map style images should be kept at a 1 to 1 aspect ratio (square) to avoid distortion
@@ -400,12 +400,12 @@ late()
 {
 	// log the ratio of farmers in the total population to file
 	ratio = paste(sim.generation, (sum(p1.individuals.z) / p1.individuals.length()));
-	writeFile(wd + "sim_farmer_ratio.txt", ratio, append=T);
+	writeFile(wd + "/sim_farmer_ratio.txt", ratio, append=T);
 	print(sim.generation);
 	
 	//for (ind in p1.individuals)
 	//{
 		//individuals = paste(sim.generation, ind.z, ind.x, ind.y);
-		//writeFile("C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/sim_individuals.txt", individuals, append=T);
+		//writeFile(wd + "/sim_individuals.txt", individuals, append=T);
 	//}
 }
