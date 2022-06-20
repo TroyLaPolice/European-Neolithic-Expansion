@@ -46,7 +46,7 @@ initialize()
 	
 	// Map Prefs: 
 	// ***********************************	
-	defineConstant("map_style", 0); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square
+	defineConstant("map_style", 1); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square
 	defineConstant("mapfile_none", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_water.png"); // File Path to Map Image
 	defineConstant("mapfile_topo_superlight", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_topo_superlight_water.png"); // File Path to Map Image
 	defineConstant("mapfile_topo_light", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/EEA_map_topo_light_water.png"); // File Path to Map Image
@@ -169,7 +169,8 @@ reproduction()
 						{
 							do
 							{
-								distance = sample(x = c(2.4, 14.5, 36.3, 60.4), size = 1, replace = T, weights = c(0.54, 0.17, 0.04, 0.25));
+								distance = sample(x = c(2.3, 7.3, 15, 25, 35, 45, 55, 100), size = 1, replace = T, weights = c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02,
+0.01, 0.01));
 								radian_angle = runif(1, 0, 2*PI);
 								coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
 								pos = individual.spatialPosition + coordiates;
@@ -278,7 +279,8 @@ late()
 			{
 				do
 				{
-					distance = sample(x = c(2.4, 14.5, 36.3, 60.4), size = 1, replace = T, weights = c(0.54, 0.17, 0.04, 0.25));
+					distance = sample(x = c(2.3, 7.3, 15, 25, 35, 45, 55, 100), size = 1, replace = T, weights = c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02,
+0.01, 0.01));
 					radian_angle = runif(1, 0, 2*PI);
 					coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance) / northern_slowdown_effect;
 					newPos = ind.spatialPosition + coordiates;
@@ -290,7 +292,8 @@ late()
 			{
 				do
 				{
-					distance = sample(x = c(2.4, 14.5, 36.3, 60.4), size = 1, replace = T, weights = c(0.54, 0.17, 0.04, 0.25));
+					distance = sample(x = c(2.3, 7.3, 15, 25, 35, 45, 55, 100), size = 1, replace = T, weights = c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02,
+0.01, 0.01));
 					radian_angle = runif(1, 0, 2*PI);
 					coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
 					newPos = ind.spatialPosition + coordiates;
@@ -304,7 +307,8 @@ late()
 			// How far HGs diffuse away from their location
 			do
 			{
-				distance = sample(x = c(2.4, 14.5, 36.3, 60.4), size = 1, replace = T, weights = c(0.54, 0.17, 0.04, 0.25));
+					distance = sample(x = c(2.3, 7.3, 15, 25, 35, 45, 55, 100), size = 1, replace = T, weights = c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02,
+0.01, 0.01));
 				radian_angle = runif(1, 0, 2*PI);
 				coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
 				newPos = ind.spatialPosition + coordiates;
@@ -382,8 +386,8 @@ late()
 1:10000 late()
 {
 	// log the ratio of farmers in the total population to file
-	ratio = paste(sim.generation, (sum(p1.individuals.z) / p1.individuals.length()));
-	writeFile("C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/sim_farmer_ratio.txt", ratio, append=T);
+	//ratio = paste(sim.generation, (sum(p1.individuals.z) / p1.individuals.length()));
+	//writeFile("C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/sim_farmer_ratio.txt", ratio, append=T);
 	
 	//for (ind in p1.individuals)
 	//{
