@@ -10,11 +10,12 @@ initialize()
 	//SET WORKING DIRECTORY AND CUSTOM MAP NAME IF DESIRED
 	defineConstant("wd", "~/Documents/HuberLab/HunterGatherFarmerInteractions");
 	defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
+	defineConstant("output_name", "6-20-map"); // To run default names make an empty string
 	
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
-	defineConstant("SN", 2000); // Starting number of individuals
-	defineConstant("HGK", 0.00094); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
+	defineConstant("SN", 200000); // Starting number of individuals
+	defineConstant("HGK", 0.00064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
 	defineConstant("FK", 0.00128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
 	// Movement and interaction Distances (ENTER IN KILOMETERS):
@@ -51,7 +52,7 @@ initialize()
 	
 	// Map Prefs: 
 	// ***********************************	
-	defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
+	defineConstant("map_style", 0); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
 	
 	defineConstant("water_crossings", 1); //Parameter of 0 = no water crossing paths, 1 = water crossing paths
 	
@@ -397,13 +398,21 @@ late()
 
 1 early()
 {
+	// log runtime params
 	param_string = paste(SN, HGK, FK, S, MD, LD, northern_slowdown_effect, northern_slowdown_distance, L, LP, HGM, FM, IM, min_repro_age, map_style, water_crossings, "[", age_scale, "]", "[", movement_distances, "]", "[", movement_distance_weights, "]");
-	param_heading = paste("SN HGK FK S MD LD northern_slowdown_effect northern_slowdown_distance L LP HGM FM IM min_repro_age map_style water_crossings [ age_scale ]  [ movement_distances ]  [ movement_distance_weights ]");
-	writeFile(wd + "/sim_runtime_params.txt", param_heading, append=T);
-	writeFile(wd + "/sim_runtime_params.txt", param_string, append=T);
 	
-	output_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmersToHG");
-	writeFile(wd + "/sim_pop_stats_per_year.txt", output_header_string, append=T);
+	// File headings
+	param_heading = paste("SN HGK FK S MD LD northern_slowdown_effect northern_slowdown_distance L LP HGM FM IM min_repro_age map_style water_crossings [ age_scale ]  [ movement_distances ]  [ movement_distance_weights ]");
+	
+	// Runtime params - write to file
+	output_runtime_file_name = ("/sim_runtime_params_" + output_name + ".txt");
+	writeFile(wd + output_runtime_file_name, param_heading, append=T);
+	writeFile(wd + output_runtime_file_name, param_string, append=T);
+	
+	// Population stats headers - write to file
+	stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmersToHG");
+	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
+	writeFile(wd + output_stats_file_name, stats_header_string, append=T);
 }
 
 1:10000 late()
@@ -427,7 +436,10 @@ late()
 
 	// write outputs
 	output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio);
-	writeFile(wd + "/sim_pop_stats_per_year.txt", output_string, append=T);
+	
+	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
+	
+	writeFile(wd + output_stats_file_name, output_string, append=T);
 	
 	// log individual data
 	//for (ind in p1.individuals)
