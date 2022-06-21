@@ -52,6 +52,15 @@ This bit of code begins the model and creates the non-WF model and the xy dimens
 	// ---------------------------------------------------
 ```
 
+*First we need to set our working directory and if the user choses a special custom map they will need to provide the file name (otherwise leave this as 0)*
+
+```
+	//SET WORKING DIRECTORY AND CUSTOM MAP NAME IF DESIRED
+	defineConstant("wd", "~/Documents/HuberLab/HunterGatherFarmerInteractions");
+	defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
+	defineConstant("output_name", "6-21-square"); // To run default names make an empty string
+```
+
 *Next begins the set up where parameters for the model will be set. Some of these will not need to be touched but some should be tuned to your liking.*
 
 ###### Parameters for how the population grows, interacts and moves
@@ -64,18 +73,20 @@ This bit of code begins the model and creates the non-WF model and the xy dimens
 	defineConstant("FK", 1.28); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
  ```
-These parameters describe the starting number of individuals in the sim and the carrying capacity (given in individuals per km^2) for HGs and farmers.
+These parameters describe the starting number of individuals in the sim for HGs and farmers and the distances they can travel.
 These parameters should be adjusted to your liking.
 
 ```
 	// Movement and interaction Distances (ENTER IN KILOMETERS):
 	// ***********************************
-	defineConstant("S", 50); // spatial competition distance
+	defineConstant("S", 30); // spatial competition distance
 	defineConstant("MD", 30); // Mating distance
-	defineConstant("LD", 20); // Learning distance
-	defineConstant("OMD", 20); // Offspring movement away from parents. Right now OMD is the same for both populations but we could make it unique
-	defineConstant("FMD", 10); // How far farmers diffuse away from their location
-	defineConstant("HGMD", 70); // How far HGs diffuse away from their location
+	defineConstant("movement_distances", c(2.3, 7.3, 15, 25, 35, 45, 55, 100)); // Distances sampled from
+	defineConstant("movement_distance_weights", c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02,
+0.01, 0.01)); // Weights for movement distance sampling
+	defineConstant("LD", 10); // Learning distance
+	defineConstant("northern_slowdown_effect", 2); // Number equals the effect of the slowdown in the north (i.e., how many times slower do they move
+	defineConstant("northern_slowdown_distance", 0.3); // How far north on the map does the slow down begin (0.5 is mid point, scale is 0-1 with far South being 0 and North being 1)
 	
 ```
 
@@ -145,18 +156,30 @@ The next two are options that determine if you want special colors for specific 
 
 ```
 	
-	// Map Prefs:
+	// Map Prefs: 
 	// ***********************************	
-	defineConstant("map_style", 0); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square
-	defineConstant("mapfile", "C:/PATH/GOES/HERE/TO/MAP/map_no_topology.png"); // File Path to Map Image without topology
-	defineConstant("mapfile_topo_superlight", "C:/PATH/GOES/HERE/TO/MAP/map_superlight_topology.png"); // File Path to Map Image with superlight topology
-	defineConstant("mapfile_topo_light", "C:/PATH/GOES/HERE/TO/MAP/map_light_topology.png"); // File Path to Map Image with light topology
-	defineConstant("mapfile_topo_regular", "C:/PATH/GOES/HERE/TO/MAP/map_regular_topology.png"); // File Path to Map Image with regular topology
-	defineConstant("mapfile_topo_heavy", "C:/PATH/GOES/HERE/TO/MAP/map_heavy_topology.png"); // File Path to Map Image with heavy topology
-	defineConstant("square", "C:/PATH/GOES/HERE/TO/MAP/square.png"); // File Path to square image
+	defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
 	
+	defineConstant("water_crossings", 1); //Parameter of 0 = no water crossing paths, 1 = water crossing paths
+	
+	if (water_crossings == 1)
+		defineConstant("file_extention", "_water.png");
+	else
+		defineConstant("file_extention", ".png");
+	
+	defineConstant("mapfile_none", wd + "/EEA_map" + file_extention); // File Path to Map Image
+	defineConstant("mapfile_topo_superlight", wd + "/EEA_map_topo_superlight" + file_extention); // File Path to Map Image
+	defineConstant("mapfile_topo_light", wd + "/EEA_map_topo_light" + file_extention); // File Path to Map Image
+	defineConstant("mapfile_topo_regular", wd + "/EEA_map_topo_regular" + file_extention); // File Path to Map Image
+	defineConstant("mapfile_topo_heavy", wd + "/EEA_map_topo_heavy" + file_extention); // File Path to Map Image
+	defineConstant("square", wd + "/square.png"); // File Path to Map Image
+	defineConstant("custom_map", wd + custom_map_filename); // File Path to Map Image
+	
+	// If using provided EEA maps, length and width for map style images should be kept at a 1 to 1 aspect ratio (square) to avoid distortion
 	defineConstant("map_size_length", 3700);
 	defineConstant("map_size_width", 3700);
+	
+	// Map citation: https://www.eea.europa.eu/data-and-maps/figures/elevation-map-of-europe
 ```
 The first parameter is a path in YOUR file system that the map file can be found in. The maps are available for download in the repo. This path points to where the map is in your system so it MUST be changed to fit your file structure.
 
@@ -207,12 +230,11 @@ These all take place within a certain distance range specified by parameters abo
 ```
 1 early()
 {
-
 	// Check user input for what style of topogrpahy they want on the map
 	if (map_style == 0)
 		mapImage = Image(mapfile_none); //none
 	else if (map_style == 1)
-		mapImage = Image(mapfile_topo_superlight); //superlight
+		mapImage = Image(mapfile_topo_superlight); //superlight topo
 	else if (map_style == 2)
 		mapImage = Image(mapfile_topo_light); //light
 	else if (map_style == 3)
@@ -221,7 +243,9 @@ These all take place within a certain distance range specified by parameters abo
 		mapImage = Image(mapfile_topo_heavy); //heavy
 	else if (map_style == 5)
 		mapImage = Image(square); //square
-		
+	else if (map_style == 6)
+		mapImage = Image(custom_map); //square
+	
 	// Set up map
 	p1.setSpatialBounds(c(0.0, 0.0, map_size_width, map_size_length));
 	p1.defineSpatialMap("map_object", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#000000"));
@@ -338,6 +362,7 @@ reproduction()
 						if (individual.z == 1 & mate.z == 1)
 							offspring.z = 1;
 						if (Color_scheme == 1)
+						{
 							// -----------------------
 							// Color Based on Behavior
 							// -----------------------
@@ -364,14 +389,24 @@ reproduction()
 						if (map_style != 5 & individual.y > northern_slowdown_distance * map_size_length)
 						{
 							do
-								pos = individual.spatialPosition + rnorm(2, 0, OMD / northern_slowdown_effect);
+							{
+								distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+								radian_angle = runif(1, 0, 2*PI);
+								coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance) / northern_slowdown_effect;
+								pos = individual.spatialPosition + coordiates;
+							}
 							while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
 							offspring.setSpatialPosition(pos);
 						}
 						else
 						{
 							do
-								pos = individual.spatialPosition + rnorm(2, 0, OMD);
+							{
+								distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+								radian_angle = runif(1, 0, 2*PI);
+								coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
+								pos = individual.spatialPosition + coordiates;
+							}
 							while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
 							offspring.setSpatialPosition(pos);
 						}
@@ -499,9 +534,7 @@ Finally we bring the two parts together.
 #### Movement of individuals
 
 ```
-late()
-{
-	// move around
+// move around
 	for (ind in p1.individuals)
 	{
 		// How far farmers diffuse away from their location
@@ -510,14 +543,24 @@ late()
 			if (map_style != 5 & ind.y > northern_slowdown_distance * map_size_length)
 			{
 				do
-					newPos = ind.spatialPosition + runif(2, -FMD / northern_slowdown_effect, FMD / northern_slowdown_effect);
+				{
+					distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+					radian_angle = runif(1, 0, 2*PI);
+					coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance) / northern_slowdown_effect;
+					newPos = ind.spatialPosition + coordiates;
+				}
 				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
 				ind.setSpatialPosition(newPos);
 			}
 			else
 			{
 				do
-					newPos = ind.spatialPosition + runif(2, -FMD, FMD);
+				{
+					distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+					radian_angle = runif(1, 0, 2*PI);
+					coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
+					newPos = ind.spatialPosition + coordiates;
+				}
 				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
 				ind.setSpatialPosition(newPos);
 			}
@@ -526,7 +569,12 @@ late()
 		{
 			// How far HGs diffuse away from their location
 			do
-				newPos = ind.spatialPosition + runif(2, -HGMD, HGMD);
+			{
+				distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+				radian_angle = runif(1, 0, 2*PI);
+				coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
+				newPos = ind.spatialPosition + coordiates;
+			}
 			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
 			ind.setSpatialPosition(newPos);
 		}
