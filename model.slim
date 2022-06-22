@@ -10,13 +10,13 @@ initialize()
 	//SET WORKING DIRECTORY AND CUSTOM MAP NAME IF DESIRED
 	defineConstant("wd", "~/Documents/HuberLab/HunterGatherFarmerInteractions");
 	defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
-	defineConstant("output_name", "6-20-map"); // To run default names make an empty string
+	defineConstant("output_name", "6-21-test"); // To run default names make an empty string
 	
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
 	defineConstant("SN", 200000); // Starting number of individuals
-	defineConstant("HGK", 0.00064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
-	defineConstant("FK", 0.00128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
+	defineConstant("HGK", 0.0064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
+	defineConstant("FK", 0.0128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
 	// Movement and interaction Distances (ENTER IN KILOMETERS):
 	// ***********************************
@@ -52,7 +52,7 @@ initialize()
 	
 	// Map Prefs: 
 	// ***********************************	
-	defineConstant("map_style", 0); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
+	defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
 	
 	defineConstant("water_crossings", 1); //Parameter of 0 = no water crossing paths, 1 = water crossing paths
 	
@@ -172,9 +172,12 @@ reproduction()
 						{
 							do
 							{
+								// This samples from a vector of movement distances based on the probability that they move this distance
 								distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+								// Next we need to calculate the x and y coodinates
 								radian_angle = runif(1, 0, 2*PI);
 								coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance) / northern_slowdown_effect;
+								// Next we can reset the position
 								pos = individual.spatialPosition + coordiates;
 							}
 							while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
@@ -184,9 +187,12 @@ reproduction()
 						{
 							do
 							{
+								// This samples from a vector of movement distances based on the probability that they move this distance
 								distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+								// Next we need to calculate the x and y coodinates
 								radian_angle = runif(1, 0, 2*PI);
 								coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
+								// Next we can reset the position
 								pos = individual.spatialPosition + coordiates;
 							}
 							while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
@@ -293,9 +299,12 @@ late()
 			{
 				do
 				{
+					// This samples from a vector of movement distances based on the probability that they move this distance
 					distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+					// Next we need to calculate the x and y coodinates
 					radian_angle = runif(1, 0, 2*PI);
 					coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance) / northern_slowdown_effect;
+					// Next we can reset the position
 					newPos = ind.spatialPosition + coordiates;
 				}
 				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
@@ -305,9 +314,12 @@ late()
 			{
 				do
 				{
+					// This samples from a vector of movement distances based on the probability that they move this distance
 					distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+					// Next we need to calculate the x and y coodinates
 					radian_angle = runif(1, 0, 2*PI);
 					coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
+					// Next we can reset the position
 					newPos = ind.spatialPosition + coordiates;
 				}
 				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
@@ -319,9 +331,12 @@ late()
 			// How far HGs diffuse away from their location
 			do
 			{
+				// This samples from a vector of movement distances based on the probability that they move this distance
 				distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+				// Next we need to calculate the x and y coodinates
 				radian_angle = runif(1, 0, 2*PI);
 				coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
+				// Next we can reset the position
 				newPos = ind.spatialPosition + coordiates;
 			}
 			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
