@@ -76,6 +76,8 @@ This bit of code begins the model and creates the non-WF model and the xy dimens
 These parameters describe the starting number of individuals in the sim for HGs and farmers and the distances they can travel.
 These parameters should be adjusted to your liking.
 
+The movement_distances parameter is a series of distances that are sampled from based on the probability that an individual travels that distance. The movement_distance_weights parameter is the vector of corresponding probabilities.
+
 ```
 	// Movement and interaction Distances (ENTER IN KILOMETERS):
 	// ***********************************
@@ -166,7 +168,11 @@ The next two are options that determine if you want special colors for specific 
 		defineConstant("file_extention", "_water.png");
 	else
 		defineConstant("file_extention", ".png");
-	
+```
+
+*These parameters do not need to be changed! They handle what map to use. If you want to use a custom map, enter the file name at the begining of the script*
+
+```
 	defineConstant("mapfile_none", wd + "/EEA_map" + file_extention); // File Path to Map Image
 	defineConstant("mapfile_topo_superlight", wd + "/EEA_map_topo_superlight" + file_extention); // File Path to Map Image
 	defineConstant("mapfile_topo_light", wd + "/EEA_map_topo_light" + file_extention); // File Path to Map Image
@@ -174,8 +180,12 @@ The next two are options that determine if you want special colors for specific 
 	defineConstant("mapfile_topo_heavy", wd + "/EEA_map_topo_heavy" + file_extention); // File Path to Map Image
 	defineConstant("square", wd + "/square.png"); // File Path to Map Image
 	defineConstant("custom_map", wd + custom_map_filename); // File Path to Map Image
-	
-	// If using provided EEA maps, length and width for map style images should be kept at a 1 to 1 aspect ratio (square) to avoid distortion
+```
+
+
+These parameters handle the map size in km. If using provided EEA maps, length and width for map style images should be kept at a 1 to 1 aspect ratio (square) to avoid distortion. By default they are 3700 x 3700 km square maps
+
+```
 	defineConstant("map_size_length", 3700);
 	defineConstant("map_size_width", 3700);
 	
