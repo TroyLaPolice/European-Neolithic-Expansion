@@ -400,9 +400,12 @@ reproduction()
 						{
 							do
 							{
+								// This samples from a vector of movement distances based on the probability that they move this distance
 								distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+								// Next we need to calculate the x and y coodinates
 								radian_angle = runif(1, 0, 2*PI);
 								coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance) / northern_slowdown_effect;
+								// Next we can reset the position
 								pos = individual.spatialPosition + coordiates;
 							}
 							while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
@@ -412,9 +415,12 @@ reproduction()
 						{
 							do
 							{
+								// This samples from a vector of movement distances based on the probability that they move this distance
 								distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+								// Next we need to calculate the x and y coodinates
 								radian_angle = runif(1, 0, 2*PI);
 								coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
+								// Next we can reset the position
 								pos = individual.spatialPosition + coordiates;
 							}
 							while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
@@ -544,7 +550,9 @@ Finally we bring the two parts together.
 #### Movement of individuals
 
 ```
-// move around
+late()
+{
+	// move around
 	for (ind in p1.individuals)
 	{
 		// How far farmers diffuse away from their location
@@ -554,9 +562,12 @@ Finally we bring the two parts together.
 			{
 				do
 				{
+					// This samples from a vector of movement distances based on the probability that they move this distance
 					distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+					// Next we need to calculate the x and y coodinates
 					radian_angle = runif(1, 0, 2*PI);
 					coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance) / northern_slowdown_effect;
+					// Next we can reset the position
 					newPos = ind.spatialPosition + coordiates;
 				}
 				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
@@ -566,9 +577,12 @@ Finally we bring the two parts together.
 			{
 				do
 				{
+					// This samples from a vector of movement distances based on the probability that they move this distance
 					distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+					// Next we need to calculate the x and y coodinates
 					radian_angle = runif(1, 0, 2*PI);
 					coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
+					// Next we can reset the position
 					newPos = ind.spatialPosition + coordiates;
 				}
 				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
@@ -580,9 +594,12 @@ Finally we bring the two parts together.
 			// How far HGs diffuse away from their location
 			do
 			{
+				// This samples from a vector of movement distances based on the probability that they move this distance
 				distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+				// Next we need to calculate the x and y coodinates
 				radian_angle = runif(1, 0, 2*PI);
 				coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
+				// Next we can reset the position
 				newPos = ind.spatialPosition + coordiates;
 			}
 			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
