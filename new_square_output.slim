@@ -1,20 +1,7 @@
-initialize()
-{
-	initializeSLiMModelType("nonWF");
-	initializeSLiMOptions(dimensionality="xy", periodicity="");
-	
-	// ---------------------------------------------------
-	//  PARAMETERS --> Initialize Constant Params
-	// ---------------------------------------------------
-	//SET WORKING DIRECTORY AND CUSTOM MAP NAME IF DESIRED
-	defineConstant("wd", "~/Documents/HuberLab/HunterGatherFarmerInteractions");
-	defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
-	defineConstant("output_name", "6-21-test"); // To run default names make an empty string
-	
-	// Carrying Capacities and Pop Sizes:
+// Carrying Capacities and Pop Sizes:
 	// ***********************************
 	defineConstant("SN", 200000); // Starting number of individuals
-	defineConstant("HGK", 0.00064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
+	defineConstant("HGK", 0.00094); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
 	defineConstant("FK", 0.00128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
 	// Movement and interaction Distances (ENTER IN KILOMETERS):
@@ -385,7 +372,7 @@ late()
 	// Make individuals near anatolia and greece farmers or near the edge if using the square
 	//
 	if (map_style == 5)
-		p1.individuals[p1.individuals.x > (0.98 * map_size_width)].z = 1;
+		p1.individuals[p1.individuals.x < (0.02 * map_size_width)].z = 1;
 	else
 		p1.individuals[p1.individuals.x > (0.72 * map_size_width) & p1.individuals.y < (0.09 * map_size_length)].z = 1;
 	
@@ -441,20 +428,53 @@ late()
 	{
 		farmers = p1.individuals[p1.individuals.z == 1];
 		HGs = p1.individuals[p1.individuals.z == 0];
+		
 		quadrant_widths = map_size_width / 10;
 		
-		farmers_quadrant1 = farmers.x <= quadrant_widths;
-		farmers_quadrant2 = farmers.x <= 2*quadrant_widths & farmers.x > quadrant_widths;
-		farmers_quadrant3 = farmers.x <= 3*quadrant_widths & farmers.x > 2*quadrant_widths;
-		farmers_quadrant4 = farmers.x <= 4*quadrant_widths & farmers.x > 3*quadrant_widths;
-		farmers_quadrant5 = farmers.x <= 5*quadrant_widths & farmers.x > 4*quadrant_widths;
-		farmers_quadrant6 = farmers.x <= 6*quadrant_widths & farmers.x > 5*quadrant_widths;
-		farmers_quadrant7 = farmers.x <= 7*quadrant_widths & farmers.x > 6*quadrant_widths;
-		farmers_quadrant8 = farmers.x <= 8*quadrant_widths & farmers.x > 7*quadrant_widths;
-		farmers_quadrant9 = farmers.x <= 9*quadrant_widths & farmers.x > 8*quadrant_widths;
-		farmers_quadrant10 = farmers.x <= 10*quadrant_widths & farmers.x > 9*quadrant_widths;
+		farmers_quadrant1_bool = farmers.x <= quadrant_widths;
+		farmers_quadrant2_bool = farmers.x <= 2 * quadrant_widths & farmers.x > quadrant_widths;
+		farmers_quadrant3_bool = farmers.x <= 3 * quadrant_widths & farmers.x > 2 * quadrant_widths;
+		farmers_quadrant4_bool = farmers.x <= 4 * quadrant_widths & farmers.x > 3 * quadrant_widths;
+		farmers_quadrant5_bool = farmers.x <= 5 * quadrant_widths & farmers.x > 4 * quadrant_widths;
+		farmers_quadrant6_bool = farmers.x <= 6 * quadrant_widths & farmers.x > 5 * quadrant_widths;
+		farmers_quadrant7_bool = farmers.x <= 7 * quadrant_widths & farmers.x > 6 * quadrant_widths;
+		farmers_quadrant8_bool = farmers.x <= 8 * quadrant_widths & farmers.x > 7 * quadrant_widths;
+		farmers_quadrant9_bool = farmers.x <= 9 * quadrant_widths & farmers.x > 8 * quadrant_widths;
+		farmers_quadrant10_bool = farmers.x <= 10 * quadrant_widths & farmers.x > 9 * quadrant_widths;
 		
-		print(size(farmers_quadrant1));
+		farmers_quadrant1 = which(farmers_quadrant1_bool == T);
+		farmers_quadrant2 = which(farmers_quadrant2_bool == T);
+		farmers_quadrant3 = which(farmers_quadrant3_bool == T);
+		farmers_quadrant4 = which(farmers_quadrant4_bool == T);
+		farmers_quadrant5 = which(farmers_quadrant5_bool == T);
+		farmers_quadrant6 = which(farmers_quadrant6_bool == T);
+		farmers_quadrant7 = which(farmers_quadrant7_bool == T);
+		farmers_quadrant8 = which(farmers_quadrant8_bool == T);
+		farmers_quadrant9 = which(farmers_quadrant9_bool == T);
+		farmers_quadrant10 = which(farmers_quadrant10_bool == T);
+		
+		HGs_quadrant1_bool = HGs.x <= quadrant_widths;
+		HGs_quadrant2_bool = HGs.x <= 2 * quadrant_widths & HGs.x > quadrant_widths;
+		HGs_quadrant3_bool = HGs.x <= 3 * quadrant_widths & HGs.x > 2 * quadrant_widths;
+		HGs_quadrant4_bool = HGs.x <= 4 * quadrant_widths & HGs.x > 3 * quadrant_widths;
+		HGs_quadrant5_bool = HGs.x <= 5 * quadrant_widths & HGs.x > 4 * quadrant_widths;
+		HGs_quadrant6_bool = HGs.x <= 6 * quadrant_widths & HGs.x > 5 * quadrant_widths;
+		HGs_quadrant7_bool = HGs.x <= 7 * quadrant_widths & HGs.x > 6 * quadrant_widths;
+		HGs_quadrant8_bool = HGs.x <= 8 * quadrant_widths & HGs.x > 7 * quadrant_widths;
+		HGs_quadrant9_bool = HGs.x <= 9 * quadrant_widths & HGs.x > 8 * quadrant_widths;
+		HGs_quadrant10_bool = HGs.x <= 10 * quadrant_widths & HGs.x > 9 * quadrant_widths;
+		
+		HGs_quadrant1 = which(HGs_quadrant1_bool == T);
+		HGs_quadrant2 = which(HGs_quadrant2_bool == T);
+		HGs_quadrant3 = which(HGs_quadrant3_bool == T);
+		HGs_quadrant4 = which(HGs_quadrant4_bool == T);
+		HGs_quadrant5 = which(HGs_quadrant5_bool == T);
+		HGs_quadrant6 = which(HGs_quadrant6_bool == T);
+		HGs_quadrant7 = which(HGs_quadrant7_bool == T);
+		HGs_quadrant8 = which(HGs_quadrant8_bool == T);
+		HGs_quadrant9 = which(HGs_quadrant9_bool == T);
+		HGs_quadrant10 = which(HGs_quadrant10_bool == T);
+
 	}
 }
 
