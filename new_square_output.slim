@@ -1,4 +1,17 @@
-// Carrying Capacities and Pop Sizes:
+initialize()
+{
+	initializeSLiMModelType("nonWF");
+	initializeSLiMOptions(dimensionality="xy", periodicity="");
+	
+	// ---------------------------------------------------
+	//  PARAMETERS --> Initialize Constant Params
+	// ---------------------------------------------------
+	//SET WORKING DIRECTORY AND CUSTOM MAP NAME IF DESIRED
+	defineConstant("wd", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab/");
+	defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
+	defineConstant("output_name", "6-21-test"); // To run default names make an empty string
+	
+	// Carrying Capacities and Pop Sizes:
 	// ***********************************
 	defineConstant("SN", 200000); // Starting number of individuals
 	defineConstant("HGK", 0.00094); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
