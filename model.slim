@@ -6,25 +6,23 @@ initialize()
 	// ---------------------------------------------------
 	//  PARAMETERS --> Initialize Constant Params
 	// ---------------------------------------------------
-	
 	//SET WORKING DIRECTORY AND CUSTOM MAP NAME IF DESIRED
 	defineConstant("wd", "~/Documents/HuberLab/HunterGatherFarmerInteractions");
 	defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
-	defineConstant("output_name", "6-21-test"); // To run default names make an empty string
+	defineConstant("output_name", "new_square_output_test"); // To run default names make an empty string
 	
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
 	defineConstant("SN", 200000); // Starting number of individuals
 	defineConstant("HGK", 0.0064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
-	defineConstant("FK", 0.0128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
+	defineConstant("FK", 0.128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
 	// Movement and interaction Distances (ENTER IN KILOMETERS):
 	// ***********************************
 	defineConstant("S", 30); // spatial competition distance
 	defineConstant("MD", 30); // Mating distance
 	defineConstant("movement_distances", c(2.3, 7.3, 15, 25, 35, 45, 55, 100)); // Distances sampled from
-	defineConstant("movement_distance_weights", c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02,
-0.01, 0.01)); // Weights for movement distance sampling
+	defineConstant("movement_distance_weights", c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02, 0.01, 0.01)); // Weights for movement distance sampling
 	defineConstant("LD", 10); // Learning distance
 	defineConstant("northern_slowdown_effect", 2); // Number equals the effect of the slowdown in the north (i.e., how many times slower do they move
 	defineConstant("northern_slowdown_distance", 0.3); // 
@@ -53,14 +51,11 @@ initialize()
 	// Map Prefs: 
 	// ***********************************	
 	defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
-	
 	defineConstant("water_crossings", 1); //Parameter of 0 = no water crossing paths, 1 = water crossing paths
-	
 	if (water_crossings == 1)
 		defineConstant("file_extention", "_water.png");
 	else
 		defineConstant("file_extention", ".png");
-	
 	defineConstant("mapfile_none", wd + "/EEA_map" + file_extention); // File Path to Map Image
 	defineConstant("mapfile_topo_superlight", wd + "/EEA_map_topo_superlight" + file_extention); // File Path to Map Image
 	defineConstant("mapfile_topo_light", wd + "/EEA_map_topo_light" + file_extention); // File Path to Map Image
@@ -173,10 +168,12 @@ reproduction()
 							do
 							{
 								// This samples from a vector of movement distances based on the probability that they move this distance
-								distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+								distance = sample(x=c(movement_distances), size=1, replace=T, weights=c(movement_distance_weights));
+								
 								// Next we need to calculate the x and y coodinates
-								radian_angle = runif(1, 0, 2*PI);
+								radian_angle = runif(1, 0, 2 * PI);
 								coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance) / northern_slowdown_effect;
+								
 								// Next we can reset the position
 								pos = individual.spatialPosition + coordiates;
 							}
@@ -188,10 +185,12 @@ reproduction()
 							do
 							{
 								// This samples from a vector of movement distances based on the probability that they move this distance
-								distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+								distance = sample(x=c(movement_distances), size=1, replace=T, weights=c(movement_distance_weights));
+								
 								// Next we need to calculate the x and y coodinates
-								radian_angle = runif(1, 0, 2*PI);
+								radian_angle = runif(1, 0, 2 * PI);
 								coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
+								
 								// Next we can reset the position
 								pos = individual.spatialPosition + coordiates;
 							}
@@ -300,10 +299,12 @@ late()
 				do
 				{
 					// This samples from a vector of movement distances based on the probability that they move this distance
-					distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+					distance = sample(x=c(movement_distances), size=1, replace=T, weights=c(movement_distance_weights));
+					
 					// Next we need to calculate the x and y coodinates
-					radian_angle = runif(1, 0, 2*PI);
+					radian_angle = runif(1, 0, 2 * PI);
 					coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance) / northern_slowdown_effect;
+					
 					// Next we can reset the position
 					newPos = ind.spatialPosition + coordiates;
 				}
@@ -315,10 +316,12 @@ late()
 				do
 				{
 					// This samples from a vector of movement distances based on the probability that they move this distance
-					distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+					distance = sample(x=c(movement_distances), size=1, replace=T, weights=c(movement_distance_weights));
+					
 					// Next we need to calculate the x and y coodinates
-					radian_angle = runif(1, 0, 2*PI);
+					radian_angle = runif(1, 0, 2 * PI);
 					coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
+					
 					// Next we can reset the position
 					newPos = ind.spatialPosition + coordiates;
 				}
@@ -332,10 +335,12 @@ late()
 			do
 			{
 				// This samples from a vector of movement distances based on the probability that they move this distance
-				distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
+				distance = sample(x=c(movement_distances), size=1, replace=T, weights=c(movement_distance_weights));
+				
 				// Next we need to calculate the x and y coodinates
-				radian_angle = runif(1, 0, 2*PI);
+				radian_angle = runif(1, 0, 2 * PI);
 				coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
+				
 				// Next we can reset the position
 				newPos = ind.spatialPosition + coordiates;
 			}
@@ -361,7 +366,7 @@ late()
 	else if (map_style == 5)
 		mapImage = Image(square); //square
 	else if (map_style == 6)
-		mapImage = Image(custom_map); //square
+		mapImage = Image(custom_map); //custom
 	
 	// Set up map
 	p1.setSpatialBounds(c(0.0, 0.0, map_size_width, map_size_length));
@@ -380,7 +385,7 @@ late()
 	// Make individuals near anatolia and greece farmers or near the edge if using the square
 	//
 	if (map_style == 5)
-		p1.individuals[p1.individuals.x > (0.98 * map_size_width)].z = 1;
+		p1.individuals[p1.individuals.x < (0.02 * map_size_width)].z = 1;
 	else
 		p1.individuals[p1.individuals.x > (0.72 * map_size_width) & p1.individuals.y < (0.09 * map_size_length)].z = 1;
 	
@@ -425,14 +430,114 @@ late()
 	writeFile(wd + output_runtime_file_name, param_string, append=T);
 	
 	// Population stats headers - write to file
-	stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmersToHG");
+	stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmertoHG");
 	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
 	writeFile(wd + output_stats_file_name, stats_header_string, append=T);
+	
+	if (map_style == 5)
+	{
+		// Wave stats headers - write to file
+		wave_stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmerToHG", "Farmers_in_Quadrant1", "Farmers_in_Quadrant2", "Farmers_in_Quadrant3", "Farmers_in_Quadrant4", "Farmers_in_Quadrant5", "Farmers_in_Quadrant6", "Farmers_in_Quadrant7", "Farmers_in_Quadrant8", "Farmers_in_Quadrant9", "Farmers_in_Quadrant10", "HGs_in_Quadrant1", "HGs_in_Quadrant2", "HGs_in_Quadrant3", "HGs_in_Quadrant4", "HGs_in_Quadrant5", "HGs_in_Quadrant6", "HGs_in_Quadrant7", "HGs_in_Quadrant8", "HGs_in_Quadrant9", "HGs_in_Quadrant10", "RatioFarmerToHG_Quad1", "RatioFarmerToHG_Quad2", "RatioFarmerToHG_Quad3", "RatioFarmerToHG_Quad4", "RatioFarmerToHG_Quad5", "RatioFarmerToHG_Quad6", "RatioFarmerToHG_Quad7", "RatioFarmerToHG_Quad8", "RatioFarmerToHG_Quad9", "RatioFarmerToHG_Quad10");
+		output_wave_stats_file_name = ("/sim_square_wave_stats_per_year_" + output_name + ".txt");
+		writeFile(wd + output_wave_stats_file_name, wave_stats_header_string, append=T);
+	}
+}
+
+late()
+{
+	if (map_style == 5)
+	{
+		// define vector of farmers and vector of HGs
+		farmers = p1.individuals[p1.individuals.z == 1];
+		HGs = p1.individuals[p1.individuals.z == 0];
+		
+		// Split width into 10 equal parts
+		quadrant_widths = map_size_width / 10;
+		
+		// set criteria for farmers in each quadrant
+		farmers_quadrant1_bool = farmers.x <= quadrant_widths;
+		farmers_quadrant2_bool = farmers.x <= 2 * quadrant_widths & farmers.x > quadrant_widths;
+		farmers_quadrant3_bool = farmers.x <= 3 * quadrant_widths & farmers.x > 2 * quadrant_widths;
+		farmers_quadrant4_bool = farmers.x <= 4 * quadrant_widths & farmers.x > 3 * quadrant_widths;
+		farmers_quadrant5_bool = farmers.x <= 5 * quadrant_widths & farmers.x > 4 * quadrant_widths;
+		farmers_quadrant6_bool = farmers.x <= 6 * quadrant_widths & farmers.x > 5 * quadrant_widths;
+		farmers_quadrant7_bool = farmers.x <= 7 * quadrant_widths & farmers.x > 6 * quadrant_widths;
+		farmers_quadrant8_bool = farmers.x <= 8 * quadrant_widths & farmers.x > 7 * quadrant_widths;
+		farmers_quadrant9_bool = farmers.x <= 9 * quadrant_widths & farmers.x > 8 * quadrant_widths;
+		farmers_quadrant10_bool = farmers.x <= 10 * quadrant_widths & farmers.x > 9 * quadrant_widths;
+		
+		// count farmers in each quadrant 
+		farmers_quadrant1 = size(which(farmers_quadrant1_bool == T));
+		farmers_quadrant2 = size(which(farmers_quadrant2_bool == T));
+		farmers_quadrant3 = size(which(farmers_quadrant3_bool == T));
+		farmers_quadrant4 = size(which(farmers_quadrant4_bool == T));
+		farmers_quadrant5 = size(which(farmers_quadrant5_bool == T));
+		farmers_quadrant6 = size(which(farmers_quadrant6_bool == T));
+		farmers_quadrant7 = size(which(farmers_quadrant7_bool == T));
+		farmers_quadrant8 = size(which(farmers_quadrant8_bool == T));
+		farmers_quadrant9 = size(which(farmers_quadrant9_bool == T));
+		farmers_quadrant10 = size(which(farmers_quadrant10_bool == T));
+		
+		// set criteria for HGs in each quadrant
+		HGs_quadrant1_bool = HGs.x <= quadrant_widths;
+		HGs_quadrant2_bool = HGs.x <= 2 * quadrant_widths & HGs.x > quadrant_widths;
+		HGs_quadrant3_bool = HGs.x <= 3 * quadrant_widths & HGs.x > 2 * quadrant_widths;
+		HGs_quadrant4_bool = HGs.x <= 4 * quadrant_widths & HGs.x > 3 * quadrant_widths;
+		HGs_quadrant5_bool = HGs.x <= 5 * quadrant_widths & HGs.x > 4 * quadrant_widths;
+		HGs_quadrant6_bool = HGs.x <= 6 * quadrant_widths & HGs.x > 5 * quadrant_widths;
+		HGs_quadrant7_bool = HGs.x <= 7 * quadrant_widths & HGs.x > 6 * quadrant_widths;
+		HGs_quadrant8_bool = HGs.x <= 8 * quadrant_widths & HGs.x > 7 * quadrant_widths;
+		HGs_quadrant9_bool = HGs.x <= 9 * quadrant_widths & HGs.x > 8 * quadrant_widths;
+		HGs_quadrant10_bool = HGs.x <= 10 * quadrant_widths & HGs.x > 9 * quadrant_widths;
+		
+		// count HGs in each quadrant 
+		HGs_quadrant1 = size(which(HGs_quadrant1_bool == T));
+		HGs_quadrant2 = size(which(HGs_quadrant2_bool == T));
+		HGs_quadrant3 = size(which(HGs_quadrant3_bool == T));
+		HGs_quadrant4 = size(which(HGs_quadrant4_bool == T));
+		HGs_quadrant5 = size(which(HGs_quadrant5_bool == T));
+		HGs_quadrant6 = size(which(HGs_quadrant6_bool == T));
+		HGs_quadrant7 = size(which(HGs_quadrant7_bool == T));
+		HGs_quadrant8 = size(which(HGs_quadrant8_bool == T));
+		HGs_quadrant9 = size(which(HGs_quadrant9_bool == T));
+		HGs_quadrant10 = size(which(HGs_quadrant10_bool == T));
+		
+		// calculate the ratio of farmers each quad
+		ratio1 = (farmers_quadrant1 / (farmers_quadrant1 + HGs_quadrant1));
+		ratio2 = (farmers_quadrant2 / (farmers_quadrant2 + HGs_quadrant2));
+		ratio3 = (farmers_quadrant3 / (farmers_quadrant3 + HGs_quadrant3));
+		ratio4 = (farmers_quadrant4 / (farmers_quadrant4 + HGs_quadrant4));
+		ratio5 = (farmers_quadrant5 / (farmers_quadrant5 + HGs_quadrant5));
+		ratio6 = (farmers_quadrant6 / (farmers_quadrant6 + HGs_quadrant6));
+		ratio7 = (farmers_quadrant7 / (farmers_quadrant7 + HGs_quadrant7));
+		ratio8 = (farmers_quadrant8 / (farmers_quadrant8 + HGs_quadrant8));
+		ratio9 = (farmers_quadrant9 / (farmers_quadrant9 + HGs_quadrant9));
+		ratio10 = (farmers_quadrant10 / (farmers_quadrant10 + HGs_quadrant10));
+	
+		// calculate total num farmers
+		num_farmers = sum(p1.individuals.z);
+	
+		//calculate total num HGs
+		num_HGs = (p1.individuals.length() - sum(p1.individuals.z));
+	
+		// calculate population size statistics
+		pop_size = p1.individuals.length();
+		
+		// calculate the ratio of farmers in the total population to file
+		ratio = (sum(p1.individuals.z) / p1.individuals.length());
+	
+		// write outputs
+		output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, farmers_quadrant1, farmers_quadrant2, farmers_quadrant3, farmers_quadrant4, farmers_quadrant5, farmers_quadrant6, farmers_quadrant7, farmers_quadrant8, farmers_quadrant9, farmers_quadrant10, HGs_quadrant1, HGs_quadrant2, HGs_quadrant3, HGs_quadrant4, HGs_quadrant5, HGs_quadrant6, HGs_quadrant7, HGs_quadrant8, HGs_quadrant9, HGs_quadrant10, ratio1, ratio2, ratio3, ratio4, ratio5, ratio6, ratio7, ratio8, ratio9, ratio10);
+		
+		// output to file
+		output_stats_file_name = ("/sim_square_wave_stats_per_year_" + output_name + ".txt");
+		writeFile(wd + output_stats_file_name, output_string, append=T);
+		
+	}
 }
 
 1:10000 late()
 {
-
 	// provide feedback on progress for command line users
 	year_counter = paste("Simulation Year: ", sim.generation);
 	print(year_counter);
@@ -442,24 +547,22 @@ late()
 	
 	//calculate num HGs
 	num_HGs = (p1.individuals.length() - sum(p1.individuals.z));
-		
+	
 	// calculate the ratio of farmers in the total population to file
 	ratio = (sum(p1.individuals.z) / p1.individuals.length());
 	
 	// calculate population size statistics
 	pop_size = p1.individuals.length();
-
+	
 	// write outputs
 	output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio);
-	
 	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
-	
 	writeFile(wd + output_stats_file_name, output_string, append=T);
 	
 	// log individual data
 	//for (ind in p1.individuals)
 	//{
-		//individuals = paste(sim.generation, ind.z, ind.x, ind.y);
-		//writeFile(wd + "/sim_individuals.txt", individuals, append=T);
+	//individuals = paste(sim.generation, ind.z, ind.x, ind.y);
+	//writeFile(wd + "/sim_individuals.txt", individuals, append=T);
 	//}
 }
