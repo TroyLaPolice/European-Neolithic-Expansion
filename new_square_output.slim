@@ -455,16 +455,16 @@ late()
 		farmers_quadrant9_bool = farmers.x <= 9 * quadrant_widths & farmers.x > 8 * quadrant_widths;
 		farmers_quadrant10_bool = farmers.x <= 10 * quadrant_widths & farmers.x > 9 * quadrant_widths;
 		
-		farmers_quadrant1 = which(farmers_quadrant1_bool == T);
-		farmers_quadrant2 = which(farmers_quadrant2_bool == T);
-		farmers_quadrant3 = which(farmers_quadrant3_bool == T);
-		farmers_quadrant4 = which(farmers_quadrant4_bool == T);
-		farmers_quadrant5 = which(farmers_quadrant5_bool == T);
-		farmers_quadrant6 = which(farmers_quadrant6_bool == T);
-		farmers_quadrant7 = which(farmers_quadrant7_bool == T);
-		farmers_quadrant8 = which(farmers_quadrant8_bool == T);
-		farmers_quadrant9 = which(farmers_quadrant9_bool == T);
-		farmers_quadrant10 = which(farmers_quadrant10_bool == T);
+		farmers_quadrant1 = size(farmers_quadrant1_bool == T);
+		farmers_quadrant2 = size(farmers_quadrant2_bool == T);
+		farmers_quadrant3 = size(farmers_quadrant3_bool == T);
+		farmers_quadrant4 = size(farmers_quadrant4_bool == T);
+		farmers_quadrant5 = size(farmers_quadrant5_bool == T);
+		farmers_quadrant6 = size(farmers_quadrant6_bool == T);
+		farmers_quadrant7 = size(farmers_quadrant7_bool == T);
+		farmers_quadrant8 = size(farmers_quadrant8_bool == T);
+		farmers_quadrant9 = size(farmers_quadrant9_bool == T);
+		farmers_quadrant10 = size(farmers_quadrant10_bool == T);
 		
 		HGs_quadrant1_bool = HGs.x <= quadrant_widths;
 		HGs_quadrant2_bool = HGs.x <= 2 * quadrant_widths & HGs.x > quadrant_widths;
@@ -477,17 +477,17 @@ late()
 		HGs_quadrant9_bool = HGs.x <= 9 * quadrant_widths & HGs.x > 8 * quadrant_widths;
 		HGs_quadrant10_bool = HGs.x <= 10 * quadrant_widths & HGs.x > 9 * quadrant_widths;
 		
-		HGs_quadrant1 = which(HGs_quadrant1_bool == T);
-		HGs_quadrant2 = which(HGs_quadrant2_bool == T);
-		HGs_quadrant3 = which(HGs_quadrant3_bool == T);
-		HGs_quadrant4 = which(HGs_quadrant4_bool == T);
-		HGs_quadrant5 = which(HGs_quadrant5_bool == T);
-		HGs_quadrant6 = which(HGs_quadrant6_bool == T);
-		HGs_quadrant7 = which(HGs_quadrant7_bool == T);
-		HGs_quadrant8 = which(HGs_quadrant8_bool == T);
-		HGs_quadrant9 = which(HGs_quadrant9_bool == T);
-		HGs_quadrant10 = which(HGs_quadrant10_bool == T);
-
+		HGs_quadrant1 = size(HGs_quadrant1_bool == T);
+		HGs_quadrant2 = size(HGs_quadrant2_bool == T);
+		HGs_quadrant3 = size(HGs_quadrant3_bool == T);
+		HGs_quadrant4 = size(HGs_quadrant4_bool == T);
+		HGs_quadrant5 = size(HGs_quadrant5_bool == T);
+		HGs_quadrant6 = size(HGs_quadrant6_bool == T);
+		HGs_quadrant7 = size(HGs_quadrant7_bool == T);
+		HGs_quadrant8 = size(HGs_quadrant8_bool == T);
+		HGs_quadrant9 = size(HGs_quadrant9_bool == T);
+		HGs_quadrant10 = size(HGs_quadrant10_bool == T);
+	
 	}
 }
 
