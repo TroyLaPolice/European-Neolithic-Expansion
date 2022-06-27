@@ -73,7 +73,7 @@ This bit of code begins the model and creates the non-WF model and the xy dimens
 	defineConstant("FK", 1.28); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
  ```
-These parameters describe the starting number of individuals in the sim for HGs and farmers and the distances they can travel.
+The following parameters below describe the starting number of individuals in the sim for HGs and farmers and the distances they can travel.
 These parameters should be adjusted to your liking.
 
 The movement_distances parameter is a series of distances that are sampled from based on the probability that an individual travels that distance. The movement_distance_weights parameter is the vector of corresponding probabilities.
