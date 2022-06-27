@@ -115,7 +115,7 @@ These parameters are all distance related and will be entered in km.
  
  The next block of parameters handles reproduction probabilities (i.e., the probability that a pair mates and produces an offspring) 
  
- HGM is this rate for a pairing of two hunter gatherers will produce an offspring (HGM * 100) percent of the time. 
+ HGM is this rate for a pairing of two hunter gatherers will produce an offspring <HGM * 100> percent of the time. 
  
  The other parameters are the same idea- FM is the mating probability for two farmers.
  
