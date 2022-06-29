@@ -12,5 +12,3 @@ process_log="process_monitor"
 
 # Run the slim model and collect statistics on time run and memory usage, log to files
 /usr/bin/time -v slim $model.slim 2> $final_log.log 1> $process_log.log
-
-
