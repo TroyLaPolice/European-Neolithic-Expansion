@@ -1,9 +1,8 @@
 #!/bin/bash
 
 
-# Final name variables, no need to include file extentions
+# File name variables, no need to include file extentions
 # ---------------------------------------------------------
-
 # SLiM model that will be run
 model="model"
 # File that collects errors, memory and time statistics and end of job message
