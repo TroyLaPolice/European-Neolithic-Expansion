@@ -7,15 +7,15 @@ initialize()
 	//  PARAMETERS --> Initialize Constant Params
 	// ---------------------------------------------------
 	//SET WORKING DIRECTORY AND CUSTOM MAP NAME IF DESIRED
-	defineConstant("wd", "~/Documents/HuberLab/HunterGatherFarmerInteractions");
+	defineConstant("wd", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab");
 	defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
 	defineConstant("output_name", "test"); // To run default names make an empty string
 	
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
-	defineConstant("SN", 200000); // Starting number of individuals
-	defineConstant("HGK", 0.064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
-	defineConstant("FK", 0.128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
+	defineConstant("SN", 2000); // Starting number of individuals
+	defineConstant("HGK", 0.00064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
+	defineConstant("FK", 0.00128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
 	// Movement and interaction Distances (ENTER IN KILOMETERS):
 	// ***********************************
@@ -32,8 +32,8 @@ initialize()
 	defineConstant("L", 0.02); // Learning rate 
 	defineConstant("LP", 0.6); // Learning percentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer 
 	defineConstant("HGM", 0.1); // HG fertility rate
-	defineConstant("FM", 0.2); // Farmer fertility rate
-	defineConstant("IM", 0.02); // Interbreeding fertility rate
+	defineConstant("FM", 0.1); // Farmer fertility rate
+	defineConstant("IM", 0.1); // Interbreeding fertility rate
 	defineConstant("min_repro_age", 0); // Individuals MUST be OLDER than this age to reproduce
 	
 	// Age related mortality table
@@ -277,13 +277,22 @@ late()
 	farmer_ages = farmers.age;
 	HG_ages = HGs.age;
 	
+	// modify mortality curve
+	scaled_mortality_farmer = (farmers_num_in_s + 1) / (PI * (S^2) * FK + 1) * age_scale[farmer_ages];
+	scaled_mortality_farmer[farmer_ages == 50] = 1;
+	scaled_mortality_farmer[scaled_mortality_farmer>1] = 1;
+	
+	scaled_mortality_HG = (HG_num_in_s + 1) / (PI * (S^2) * HGK + 1) * age_scale[HG_ages];
+	scaled_mortality_HG[HG_ages == 50] = 1;
+	scaled_mortality_HG[scaled_mortality_HG>1] = 1;
+	
 	// calculate chance of survival by refering to the mortality table by age and subtracting the chance of mortality from one
-	farmer_survival = 1 - age_scale[farmer_ages];
-	HG_survival = 1 - age_scale[HG_ages];
+	farmer_survival = 1 - scaled_mortality_farmer;
+	HG_survival = 1 - scaled_mortality_HG;
 	
 	// density-dependence, factoring in individual mortality
-	farmers.fitnessScaling = ((PI * (S^2) * FK + 1) / (farmers_num_in_s + 1) * farmer_survival);
-	HGs.fitnessScaling = ((PI * (S^2) * HGK + 1) / (HG_num_in_s + 1) * HG_survival);
+	farmers.fitnessScaling = farmer_survival;
+	HGs.fitnessScaling = HG_survival;
 }
 
 late()
