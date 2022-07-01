@@ -13,5 +13,4 @@ process_log="process_monitor"
 # Run the slim model and collect statistics on time run and memory usage, log to files
 /usr/bin/time -v slim $model.slim 2> $final_log.log 1> $process_log.log
 
-# NOTE: The job will end with err code 1 becuase it ends when there aren't and HGs left and when it tries to pull from the empty vector it kills the job
-# Err code 9 though means that the program used too much RAM and was force killed as a result of the memory not being available
+# NOTE: If the job ends with err code 9 it means that the program used too much RAM and was force killed as a result of the memory not being available
