@@ -1,4 +1,4 @@
-# Loab Libraries
+# Load Libraries
 library(ggplot2)
 library(tidyr)
 
