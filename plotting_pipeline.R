@@ -10,7 +10,7 @@ input_file_extention = "_test"  # Should be the same as the ending of your SLiM 
                                 #   if endings are default this will be an empty string.
 
 output_file_extention = "_test" # Addition to attach to the output files
-                                #   Best practice is to keep these the same for simplicity
+                                #   Best practice is to keep these the same for simplicity.
 
 # Create file names
 square_input_name = paste("sim_square_wave_stats_per_year", input_file_extention, ".txt", sep = "")
