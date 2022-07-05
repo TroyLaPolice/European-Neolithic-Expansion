@@ -63,7 +63,7 @@ if (file.exists(square_input_name)){
   ratio_plot = ggplot(ratio_dat_tidyr, aes(x=Year, y=value, fill=variable)) +
     geom_bar(stat='identity', position='dodge') +  geom_col(width = 1)
   
-  # Create output filename
+  # Create output file name
   plot_out = paste("ratio_plot", output_file_extention, ".tiff", sep = "")
   
   # Save ratio plot
