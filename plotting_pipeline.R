@@ -28,17 +28,18 @@ if (file.exists(square_input_name)){
                          square_input_file$RatioFarmerToHG_Quad8, square_input_file$RatioFarmerToHG_Quad9, 
                          square_input_file$RatioFarmerToHG_Quad10)
   
-  colnames(ratio_dat) <- c("Year", "Total_RatioFarmerToHG", "RatioFarmerToHG_Quad1", "RatioFarmerToHG_Quad2", "RatioFarmerToHG_Quad3", 
-                   "RatioFarmerToHG_Quad4", "RatioFarmerToHG_Quad5", "RatioFarmerToHG_Quad6", 
-                   "RatioFarmerToHG_Quad7", "RatioFarmerToHG_Quad8", "RatioFarmerToHG_Quad9", 
-                   "RatioFarmerToHG_QuadTen")
+  colnames(ratio_dat) <- c("Year", "Total_RatioFarmerToHG", "RatioFarmerToHG_Quad1", "RatioFarmerToHG_Quad2", 
+                           "RatioFarmerToHG_Quad3", "RatioFarmerToHG_Quad4", "RatioFarmerToHG_Quad5", 
+                           "RatioFarmerToHG_Quad6", "RatioFarmerToHG_Quad7", "RatioFarmerToHG_Quad8", 
+                           "RatioFarmerToHG_Quad9", "RatioFarmerToHG_QuadTen")
   
   head_ratio_dat = head(ratio_dat, -7200)
   
-  ratio_dat_tidyr <- tidyr::pivot_longer(head_ratio_dat, cols=c("Total_RatioFarmerToHG", "RatioFarmerToHG_Quad1", "RatioFarmerToHG_Quad2", "RatioFarmerToHG_Quad3", 
-                                                     "RatioFarmerToHG_Quad4", "RatioFarmerToHG_Quad5", "RatioFarmerToHG_Quad6", 
-                                                     "RatioFarmerToHG_Quad7", "RatioFarmerToHG_Quad8", "RatioFarmerToHG_Quad9", 
-                                                     "RatioFarmerToHG_QuadTen"), names_to='variable', values_to="value")
+  ratio_dat_tidyr = tidyr::pivot_longer(head_ratio_dat, cols=c("Total_RatioFarmerToHG", "RatioFarmerToHG_Quad1", "RatioFarmerToHG_Quad2", 
+                                                               "RatioFarmerToHG_Quad3", "RatioFarmerToHG_Quad4", "RatioFarmerToHG_Quad5", 
+                                                               "RatioFarmerToHG_Quad6", "RatioFarmerToHG_Quad7", "RatioFarmerToHG_Quad8", 
+                                                               "RatioFarmerToHG_Quad9", "RatioFarmerToHG_QuadTen"),
+                                        names_to='variable', values_to="value")
   
   ratio_plot = ggplot(ratio_dat_tidyr, aes(x=Year, y=value, fill=variable)) +
     geom_bar(stat='identity', position='dodge') +  geom_col(width = 1)
