@@ -2,10 +2,9 @@
 library(ggplot2)
 library(tidyr)
 
-# ****************************************************
-# Set WD, input and output file name additions, 
-#   as well as trimming range for non-informative data
-# ****************************************************
+# ************************************************************************************************
+# Set WD, input and output file name additions, as well as trimming range for non-informative data
+# ************************************************************************************************
 
 setwd("/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions/longrun_test/7-5")
 
@@ -14,6 +13,8 @@ input_file_extention = "_min_mating_age"  # Should be the same as the ending of 
 
 output_file_extention = "_min_mating_age" # Addition to attach to the output files
                                 #   Best practice is to keep these the same for simplicity.
+
+trimming_range = -5400
 
 # Create file names
 square_input_name = paste("sim_square_wave_stats_per_year", input_file_extention, ".txt", sep = "")
@@ -55,7 +56,7 @@ if (file.exists(square_input_name)){
                            "RatioFarmerToHG_Quad9", "RatioFarmerToHG_QuadTen")
   
   # Remove non-informative ratio data
-  head_ratio_dat = head(ratio_dat, -4500)
+  head_ratio_dat = head(ratio_dat, trimming_range)
   
   # Convert to tidy format
   ratio_dat_tidyr = tidyr::pivot_longer(head_ratio_dat, cols=c("Total_RatioFarmerToHG", "RatioFarmerToHG_Quad1", "RatioFarmerToHG_Quad2", 
@@ -93,7 +94,7 @@ if (file.exists(square_input_name)){
                                     "Farmers_in_Quadrant10")
   
   # Remove non-informative data
-  head_population_quad_farmer_dat = head(population_quad_farmer_dat, -4500)
+  head_population_quad_farmer_dat = head(population_quad_farmer_dat, trimming_range)
   
   # Create output file name
   quad_farmer_plot_out = paste("population_quad_farmer_data_plot", output_file_extention, ".tiff", sep = "")
@@ -133,7 +134,7 @@ if (file.exists(square_input_name)){
                                            "HGs_in_Quadrant10")
   
   # Remove non-informative data
-  head_population_quad_HG_dat = head(population_quad_HG_dat, -4500)
+  head_population_quad_HG_dat = head(population_quad_HG_dat, trimming_range)
   
   # Create output file name
   quad_HG_plot_out = paste("population_quad_HG_data_plot", output_file_extention, ".tiff", sep = "")
@@ -171,7 +172,7 @@ if (file.exists(general_input_name)){
   colnames(population_dat) = c("PopulationSize", "TotalFarmers", "TotalHGs")
   
   # Remove non-informative data
-  head_population_dat = head(population_dat, -4500)
+  head_population_dat = head(population_dat, trimming_range)
   
   # Create output file name
   pop_plot_out = paste("population_plot", output_file_extention, ".tiff", sep = "")
