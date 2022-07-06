@@ -31,7 +31,9 @@ if ((file.exists(square_input_name)) && (file.exists(general_input_name))){
 # If the model was run on a square, plot the data
 if (file.exists(square_input_name)){
   
-  # Plot ratios
+  # ****************************************************
+  # Farmer:HG Ratio Quadrant Plot
+  # ****************************************************
   
   # Push ratio data to its own data frame
   ratio_dat = data.frame(square_input_file$Year,
@@ -50,7 +52,7 @@ if (file.exists(square_input_name)){
                            "RatioFarmerToHG_Quad9", "RatioFarmerToHG_QuadTen")
   
   # Remove non-informative ratio data
-  head_ratio_dat = head(ratio_dat, -4000)
+  head_ratio_dat = head(ratio_dat, -4500)
   
   # Convert to tidy format
   ratio_dat_tidyr = tidyr::pivot_longer(head_ratio_dat, cols=c("Total_RatioFarmerToHG", "RatioFarmerToHG_Quad1", "RatioFarmerToHG_Quad2", 
@@ -69,7 +71,87 @@ if (file.exists(square_input_name)){
   # Save ratio plot
   ggsave(ratio_plot_out, plot = ratio_plot, units = "in", width = 10, height = 5, device="tiff", dpi=1000)
 
-
+    
+  # ****************************************************
+  # Farmer Population Size Quadrant Plot
+  # ****************************************************
+  
+  # Push population size data to its own data frame
+  population_quad_farmer_dat = data.frame(square_input_file$Farmers_in_Quadrant1, square_input_file$Farmers_in_Quadrant2,
+                                   square_input_file$Farmers_in_Quadrant3, square_input_file$Farmers_in_Quadrant4, 
+                                   square_input_file$Farmers_in_Quadrant5, square_input_file$Farmers_in_Quadrant6, 
+                                   square_input_file$Farmers_in_Quadrant7, square_input_file$Farmers_in_Quadrant8, 
+                                   square_input_file$Farmers_in_Quadrant9, square_input_file$Farmers_in_Quadrant10)
+  
+  # Name columns
+  colnames(population_quad_farmer_dat) = c("Farmers_in_Quadrant1", "Farmers_in_Quadrant2", "Farmers_in_Quadrant3", 
+                                    "Farmers_in_Quadrant4", "Farmers_in_Quadrant5", "Farmers_in_Quadrant6", 
+                                    "Farmers_in_Quadrant7", "Farmers_in_Quadrant8", "Farmers_in_Quadrant9", 
+                                    "Farmers_in_Quadrant10")
+  
+  # Remove non-informative data
+  head_population_quad_farmer_dat = head(population_quad_farmer_dat, -4500)
+  
+  # Create output file name
+  quad_farmer_plot_out = paste("population_quad_farmer_data_plot", output_file_extention, ".tiff", sep = "")
+  
+  # Save pop plot
+  tiff(quad_farmer_plot_out, units = "in", width = 10, height = 5, res = 1000)
+  
+  # Plot
+  matplot(head_population_quad_farmer_dat, xlab = "Year", ylab = "Population Size", pch = 19, 
+          col = c("#d00083", "#8e2090", "#5b3bf5", "#1e5187", "#74ffdf", "#b2ceee", "#b3ff80", "#70a71b", "#f8ef1c", "#ff6e2f"))
+  
+  # Create Plot Legend
+  legend("bottomright", pch = 19, y.intersp=1,
+         col = c("#d00083", "#8e2090", "#5b3bf5", "#1e5187", "#74ffdf", "#b2ceee", "#b3ff80", "#70a71b", "#f8ef1c", "#ff6e2f"),
+          legend = c("Farmers_in_Quadrant1", "Farmers_in_Quadrant2", "Farmers_in_Quadrant3", 
+                               "Farmers_in_Quadrant4", "Farmers_in_Quadrant5", "Farmers_in_Quadrant6", 
+                               "Farmers_in_Quadrant7", "Farmers_in_Quadrant8", "Farmers_in_Quadrant9", 
+                               "Farmers_in_Quadrant10"))
+  
+  dev.off()
+  
+  # ****************************************************
+  # HG Population Size Quadrant Plot
+  # ****************************************************
+  
+  # Push population size data to its own data frame
+  population_quad_HG_dat = data.frame(square_input_file$HGs_in_Quadrant1, square_input_file$HGs_in_Quadrant2,
+                                          square_input_file$HGs_in_Quadrant3, square_input_file$HGs_in_Quadrant4, 
+                                          square_input_file$HGs_in_Quadrant5, square_input_file$HGs_in_Quadrant6, 
+                                          square_input_file$HGs_in_Quadrant7, square_input_file$HGs_in_Quadrant8, 
+                                          square_input_file$HGs_in_Quadrant9, square_input_file$HGs_in_Quadrant10)
+  
+  # Name columns
+  colnames(population_quad_HG_dat) = c("HGs_in_Quadrant1", "HGs_in_Quadrant2", "HGs_in_Quadrant3", 
+                                           "HGs_in_Quadrant4", "HGs_in_Quadrant5", "HGs_in_Quadrant6", 
+                                           "HGs_in_Quadrant7", "HGs_in_Quadrant8", "HGs_in_Quadrant9", 
+                                           "HGs_in_Quadrant10")
+  
+  # Remove non-informative data
+  head_population_quad_HG_dat = head(population_quad_HG_dat, -4500)
+  
+  # Create output file name
+  quad_HG_plot_out = paste("population_quad_HG_data_plot", output_file_extention, ".tiff", sep = "")
+  
+  # Save pop plot
+  tiff(quad_HG_plot_out, units = "in", width = 10, height = 5, res = 1000)
+  
+  # Plot
+  matplot(head_population_quad_HG_dat, xlab = "Year", ylab = "Population Size", pch = 19, 
+          col = c("#d00083", "#8e2090", "#5b3bf5", "#1e5187", "#74ffdf", "#b2ceee", "#b3ff80", "#70a71b", "#f8ef1c", "#ff6e2f"))
+  
+  # Create Plot Legend
+  legend("topright", pch = 19, y.intersp=1,
+         col = c("#d00083", "#8e2090", "#5b3bf5", "#1e5187", "#74ffdf", "#b2ceee", "#b3ff80", "#70a71b", "#f8ef1c", "#ff6e2f"),
+         legend = c("HGs_in_Quadrant1", "HGs_in_Quadrant2", "HGs_in_Quadrant3", 
+                    "HGs_in_Quadrant4", "HGs_in_Quadrant5", "HGs_in_Quadrant6", 
+                    "HGs_in_Quadrant7", "HGs_in_Quadrant8", "HGs_in_Quadrant9", 
+                    "HGs_in_Quadrant10"))
+  
+  dev.off()
+  
 }
 
 if (file.exists(general_input_name)){
@@ -82,7 +164,7 @@ if (file.exists(general_input_name)){
   colnames(population_dat) = c("PopulationSize", "TotalFarmers", "TotalHGs")
   
   # Remove non-informative data
-  head_population_dat = head(population_dat, -4000)
+  head_population_dat = head(population_dat, -4500)
   
   # Create output file name
   pop_plot_out = paste("population_plot", output_file_extention, ".tiff", sep = "")
@@ -92,6 +174,8 @@ if (file.exists(general_input_name)){
   
   # Plot
   matplot(head_population_dat, col = c("black", "blue", "red"), xlab = "Year", ylab = "Population Size", pch = 19)
+  
+  # Create Plot Legend
   legend("topleft", legend = c("Total Population", "Total Farmers", "Total Hunter Gatherers"), pch = 19, col = c("black", "blue", "red"))
   
   dev.off()
