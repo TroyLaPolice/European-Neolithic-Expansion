@@ -156,6 +156,10 @@ if (file.exists(square_input_name)){
 
 if (file.exists(general_input_name)){
   
+  # ****************************************************
+  # Population Size Plot
+  # ****************************************************
+  
   # Push population size data to its own data frame
   population_dat = data.frame(general_input_file$PopulationSize, 
                               general_input_file$TotalFarmers, general_input_file$TotalHGs)
