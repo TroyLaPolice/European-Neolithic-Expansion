@@ -2,9 +2,9 @@
 library(ggplot2)
 library(tidyr)
 
-# ************************************************************************************************
+# ********************************************************************************************************************************************
 # Set WD, input and output file name additions, as well as trimming range for non-informative data
-# ************************************************************************************************
+# ********************************************************************************************************************************************
 
 setwd("/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions/longrun_test/7-5")
 
@@ -35,9 +35,9 @@ if ((file.exists(square_input_name)) && (file.exists(general_input_name))){
 # If the model was run on a square, plot the data
 if (file.exists(square_input_name)){
   
-  # ****************************************************
+  # ************************************************************************************************
   # Farmer:HG Ratio Quadrant Plot
-  # ****************************************************
+  # ************************************************************************************************
   
   # Push ratio data to its own data frame
   ratio_dat = data.frame(square_input_file$Year,
@@ -76,9 +76,9 @@ if (file.exists(square_input_name)){
   ggsave(ratio_plot_out, plot = ratio_plot, units = "in", width = 10, height = 5, device="tiff", dpi=1000)
 
     
-  # ****************************************************
+  # ************************************************************************************************
   # Farmer Population Size Quadrant Plot
-  # ****************************************************
+  # ************************************************************************************************
   
   # Push population size data to its own data frame
   population_quad_farmer_dat = data.frame(square_input_file$Farmers_in_Quadrant1, square_input_file$Farmers_in_Quadrant2,
@@ -116,9 +116,9 @@ if (file.exists(square_input_name)){
   
   dev.off()
   
-  # ****************************************************
+  # ************************************************************************************************
   # HG Population Size Quadrant Plot
-  # ****************************************************
+  # ************************************************************************************************
   
   # Push population size data to its own data frame
   population_quad_HG_dat = data.frame(square_input_file$HGs_in_Quadrant1, square_input_file$HGs_in_Quadrant2,
@@ -160,9 +160,9 @@ if (file.exists(square_input_name)){
 
 if (file.exists(general_input_name)){
   
-  # ****************************************************
+  # ************************************************************************************************
   # Population Size Plot
-  # ****************************************************
+  # ************************************************************************************************
   
   # Push population size data to its own data frame
   population_dat = data.frame(general_input_file$PopulationSize, 
