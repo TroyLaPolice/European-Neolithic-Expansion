@@ -4,12 +4,12 @@ library(tidyr)
 
 # Set WD and input and output file name additions
 
-setwd("/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions")
+setwd("/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions/longrun_test/7-5")
 
-input_file_extention = "_test"  # Should be the same as the ending of your SLiM output files
+input_file_extention = "_min_mating_age"  # Should be the same as the ending of your SLiM output files
                                 #   if endings are default this will be an empty string.
 
-output_file_extention = "_test" # Addition to attach to the output files
+output_file_extention = "_min_mating_age" # Addition to attach to the output files
                                 #   Best practice is to keep these the same for simplicity.
 
 # Create file names
@@ -44,29 +44,54 @@ if (file.exists(square_input_name)){
   
   
   # Name columns
-  colnames(ratio_dat) <- c("Year", "Total_RatioFarmerToHG", "RatioFarmerToHG_Quad1", "RatioFarmerToHG_Quad2", 
+  colnames(ratio_dat) = c("Year", "Total_RatioFarmerToHG", "RatioFarmerToHG_Quad1", "RatioFarmerToHG_Quad2", 
                            "RatioFarmerToHG_Quad3", "RatioFarmerToHG_Quad4", "RatioFarmerToHG_Quad5", 
                            "RatioFarmerToHG_Quad6", "RatioFarmerToHG_Quad7", "RatioFarmerToHG_Quad8", 
                            "RatioFarmerToHG_Quad9", "RatioFarmerToHG_QuadTen")
   
   # Remove non-informative ratio data
-  head_ratio_dat = head(ratio_dat, -7200)
+  head_ratio_dat = head(ratio_dat, -4000)
   
   # Convert to tidy format
   ratio_dat_tidyr = tidyr::pivot_longer(head_ratio_dat, cols=c("Total_RatioFarmerToHG", "RatioFarmerToHG_Quad1", "RatioFarmerToHG_Quad2", 
                                                                "RatioFarmerToHG_Quad3", "RatioFarmerToHG_Quad4", "RatioFarmerToHG_Quad5", 
                                                                "RatioFarmerToHG_Quad6", "RatioFarmerToHG_Quad7", "RatioFarmerToHG_Quad8", 
                                                                "RatioFarmerToHG_Quad9", "RatioFarmerToHG_QuadTen"),
-                                        names_to='variable', values_to="value")
+                                        names_to = "variable")
   
   # Plot
   ratio_plot = ggplot(ratio_dat_tidyr, aes(x=Year, y=value, fill=variable)) +
-    geom_bar(stat='identity', position='dodge') +  geom_col(width = 1)
+    geom_bar(stat="identity", position="dodge") +  geom_col(width = 1)
   
   # Create output file name
-  plot_out = paste("ratio_plot", output_file_extention, ".tiff", sep = "")
+  ratio_plot_out = paste("ratio_plot", output_file_extention, ".tiff", sep = "")
   
   # Save ratio plot
-  ggsave(plot_out, plot = last_plot(), units = "in", width = 10, height = 5, device='tiff', dpi=700)
-  
+  ggsave(ratio_plot_out, plot = ratio_plot, units = "in", width = 10, height = 5, device="tiff", dpi=1000)
+
+
 }
+
+if (file.exists(general_input_name)){
+  
+  population_dat = data.frame(general_input_file$PopulationSize, 
+                              general_input_file$TotalFarmers, general_input_file$TotalHGs)
+  
+  # Name columns
+  colnames(population_dat) = c("PopulationSize", "TotalFarmers", "TotalHGs")
+  
+  # Remove non-informative ratio data
+  head_population_dat = head(population_dat, -4000)
+  
+  # Create output file name
+  pop_plot_out = paste("population_plot", output_file_extention, ".tiff", sep = "")
+  
+  # Save pop plot
+  tiff(pop_plot_out, units = "in", width = 10, height = 5, res = 1000)
+  
+  matplot(head_population_dat, col = c("black", "blue", "red"), xlab = "Year", ylab = "Population Size", pch = 19)
+  legend("topleft", legend = c("Total Population", "Total Farmers", "Total Hunter Gatherers"), pch = 19, col = c("black", "blue", "red"))
+  
+  dev.off()
+
+} 
