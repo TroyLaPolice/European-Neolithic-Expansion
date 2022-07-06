@@ -14,7 +14,7 @@ input_file_extention = "_min_mating_age"  # Should be the same as the ending of 
 output_file_extention = "_min_mating_age" # Addition to attach to the output files
                                 #   Best practice is to keep these the same for simplicity.
 
-trimming_range = -5400
+trimming_range = -4500
 
 # Create file names
 square_input_name = paste("sim_square_wave_stats_per_year", input_file_extention, ".txt", sep = "")
