@@ -2,7 +2,10 @@
 library(ggplot2)
 library(tidyr)
 
-# Set WD and input and output file name additions
+# ****************************************************
+# Set WD, input and output file name additions, 
+#   as well as trimming range for non-informative data
+# ****************************************************
 
 setwd("/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions/longrun_test/7-5")
 
