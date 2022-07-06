@@ -74,13 +74,14 @@ if (file.exists(square_input_name)){
 
 if (file.exists(general_input_name)){
   
+  # Push population size data to its own data frame
   population_dat = data.frame(general_input_file$PopulationSize, 
                               general_input_file$TotalFarmers, general_input_file$TotalHGs)
   
   # Name columns
   colnames(population_dat) = c("PopulationSize", "TotalFarmers", "TotalHGs")
   
-  # Remove non-informative ratio data
+  # Remove non-informative data
   head_population_dat = head(population_dat, -4000)
   
   # Create output file name
@@ -89,6 +90,7 @@ if (file.exists(general_input_name)){
   # Save pop plot
   tiff(pop_plot_out, units = "in", width = 10, height = 5, res = 1000)
   
+  # Plot
   matplot(head_population_dat, col = c("black", "blue", "red"), xlab = "Year", ylab = "Population Size", pch = 19)
   legend("topleft", legend = c("Total Population", "Total Farmers", "Total Hunter Gatherers"), pch = 19, col = c("black", "blue", "red"))
   
