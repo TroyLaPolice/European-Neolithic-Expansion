@@ -7,15 +7,15 @@ initialize()
 	//  PARAMETERS --> Initialize Constant Params
 	// ---------------------------------------------------
 	//SET WORKING DIRECTORY AND CUSTOM MAP NAME IF DESIRED
-	defineConstant("wd", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab");
+	defineConstant("wd", "/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions");
 	defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
 	defineConstant("output_name", "test"); // To run default names make an empty string
 	
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
-	defineConstant("SN", 2000); // Starting number of individuals
-	defineConstant("HGK", 0.0064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
-	defineConstant("FK", 0.0128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
+	defineConstant("SN", 876160); // Starting number of individuals
+	defineConstant("HGK", 0.064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
+	defineConstant("FK", 0.128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
 	// Movement and interaction Distances (ENTER IN KILOMETERS):
 	// ***********************************
@@ -31,10 +31,10 @@ initialize()
 	// ***********************************
 	defineConstant("L", 0.02); // Learning rate 
 	defineConstant("LP", 0.6); // Learning percentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer 
-	defineConstant("HGM", 0.1); // HG fertility rate
-	defineConstant("FM", 0.1); // Farmer fertility rate
-	defineConstant("IM", 0.1); // Interbreeding fertility rate
-	defineConstant("min_repro_age", 0); // Individuals MUST be OLDER than this age to reproduce
+	defineConstant("HGM", 0.08); // HG fertility rate
+	defineConstant("FM", 0.08); // Farmer fertility rate
+	defineConstant("IM", 0.08); // Interbreeding fertility rate
+	defineConstant("min_repro_age", 13); // Individuals MUST be OLDER than this age to reproduce
 	
 	// Age related mortality table
 	defineConstant("age_scale", c(0.046335604111134,0.046335604111134,0.046335604111134,0.046335604111134,0.046335604111134,0.056408593819562,0.056408593819562,0.056408593819562,0.056408593819562,0.056408593819562,0.021999528676968,0.021999528676968,0.021999528676968,0.021999528676968,0.021999528676968,0.035354184793731,0.035354184793731,0.035354184793731,0.035354184793731,0.035354184793731,0.056800625283728,0.056800625283728,0.056800625283728,0.056800625283728,0.056800625283728,0.069352594596266,0.069352594596266,0.069352594596266,0.069352594596266,0.069352594596266,0.090704121931891,0.090704121931891,0.090704121931891,0.090704121931891,0.090704121931891,0.12200775084549,0.12200775084549,0.12200775084549,0.12200775084549,0.12200775084549,0.160621672514612,0.160621672514612,0.160621672514612,0.160621672514612,0.160621672514612,0.167446792598127,0.167446792598127,0.167446792598127,0.167446792598127,0.167446792598127,1));
