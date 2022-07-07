@@ -6,15 +6,15 @@ library(tidyr)
 # Set WD, input and output file name additions, as well as trimming range for non-informative data
 # ********************************************************************************************************************************************
 
-setwd("/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions/longrun_test/7-5")
+setwd("/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions/longrun_test/7-6")
 
-input_file_extention = "_min_mating_age"  # Should be the same as the ending of your SLiM output files
+input_file_extention = "_reduced_mating"  # Should be the same as the ending of your SLiM output files
                                 #   if endings are default this will be an empty string.
 
-output_file_extention = "_min_mating_age" # Addition to attach to the output files
+output_file_extention = "_reduced_mating" # Addition to attach to the output files
                                 #   Best practice is to keep these the same for simplicity.
 
-trimming_range = -4500
+trimming_range = -1
 
 # Create file names
 square_input_name = paste("sim_square_wave_stats_per_year", input_file_extention, ".txt", sep = "")
@@ -110,9 +110,9 @@ if (file.exists(square_input_name)){
   legend("bottomright", pch = 19, y.intersp=1,
          col = c("#d00083", "#8e2090", "#5b3bf5", "#1e5187", "#74ffdf", "#b2ceee", "#b3ff80", "#70a71b", "#f8ef1c", "#ff6e2f"),
           legend = c("Farmers_in_Quadrant1", "Farmers_in_Quadrant2", "Farmers_in_Quadrant3", 
-                               "Farmers_in_Quadrant4", "Farmers_in_Quadrant5", "Farmers_in_Quadrant6", 
-                               "Farmers_in_Quadrant7", "Farmers_in_Quadrant8", "Farmers_in_Quadrant9", 
-                               "Farmers_in_Quadrant10"))
+                      "Farmers_in_Quadrant4", "Farmers_in_Quadrant5", "Farmers_in_Quadrant6", 
+                      "Farmers_in_Quadrant7", "Farmers_in_Quadrant8", "Farmers_in_Quadrant9", 
+                      "Farmers_in_Quadrant10"))
   
   dev.off()
   
@@ -150,9 +150,62 @@ if (file.exists(square_input_name)){
   legend("topright", pch = 19, y.intersp=1,
          col = c("#d00083", "#8e2090", "#5b3bf5", "#1e5187", "#74ffdf", "#b2ceee", "#b3ff80", "#70a71b", "#f8ef1c", "#ff6e2f"),
          legend = c("HGs_in_Quadrant1", "HGs_in_Quadrant2", "HGs_in_Quadrant3", 
-                    "HGs_in_Quadrant4", "HGs_in_Quadrant5", "HGs_in_Quadrant6", 
-                    "HGs_in_Quadrant7", "HGs_in_Quadrant8", "HGs_in_Quadrant9", 
-                    "HGs_in_Quadrant10"))
+                      "HGs_in_Quadrant4", "HGs_in_Quadrant5", "HGs_in_Quadrant6", 
+                      "HGs_in_Quadrant7", "HGs_in_Quadrant8", "HGs_in_Quadrant9", 
+                      "HGs_in_Quadrant10"))
+  
+  dev.off()
+  
+  # ************************************************************************************************
+  # Combined Population Size Quadrant Plot
+  # ************************************************************************************************
+  
+  # Push population size data to its own data frame
+  population_quad_combined_dat = data.frame(square_input_file$Farmers_in_Quadrant1, square_input_file$Farmers_in_Quadrant2,
+                                            square_input_file$Farmers_in_Quadrant3, square_input_file$Farmers_in_Quadrant4, 
+                                            square_input_file$Farmers_in_Quadrant5, square_input_file$Farmers_in_Quadrant6, 
+                                            square_input_file$Farmers_in_Quadrant7, square_input_file$Farmers_in_Quadrant8, 
+                                            square_input_file$Farmers_in_Quadrant9, square_input_file$Farmers_in_Quadrant10,
+                                            square_input_file$HGs_in_Quadrant1, square_input_file$HGs_in_Quadrant2,
+                                            square_input_file$HGs_in_Quadrant3, square_input_file$HGs_in_Quadrant4, 
+                                            square_input_file$HGs_in_Quadrant5, square_input_file$HGs_in_Quadrant6, 
+                                            square_input_file$HGs_in_Quadrant7, square_input_file$HGs_in_Quadrant8, 
+                                            square_input_file$HGs_in_Quadrant9, square_input_file$HGs_in_Quadrant10)
+  
+  # Name columns
+  colnames(population_quad_combined_dat) = c("Farmers_in_Quadrant1", "Farmers_in_Quadrant2", "Farmers_in_Quadrant3", 
+                                             "Farmers_in_Quadrant4", "Farmers_in_Quadrant5", "Farmers_in_Quadrant6", 
+                                             "Farmers_in_Quadrant7", "Farmers_in_Quadrant8", "Farmers_in_Quadrant9", 
+                                             "Farmers_in_Quadrant10", "HGs_in_Quadrant1", "HGs_in_Quadrant2", 
+                                             "HGs_in_Quadrant3", "HGs_in_Quadrant4", "HGs_in_Quadrant5", 
+                                             "HGs_in_Quadrant6", "HGs_in_Quadrant7", "HGs_in_Quadrant8", 
+                                             "HGs_in_Quadrant9", "HGs_in_Quadrant10")
+  
+  # Remove non-informative data
+  head_population_quad_combined_dat = head(population_quad_combined_dat, trimming_range)
+  
+  # Create output file name
+  quad_combined_plot_out = paste("population_quad_combined_data_plot", output_file_extention, ".tiff", sep = "")
+  
+  # Save pop plot
+  tiff(quad_combined_plot_out, units = "in", width = 10, height = 5, res = 1000)
+  
+  # Plot
+  matplot(head_population_quad_combined_dat, xlab = "Year", ylab = "Population Size", pch = 20, 
+          lwd = c(7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05),
+          col = c("#d00083", "#8e2090", "#5b3bf5", "#1e5187", "#74ffdf", "#b2ceee", "#b3ff80", "#70a71b", "#f8ef1c", "#ff6e2f"))
+  
+  # Create Plot Legend
+  legend("bottomright", pch = 20, y.intersp=1, cex = 0.65,
+         lwd = c(4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1),
+         col = c("#d00083", "#8e2090", "#5b3bf5", "#1e5187", "#74ffdf", "#b2ceee", "#b3ff80", "#70a71b", "#f8ef1c", "#ff6e2f"),
+         legend = c("Farmers_in_Quadrant1", "Farmers_in_Quadrant2", "Farmers_in_Quadrant3", 
+                    "Farmers_in_Quadrant4", "Farmers_in_Quadrant5", "Farmers_in_Quadrant6", 
+                    "Farmers_in_Quadrant7", "Farmers_in_Quadrant8", "Farmers_in_Quadrant9", 
+                    "Farmers_in_Quadrant10", "HGs_in_Quadrant1", "HGs_in_Quadrant2", 
+                    "HGs_in_Quadrant3", "HGs_in_Quadrant4", "HGs_in_Quadrant5", 
+                    "HGs_in_Quadrant6", "HGs_in_Quadrant7", "HGs_in_Quadrant8", 
+                    "HGs_in_Quadrant9", "HGs_in_Quadrant10"))
   
   dev.off()
   
