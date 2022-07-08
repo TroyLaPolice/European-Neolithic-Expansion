@@ -14,8 +14,8 @@ initialize()
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
 	defineConstant("SN", 87616); // Starting number of individuals
-	defineConstant("HGK", 0.064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
-	defineConstant("FK", 0.128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
+	defineConstant("HGK", 0.0064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
+	defineConstant("FK", 0.0128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
 	// Movement and interaction Distances (ENTER IN KILOMETERS):
 	// ***********************************
@@ -468,14 +468,14 @@ late()
 	writeFile(wd + output_runtime_file_name, param_string, append=T);
 	
 	// Population stats headers - write to file
-	stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmertoHG");
+	stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmertoHG", "NewBirths");
 	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
 	writeFile(wd + output_stats_file_name, stats_header_string, append=T);
 	
 	if (map_style == 5)
 	{
 		// Wave stats headers - write to file
-		wave_stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmerToHG", "Farmers_in_Partition1", "Farmers_in_Partition2", "Farmers_in_Partition3", "Farmers_in_Partition4", "Farmers_in_Partition5", "Farmers_in_Partition6", "Farmers_in_Partition7", "Farmers_in_Partition8", "Farmers_in_Partition9", "Farmers_in_Partition10", "HGs_in_Partition1", "HGs_in_Partition2", "HGs_in_Partition3", "HGs_in_Partition4", "HGs_in_Partition5", "HGs_in_Partition6", "HGs_in_Partition7", "HGs_in_Partition8", "HGs_in_Partition9", "HGs_in_Partition10", "RatioFarmerToHG_Partition1", "RatioFarmerToHG_Partition2", "RatioFarmerToHG_Partition3", "RatioFarmerToHG_Partition4", "RatioFarmerToHG_Partition5", "RatioFarmerToHG_Partition6", "RatioFarmerToHG_Partition7", "RatioFarmerToHG_Partition8", "RatioFarmerToHG_Partition9", "RatioFarmerToHG_Partition10");
+		wave_stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmerToHG", "Farmers_in_Partition1", "Farmers_in_Partition2", "Farmers_in_Partition3", "Farmers_in_Partition4", "Farmers_in_Partition5", "Farmers_in_Partition6", "Farmers_in_Partition7", "Farmers_in_Partition8", "Farmers_in_Partition9", "Farmers_in_Partition10", "HGs_in_Partition1", "HGs_in_Partition2", "HGs_in_Partition3", "HGs_in_Partition4", "HGs_in_Partition5", "HGs_in_Partition6", "HGs_in_Partition7", "HGs_in_Partition8", "HGs_in_Partition9", "HGs_in_Partition10", "RatioFarmerToHG_Partition1", "RatioFarmerToHG_Partition2", "RatioFarmerToHG_Partition3", "RatioFarmerToHG_Partition4", "RatioFarmerToHG_Partition5", "RatioFarmerToHG_Partition6", "RatioFarmerToHG_Partition7", "RatioFarmerToHG_Partition8", "RatioFarmerToHG_Partition9", "RatioFarmerToHG_Partition10", "NewBirths");
 		output_wave_stats_file_name = ("/sim_square_wave_stats_per_year_" + output_name + ".txt");
 		writeFile(wd + output_wave_stats_file_name, wave_stats_header_string, append=T);
 	}
@@ -568,7 +568,7 @@ late()
 		new_births = length(p1.individuals.age == 0);
 	
 		// write outputs
-		output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, farmers_partition1, farmers_partition2, farmers_partition3, farmers_partition4, farmers_partition5, farmers_partition6, farmers_partition7, farmers_partition8, farmers_partition9, farmers_partition10, HGs_partition1, HGs_partition2, HGs_partition3, HGs_partition4, HGs_partition5, HGs_partition6, HGs_partition7, HGs_partition8, HGs_partition9, HGs_partition10, ratio1, ratio2, ratio3, ratio4, ratio5, ratio6, ratio7, ratio8, ratio9, ratio10);
+		output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, farmers_partition1, farmers_partition2, farmers_partition3, farmers_partition4, farmers_partition5, farmers_partition6, farmers_partition7, farmers_partition8, farmers_partition9, farmers_partition10, HGs_partition1, HGs_partition2, HGs_partition3, HGs_partition4, HGs_partition5, HGs_partition6, HGs_partition7, HGs_partition8, HGs_partition9, HGs_partition10, ratio1, ratio2, ratio3, ratio4, ratio5, ratio6, ratio7, ratio8, ratio9, ratio10, new_births);
 		
 		// output to file
 		output_stats_file_name = ("/sim_square_wave_stats_per_year_" + output_name + ".txt");
@@ -602,8 +602,11 @@ late()
 	// calculate population size statistics
 	pop_size = p1.individuals.length();
 	
+	// calculate the number of new births this year
+	new_births = length(p1.individuals.age == 0);
+			
 	// write outputs
-	output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio);
+	output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, new_births);
 	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
 	writeFile(wd + output_stats_file_name, output_string, append=T);
 	
