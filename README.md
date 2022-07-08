@@ -711,7 +711,7 @@ Of course if you chose to run the simulation with the simple black square the in
 }
 
 ```
-This block of code runs of the sim is run on a square rather than a map and provides more detailed outputs regarding the wave progression
+The following block of code runs of the sim is run on a square rather than a map and provides more detailed outputs regarding the wave progression
 ```
 late()
 {
