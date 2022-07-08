@@ -56,9 +56,9 @@ This bit of code begins the model and creates the non-WF model and the xy dimens
 
 ```
 	//SET WORKING DIRECTORY AND CUSTOM MAP NAME IF DESIRED
-	defineConstant("wd", "~/Documents/HuberLab/HunterGatherFarmerInteractions");
+	defineConstant("wd", "~/PATH/TO/FILE/HERE");
 	defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
-	defineConstant("output_name", "6-21-square"); // To run default names make an empty string
+	defineConstant("output_name", "run_name_goes_here"); // To run default names make an empty string
 ```
 
 *Next begins the set up where parameters for the model will be set. Some of these will not need to be touched but some should be tuned to your liking.*
@@ -68,8 +68,8 @@ This bit of code begins the model and creates the non-WF model and the xy dimens
 ```
   	// Carrying Capacities and Pop Sizes:
 	// ***********************************
-	defineConstant("SN", 10000); // Starting number of individuals
-	defineConstant("HGK", 0.064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
+	defineConstant("SN", 8761600); // Starting number of individuals
+	defineConstant("HGK", 0.64); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
 	defineConstant("FK", 1.28); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
  ```
@@ -100,8 +100,8 @@ These parameters are all distance related and will be entered in km.
 	defineConstant("L", 0.1); // Learning rate 
 	defineConstant("LP", 0.6); // Learning percentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer 
 	defineConstant("HGM", 0.1); // HG fertility rate
-	defineConstant("FM", 0.2); // Farmer fertility rate
-	defineConstant("IM", 0.02); // Interbreeding fertility rate
+	defineConstant("FM", 0.1); // Farmer fertility rate
+	defineConstant("IM", 0.01); // Interbreeding fertility rate
 	defineConstant("min_repro_age", 0); // Individuals MUST be OLDER than this age to reproduce
 	// Age related mortality table
 	defineConstant("age_scale", c(0.211180124, 0.211180124, 0.211180124, 0.211180124, 0.211180124, 0.251968504, 0.251968504, 0.251968504, 0.251968504, 0.251968504, 0.105263158, 0.105263158, 0.105263158, 0.105263158, 0.105263158, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.253521127, 0.253521127, 0.253521127, 0.253521127, 0.253521127, 0.301886792, 0.301886792, 0.301886792, 0.301886792, 0.301886792, 0.378378378, 0.378378378, 0.378378378, 0.378378378, 0.378378378, 0.47826087, 0.47826087, 0.47826087, 0.47826087, 0.47826087, 0.583333333, 0.583333333, 0.583333333, 0.583333333, 0.583333333, 0.6, 0.6, 0.6, 0.6, 0.6, 1.0));
@@ -520,30 +520,61 @@ early()
 This part handles competition between nearby individuals. This is density dependent. There can be different K's for HGs and farmers here which we will see later. First we count the number nearby competing individuals.
 
 ```
-	// spatial competition provides density-dependent selection
-	// Count number of neighbors within S for farmers and hunter gatherers
+	// Count number of neighbors within S for farmers
 	farmers_num_in_s = i1.interactingNeighborCount(farmers);
-	HG_num_in_s = i1.interactingNeighborCount(HGs);
+	
+	// Do the same for HGs if there are still HGs left
+	if (length(HGs) != 0)
+		HG_num_in_s = i1.interactingNeighborCount(HGs);
+	
+	// Life table based individual mortality, get vector of individual ages
+	farmer_ages = farmers.age;
+	
+	// Do the same for HGs if there are still HGs left
+	if (length(HGs) != 0)
+		HG_ages = HGs.age;
 ```
 
 This next part keeps individuals from living beyond realistic limits. Without this individuals in the sim can live hundreds of years because death it not dependent on age, only population density. (See life table above)
 
 ```
-	// life table based individual mortality
-	farmer_ages = farmers.age;
-	HG_ages = HGs.age;
+	// Modify mortality curve to account for population density around the indiviudal
+	scaled_mortality_farmer = (farmers_num_in_s + 1) / (PI * (S^2) * FK + 1) * age_scale[farmer_ages];
 	
-	// calculate chance of survival by refering to the mortality table by age and subtracting the chance of mortality from one
-	farmer_survival = 1 - age_scale[farmer_ages];
-	HG_survival = 1 - age_scale[HG_ages];
+	// Do the same if there are still HGs left
+	if (length(HGs) != 0)
+		scaled_mortality_HG = (HG_num_in_s + 1) / (PI * (S^2) * HGK + 1) * age_scale[HG_ages];
+	
+	// Set a maximum age and make sure there are no negative fittnesses
+	scaled_mortality_farmer[farmer_ages == length(age_scale) - 1] = 1;
+	scaled_mortality_farmer[scaled_mortality_farmer > 1] = 1;
+	
+	// Do the same for HGs if there are still HGs left
+	if (length(HGs) != 0)
+	{
+		scaled_mortality_HG[HG_ages == length(age_scale) - 1] = 1;
+		scaled_mortality_HG[scaled_mortality_HG>1] = 1;
+	}
+	
+	// Calculate chance of survival by refering to the mortality table by age and subtracting the chance of mortality from one
+	farmer_survival = 1 - scaled_mortality_farmer;
+	
+		
+	// Do the same if there are still HGs left
+	if (length(HGs) != 0)
+		HG_survival = 1 - scaled_mortality_HG;
 ```
 
-Finally we bring the two parts together.
+Finally we scale the individuals' fitness by the calculated value.
 
 ```
-	// density-dependence, factoring in individual mortality
-	farmers.fitnessScaling = ((PI * (S^2) * FK) / (farmers_num_in_s + 1) * farmer_survival);
-	HGs.fitnessScaling = ((PI * (S^2) * HGK) / (HG_num_in_s + 1) * HG_survival);
+	// Scale the fitneess of the individual, density-dependent and factoring in individual age based mortality
+	farmers.fitnessScaling = farmer_survival;
+		
+	// Do the same if there are still HGs left
+	if (length(HGs) != 0)
+		HGs.fitnessScaling = HG_survival;
+}
 ```
 
 
@@ -614,3 +645,167 @@ The individuals cannot move to locations outside of the bounds of the map. They 
 The individuals can have different distances they can travel based on if they are a HG or a farmer. This is set up above in the parameters. This allows for simulation of HGs being more migratory and farmers being more localized around their farm.
 
 Of course if you chose to run the simulation with the simple black square the individuals can move anywhere within the given map size.
+
+#### Finally, write output to files
+
+```
+1 early()
+{
+	// log runtime params
+	param_string = paste(SN, HGK, FK, S, MD, LD, northern_slowdown_effect, northern_slowdown_distance, L, LP, HGM, FM, IM, min_repro_age, map_style, water_crossings, "[", age_scale, "]", "[", movement_distances, "]", "[", movement_distance_weights, "]");
+	
+	// File headings
+	param_heading = paste("SN HGK FK S MD LD northern_slowdown_effect northern_slowdown_distance L LP HGM FM IM min_repro_age map_style water_crossings [ age_scale ]  [ movement_distances ]  [ movement_distance_weights ]");
+	
+	// Runtime params - write to file
+	output_runtime_file_name = ("/sim_runtime_params_" + output_name + ".txt");
+	writeFile(wd + output_runtime_file_name, param_heading, append=T);
+	writeFile(wd + output_runtime_file_name, param_string, append=T);
+	
+	// Population stats headers - write to file
+	stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmertoHG", "NewBirths");
+	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
+	writeFile(wd + output_stats_file_name, stats_header_string, append=T);
+	
+	if (map_style == 5)
+	{
+		// Wave stats headers - write to file
+		wave_stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmerToHG", "Farmers_in_Partition1", "Farmers_in_Partition2", "Farmers_in_Partition3", "Farmers_in_Partition4", "Farmers_in_Partition5", "Farmers_in_Partition6", "Farmers_in_Partition7", "Farmers_in_Partition8", "Farmers_in_Partition9", "Farmers_in_Partition10", "HGs_in_Partition1", "HGs_in_Partition2", "HGs_in_Partition3", "HGs_in_Partition4", "HGs_in_Partition5", "HGs_in_Partition6", "HGs_in_Partition7", "HGs_in_Partition8", "HGs_in_Partition9", "HGs_in_Partition10", "RatioFarmerToHG_Partition1", "RatioFarmerToHG_Partition2", "RatioFarmerToHG_Partition3", "RatioFarmerToHG_Partition4", "RatioFarmerToHG_Partition5", "RatioFarmerToHG_Partition6", "RatioFarmerToHG_Partition7", "RatioFarmerToHG_Partition8", "RatioFarmerToHG_Partition9", "RatioFarmerToHG_Partition10", "NewBirths");
+		output_wave_stats_file_name = ("/sim_square_wave_stats_per_year_" + output_name + ".txt");
+		writeFile(wd + output_wave_stats_file_name, wave_stats_header_string, append=T);
+	}
+}
+
+1:8000 late()
+{
+	// provide feedback on progress for command line users
+	year_counter = paste("Simulation Year: ", sim.generation);
+	print(year_counter);
+	
+	if (sim.generation == 8000)
+	{
+		print("--------------------------------");
+		print("Simulation Complete");
+		print("--------------------------------");
+	}
+	
+	// calculate num farmers
+	num_farmers = sum(p1.individuals.z);
+	
+	//calculate num HGs
+	num_HGs = (p1.individuals.length() - sum(p1.individuals.z));
+	
+	// calculate the ratio of farmers in the total population to file
+	ratio = (sum(p1.individuals.z) / p1.individuals.length());
+	
+	// calculate population size statistics
+	pop_size = p1.individuals.length();
+	
+	// calculate the number of new births this year
+	new_births = length(p1.individuals.age == 0);
+			
+	// write outputs
+	output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, new_births);
+	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
+	writeFile(wd + output_stats_file_name, output_string, append=T);
+}
+
+```
+This block of code runs of the sim is run on a square rather than a map and provides more detailed outputs regarding the wave progression
+```
+late()
+{
+	if (map_style == 5)
+	{
+		// define vector of farmers and vector of HGs
+		farmers = p1.individuals[p1.individuals.z == 1];
+		HGs = p1.individuals[p1.individuals.z == 0];
+		
+		// Split width into 10 equal parts
+		partition_widths = map_size_width / 10;
+		
+		// set criteria for farmers in each partition
+		farmers_partition1_bool = farmers.x <= partition_widths;
+		farmers_partition2_bool = farmers.x <= 2 * partition_widths & farmers.x > partition_widths;
+		farmers_partition3_bool = farmers.x <= 3 * partition_widths & farmers.x > 2 * partition_widths;
+		farmers_partition4_bool = farmers.x <= 4 * partition_widths & farmers.x > 3 * partition_widths;
+		farmers_partition5_bool = farmers.x <= 5 * partition_widths & farmers.x > 4 * partition_widths;
+		farmers_partition6_bool = farmers.x <= 6 * partition_widths & farmers.x > 5 * partition_widths;
+		farmers_partition7_bool = farmers.x <= 7 * partition_widths & farmers.x > 6 * partition_widths;
+		farmers_partition8_bool = farmers.x <= 8 * partition_widths & farmers.x > 7 * partition_widths;
+		farmers_partition9_bool = farmers.x <= 9 * partition_widths & farmers.x > 8 * partition_widths;
+		farmers_partition10_bool = farmers.x <= 10 * partition_widths & farmers.x > 9 * partition_widths;
+		
+		// count farmers in each partition 
+		farmers_partition1 = size(which(farmers_partition1_bool == T));
+		farmers_partition2 = size(which(farmers_partition2_bool == T));
+		farmers_partition3 = size(which(farmers_partition3_bool == T));
+		farmers_partition4 = size(which(farmers_partition4_bool == T));
+		farmers_partition5 = size(which(farmers_partition5_bool == T));
+		farmers_partition6 = size(which(farmers_partition6_bool == T));
+		farmers_partition7 = size(which(farmers_partition7_bool == T));
+		farmers_partition8 = size(which(farmers_partition8_bool == T));
+		farmers_partition9 = size(which(farmers_partition9_bool == T));
+		farmers_partition10 = size(which(farmers_partition10_bool == T));
+		
+		// set criteria for HGs in each partition
+		HGs_partition1_bool = HGs.x <= partition_widths;
+		HGs_partition2_bool = HGs.x <= 2 * partition_widths & HGs.x > partition_widths;
+		HGs_partition3_bool = HGs.x <= 3 * partition_widths & HGs.x > 2 * partition_widths;
+		HGs_partition4_bool = HGs.x <= 4 * partition_widths & HGs.x > 3 * partition_widths;
+		HGs_partition5_bool = HGs.x <= 5 * partition_widths & HGs.x > 4 * partition_widths;
+		HGs_partition6_bool = HGs.x <= 6 * partition_widths & HGs.x > 5 * partition_widths;
+		HGs_partition7_bool = HGs.x <= 7 * partition_widths & HGs.x > 6 * partition_widths;
+		HGs_partition8_bool = HGs.x <= 8 * partition_widths & HGs.x > 7 * partition_widths;
+		HGs_partition9_bool = HGs.x <= 9 * partition_widths & HGs.x > 8 * partition_widths;
+		HGs_partition10_bool = HGs.x <= 10 * partition_widths & HGs.x > 9 * partition_widths;
+		
+		// count HGs in each partition 
+		HGs_partition1 = size(which(HGs_partition1_bool == T));
+		HGs_partition2 = size(which(HGs_partition2_bool == T));
+		HGs_partition3 = size(which(HGs_partition3_bool == T));
+		HGs_partition4 = size(which(HGs_partition4_bool == T));
+		HGs_partition5 = size(which(HGs_partition5_bool == T));
+		HGs_partition6 = size(which(HGs_partition6_bool == T));
+		HGs_partition7 = size(which(HGs_partition7_bool == T));
+		HGs_partition8 = size(which(HGs_partition8_bool == T));
+		HGs_partition9 = size(which(HGs_partition9_bool == T));
+		HGs_partition10 = size(which(HGs_partition10_bool == T));
+		
+		// calculate the ratio of farmers each partition
+		ratio1 = (farmers_partition1 / (farmers_partition1 + HGs_partition1));
+		ratio2 = (farmers_partition2 / (farmers_partition2 + HGs_partition2));
+		ratio3 = (farmers_partition3 / (farmers_partition3 + HGs_partition3));
+		ratio4 = (farmers_partition4 / (farmers_partition4 + HGs_partition4));
+		ratio5 = (farmers_partition5 / (farmers_partition5 + HGs_partition5));
+		ratio6 = (farmers_partition6 / (farmers_partition6 + HGs_partition6));
+		ratio7 = (farmers_partition7 / (farmers_partition7 + HGs_partition7));
+		ratio8 = (farmers_partition8 / (farmers_partition8 + HGs_partition8));
+		ratio9 = (farmers_partition9 / (farmers_partition9 + HGs_partition9));
+		ratio10 = (farmers_partition10 / (farmers_partition10 + HGs_partition10));
+	
+		// calculate total num farmers
+		num_farmers = sum(p1.individuals.z);
+	
+		// calculate total num HGs
+		num_HGs = (p1.individuals.length() - sum(p1.individuals.z));
+	
+		// calculate population size statistics
+		pop_size = p1.individuals.length();
+		
+		// calculate the ratio of farmers in the total population to file
+		ratio = (sum(p1.individuals.z) / p1.individuals.length());
+		
+		// calculate the number of new births this year
+		new_births = length(p1.individuals.age == 0);
+	
+		// write outputs
+		output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, farmers_partition1, farmers_partition2, farmers_partition3, farmers_partition4, farmers_partition5, farmers_partition6, farmers_partition7, farmers_partition8, farmers_partition9, farmers_partition10, HGs_partition1, HGs_partition2, HGs_partition3, HGs_partition4, HGs_partition5, HGs_partition6, HGs_partition7, HGs_partition8, HGs_partition9, HGs_partition10, ratio1, ratio2, ratio3, ratio4, ratio5, ratio6, ratio7, ratio8, ratio9, ratio10, new_births);
+		
+		// output to file
+		output_stats_file_name = ("/sim_square_wave_stats_per_year_" + output_name + ".txt");
+		writeFile(wd + output_stats_file_name, output_string, append=T);
+		
+	}
+}
+```
