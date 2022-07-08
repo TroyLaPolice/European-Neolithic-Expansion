@@ -6,7 +6,7 @@ library(tidyr)
 # Set WD, input and output file name additions, as well as trimming range for non-informative data
 # ********************************************************************************************************************************************
 
-setwd("/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions/longrun_test/7-7")
+setwd("/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions/longrun_test/7-8")
 
 input_file_extention = "_test"  # Should be the same as the ending of your SLiM output files
                                 #   if endings are default this will be an empty string.
@@ -14,7 +14,7 @@ input_file_extention = "_test"  # Should be the same as the ending of your SLiM 
 output_file_extention = "_test" # Addition to attach to the output files
                                 #   Best practice is to keep these the same for simplicity.
 
-trimming_range = -1014
+trimming_range = -1
 
 # Create file names
 square_input_name = paste("sim_square_wave_stats_per_year", input_file_extention, ".txt", sep = "")
@@ -286,6 +286,30 @@ if (file.exists(general_input_name)){
   
   # Plot
   matplot(head_RatioFarmertoHG, col = c("blue"), xlab = "Year", ylab = "Ratio Farmers:HGs", pch = 19)
+  
+  dev.off()
+  
+  # ************************************************************************************************
+  # Birth Rate Plot
+  # ************************************************************************************************
+  
+  # Push population size data to its own data frame
+  birthrate_dat = data.frame(general_input_file$NewBirths)
+  
+  # Name columns
+  colnames(birthrate_dat) = "New Births"
+  
+  # Remove non-informative data
+  head_birthrate_dat = head(birthrate_dat, trimming_range)
+  
+  # Create output file name
+  birthrate_plot_out = paste("birth_rate_plot", output_file_extention, ".tiff", sep = "")
+  
+  # Save pop plot
+  tiff(birthrate_plot_out, units = "in", width = 10, height = 5, res = 1000)
+  
+  # Plot
+  matplot(head_birthrate_dat, col = "blue", xlab = "Year", ylab = "Number of New Births", pch = 19)
   
   dev.off()
 
