@@ -8,10 +8,10 @@ library(tidyr)
 
 setwd("/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions/longrun_test/7-8")
 
-input_file_extention = "_test"  # Should be the same as the ending of your SLiM output files
+input_file_extention = "_test3"  # Should be the same as the ending of your SLiM output files
                                 #   if endings are default this will be an empty string.
 
-output_file_extention = "_test" # Addition to attach to the output files
+output_file_extention = "_test3" # Addition to attach to the output files
                                 #   Best practice is to keep these the same for simplicity.
 
 trimming_range = -1
@@ -19,13 +19,19 @@ trimming_range = -1
 # Create file names
 square_input_name = paste("sim_square_wave_stats_per_year", input_file_extention, ".txt", sep = "")
 general_input_name = paste("sim_pop_stats_per_year", input_file_extention, ".txt", sep = "")
+general_input_with_deaths_name = paste("sim_pop_stats_per_year_with_death", input_file_extention, ".csv", sep = "")
 
 # Check if files exist and read in those that do
-if ((file.exists(square_input_name)) && (file.exists(general_input_name))){
+if ((file.exists(square_input_name)) && (file.exists(general_input_with_deaths_name))){
+  square_input_file = read.csv(square_input_name, sep = " ", header = TRUE)
+  general_input_file = read.csv(general_input_with_deaths_name, sep = ",", header = TRUE)
+} else if ((file.exists(square_input_name)) && (file.exists(general_input_name))){
   square_input_file = read.csv(square_input_name, sep = " ", header = TRUE)
   general_input_file = read.csv(general_input_name, sep = " ", header = TRUE)
 } else if (file.exists(square_input_name)){
   square_input_file = read.csv(square_input_name, sep = " ", header = TRUE)
+} else if (file.exists(general_input_with_deaths_name)){
+  general_input_file = read.csv(general_input_with_deaths_name, sep = ",", header = TRUE)
 } else if (file.exists(general_input_name)){
   general_input_file = read.csv(general_input_name, sep = " ", header = TRUE)
 } else{
@@ -309,8 +315,93 @@ if (file.exists(general_input_name)){
   tiff(birthrate_plot_out, units = "in", width = 10, height = 5, res = 1000)
   
   # Plot
-  matplot(head_birthrate_dat, col = "blue", xlab = "Year", ylab = "Number of New Births", pch = 19)
+  matplot(head_birthrate_dat, col = "blue", xlab = "Year", ylab = "Number of New Births", pch = 20)
+  
+  dev.off()
+  
+  # ************************************************************************************************
+  # Plot of Reproductive Aged Individuals
+  # ************************************************************************************************
+  
+  # Push population size data to its own data frame
+  repro_dat = data.frame(general_input_file$PopulationSize, 
+                              general_input_file$Num_Repro_Age_Inds)
+  
+  # Name columns
+  colnames(repro_dat) = c("TotalPopulation", "Num_Repro_Age_Inds")
+  
+  # Remove non-informative data
+  head_repro_dat = head(repro_dat, trimming_range)
+  
+  # Create output file name
+  repro_plot_out = paste("repro_age_plot", output_file_extention, ".tiff", sep = "")
+  
+  # Save pop plot
+  tiff(repro_plot_out, units = "in", width = 10, height = 5, res = 1000)
+  
+  # Plot
+  matplot(head_repro_dat, col = c("black", "blue", "red"), xlab = "Year", ylab = "Population Size", pch = 19)
+  
+  # Create Plot Legend
+  legend("right", legend = c("TotalPopulation", "Reproductive Age Individuals"), pch = 19, col = c("black", "blue"))
   
   dev.off()
 
 } 
+
+if (file.exists(general_input_with_deaths_name)){
+  
+  
+  # ************************************************************************************************
+  # Birth and Death Rate Plot
+  # ************************************************************************************************
+  
+  # Push population size data to its own data frame
+  birthdeathrate_dat = data.frame(general_input_file$NewBirths, general_input_file$NewDeaths)
+  
+  # Name columns
+  colnames(birthdeathrate_dat) = c("NewBirths", "NewDeaths")
+  
+  # Remove non-informative data
+  head_birthdeathrate_dat = head(birthdeathrate_dat, trimming_range)
+  
+  # Create output file name
+  birthrate_plot_out = paste("birth_death_rate_plot", output_file_extention, ".tiff", sep = "")
+  
+  # Save pop plot
+  tiff(birthrate_plot_out, units = "in", width = 10, height = 5, res = 1000)
+  
+  # Plot
+  matplot(head_birthdeathrate_dat, col = c("blue", "red"), xlab = "Year", ylab = "Number of New Births", pch = 20, lwd = 0.07)
+          
+  # Create Plot Legend
+  legend("topright", legend = c("Births", "Deaths"), pch = 20, lwd = 0.07, col = c("blue", "red"))
+          
+  dev.off()
+  
+  # ************************************************************************************************
+  # Death Rate Plot
+  # ************************************************************************************************
+  
+  # Push population size data to its own data frame
+  deathrate_dat = data.frame(general_input_file$NewDeaths)
+  
+  # Name columns
+  colnames(deathrate_dat) = "New Deaths"
+  
+  # Remove non-informative data
+  head_deathrate_dat = head(deathrate_dat, trimming_range)
+  
+  # Create output file name
+  deathrate_plot_out = paste("death_rate_plot", output_file_extention, ".tiff", sep = "")
+  
+  # Save pop plot
+  tiff(deathrate_plot_out, units = "in", width = 10, height = 5, res = 1000)
+  
+  # Plot
+  matplot(head_deathrate_dat, col = "blue", xlab = "Year", ylab = "Number of New Deaths", pch = 20)
+  
+  dev.off()
+  
+}
+
