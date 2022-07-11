@@ -9,13 +9,13 @@ initialize()
 	//SET WORKING DIRECTORY AND CUSTOM MAP NAME IF DESIRED
 	defineConstant("wd", "/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions");
 	defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
-	defineConstant("output_name", "test4"); // To run default names make an empty string
+	defineConstant("output_name", "test"); // To run default names make an empty string
 	
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
-	defineConstant("SN", 87616); // Starting number of individuals
-	defineConstant("HGK", 0.0064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
-	defineConstant("FK", 0.0128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
+	defineConstant("SN", 876160); // Starting number of individuals
+	defineConstant("HGK", 0.064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
+	defineConstant("FK", 0.128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
 	// Movement and interaction Distances (ENTER IN KILOMETERS):
 	// ***********************************
@@ -120,7 +120,6 @@ reproduction()
 					break;
 				}
 			}
-		}
 			if (mate.age > min_repro_age) // Reproductive age of the individual must be reached before mating
 			{
 				if (individual.z != mate.z)
@@ -131,7 +130,7 @@ reproduction()
 					M = HGM;
 				
 				// Frequency of the interaction
-				for (i in seqLen(rpois(1, 0.1)))
+				for (i in seqLen(rpois(1, M)))
 				{
 					// Only runs if a mate is nearby
 					if (mate.size())
@@ -208,6 +207,7 @@ reproduction()
 							}
 							while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
 							offspring.setSpatialPosition(pos);
+						}					
 					}
 				}
 			}
