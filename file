@@ -1,0 +1,29 @@
+		// Split width into 10 equal parts
+		partition_widths = map_size_width / num_partitions;
+		
+		for partition in num_partitions
+		{
+			
+			partition_num_bool = paste("farmers_partition", partition + 1, "_bool", sep = "")
+			
+			if (partition == 0)
+				partition_num_bool = farmers.x <= partition_widths
+			else if (partition == 1)
+				farmers_partition2_bool = farmers.x <= 2 * partition_widths & farmers.x > partition_widths;
+			else
+				partition_num_bool = farmers.x <= partition + 2 * partition_widths & farmers.x > partition + 1 * partition_widths
+			
+		}
+		
+		
+		// set criteria for farmers in each partition
+		///farmers_partition1_bool = farmers.x <= partition_widths;
+		//farmers_partition2_bool = farmers.x <= 2 * partition_widths & farmers.x > partition_widths;
+		//farmers_partition3_bool = farmers.x <= 3 * partition_widths & farmers.x > 2 * partition_widths;
+		//farmers_partition4_bool = farmers.x <= 4 * partition_widths & farmers.x > 3 * partition_widths;
+		//farmers_partition5_bool = farmers.x <= 5 * partition_widths & farmers.x > 4 * partition_widths;
+		//farmers_partition6_bool = farmers.x <= 6 * partition_widths & farmers.x > 5 * partition_widths;
+		//farmers_partition7_bool = farmers.x <= 7 * partition_widths & farmers.x > 6 * partition_widths;
+		//farmers_partition8_bool = farmers.x <= 8 * partition_widths & farmers.x > 7 * partition_widths;
+		//farmers_partition9_bool = farmers.x <= 9 * partition_widths & farmers.x > 8 * partition_widths;
+		//farmers_partition10_bool = farmers.x <= 10 * partition_widths & farmers.x > 9 * partition_widths;
