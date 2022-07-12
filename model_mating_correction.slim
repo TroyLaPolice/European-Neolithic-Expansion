@@ -9,7 +9,7 @@ initialize()
 	//SET WORKING DIRECTORY AND CUSTOM MAP NAME IF DESIRED
 	defineConstant("wd", "/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions");
 	defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
-	defineConstant("output_name", "test"); // To run default names make an empty string
+	defineConstant("output_name", "mating_correction2"); // To run default names make an empty string
 	
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
@@ -34,7 +34,7 @@ initialize()
 	defineConstant("HGM", 0.08); // HG fertility rate
 	defineConstant("FM", 0.08); // Farmer fertility rate
 	defineConstant("IM", 0.08); // Interbreeding fertility rate
-	defineConstant("min_repro_age", 13); // Individuals MUST be OLDER than this age to reproduce
+	defineConstant("min_repro_age", 11); // Individuals MUST be OLDER than this age to reproduce
 	
 	// Age related mortality table
 	defineConstant("age_scale", c(0.046335604111134,0.046335604111134,0.046335604111134,0.046335604111134,0.046335604111134,0.056408593819562,0.056408593819562,0.056408593819562,0.056408593819562,0.056408593819562,0.021999528676968,0.021999528676968,0.021999528676968,0.021999528676968,0.021999528676968,0.035354184793731,0.035354184793731,0.035354184793731,0.035354184793731,0.035354184793731,0.056800625283728,0.056800625283728,0.056800625283728,0.056800625283728,0.056800625283728,0.069352594596266,0.069352594596266,0.069352594596266,0.069352594596266,0.069352594596266,0.090704121931891,0.090704121931891,0.090704121931891,0.090704121931891,0.090704121931891,0.12200775084549,0.12200775084549,0.12200775084549,0.12200775084549,0.12200775084549,0.160621672514612,0.160621672514612,0.160621672514612,0.160621672514612,0.160621672514612,0.167446792598127,0.167446792598127,0.167446792598127,0.167446792598127,0.167446792598127,1));
@@ -618,9 +618,12 @@ late()
 	
 	// calculate the number of reproductively aged individuals
 	repro_age_inds = (sum(p1.individuals.age > min_repro_age));
+	
+	// calculate the reproduction frequency
+	repro_freq = (new_births/repro_age_inds);
 			
 	// write outputs
-	output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, repro_age_inds, new_births);
+	output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, repro_age_inds, new_births, repro_freq);
 	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
 	writeFile(wd + output_stats_file_name, output_string, append=T);
 	
