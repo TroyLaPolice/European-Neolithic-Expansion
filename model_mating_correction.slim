@@ -9,7 +9,7 @@ initialize()
 	//SET WORKING DIRECTORY AND CUSTOM MAP NAME IF DESIRED
 	defineConstant("wd", "/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions");
 	defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
-	defineConstant("output_name", "mating_correction2"); // To run default names make an empty string
+	defineConstant("output_name", "mating_correction"); // To run default names make an empty string
 	
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
@@ -37,12 +37,11 @@ initialize()
 	defineConstant("min_repro_age", 11); // Individuals MUST be OLDER than this age to reproduce
 	
 	// Age related mortality table
-	defineConstant("age_scale", c(0.046335604111134,0.046335604111134,0.046335604111134,0.046335604111134,0.046335604111134,0.056408593819562,0.056408593819562,0.056408593819562,0.056408593819562,0.056408593819562,0.021999528676968,0.021999528676968,0.021999528676968,0.021999528676968,0.021999528676968,0.035354184793731,0.035354184793731,0.035354184793731,0.035354184793731,0.035354184793731,0.056800625283728,0.056800625283728,0.056800625283728,0.056800625283728,0.056800625283728,0.069352594596266,0.069352594596266,0.069352594596266,0.069352594596266,0.069352594596266,0.090704121931891,0.090704121931891,0.090704121931891,0.090704121931891,0.090704121931891,0.12200775084549,0.12200775084549,0.12200775084549,0.12200775084549,0.12200775084549,0.160621672514612,0.160621672514612,0.160621672514612,0.160621672514612,0.160621672514612,0.167446792598127,0.167446792598127,0.167446792598127,0.167446792598127,0.167446792598127,1));
+	defineConstant("age_scale", c(0.046335604111134, 0.046335604111134, 0.046335604111134, 0.046335604111134, 0.046335604111134, 0.056408593819562, 0.056408593819562, 0.056408593819562, 0.056408593819562, 0.056408593819562, 0.021999528676968, 0.021999528676968, 0.021999528676968, 0.021999528676968, 0.021999528676968, 0.035354184793731, 0.035354184793731, 0.035354184793731, 0.035354184793731, 0.035354184793731, 0.056800625283728, 0.056800625283728, 0.056800625283728, 0.056800625283728, 0.056800625283728, 0.069352594596266, 0.069352594596266, 0.069352594596266, 0.069352594596266, 0.069352594596266, 0.090704121931891, 0.090704121931891, 0.090704121931891, 0.090704121931891, 0.090704121931891, 0.12200775084549, 0.12200775084549, 0.12200775084549, 0.12200775084549, 0.12200775084549, 0.160621672514612, 0.160621672514612, 0.160621672514612, 0.160621672514612, 0.160621672514612, 0.167446792598127, 0.167446792598127, 0.167446792598127, 0.167446792598127, 0.167446792598127, 1));
 	
 	// ---------------------------------------------------
 	// RUN TIME PREFERENCE PARAMETERS
 	// ---------------------------------------------------
-	
 	// Determine Coloring Schemes:
 	// ***********************************	
 	defineConstant("Color_scheme", 1); // Parameter of 0 = Genomic Coloring, 1 = Behavioral Coloring
@@ -70,7 +69,6 @@ initialize()
 	defineConstant("map_size_width", 3700);
 	
 	// Map citation: https://www.eea.europa.eu/data-and-maps/figures/elevation-map-of-europe
-	
 	// ----------------------------------------------------
 	//  GENETIC COMPONENT --> Initialize Genomic Elements
 	// ----------------------------------------------------
@@ -108,105 +106,97 @@ reproduction()
 	// choose nearest neighbor as a mate, within the max distance
 	if (individual.age > min_repro_age) // Reproductive age of the individual must be reached before mating
 	{
-		mates = i2.nearestNeighbors(individual, 20);
-		if (mates.size())
+		mates = i2.nearestInteractingNeighbors(individual, p1.individuals.length());
+		mates_ra = mates[mates.age > min_repro_age];
+		
+		if (mates_ra.size())
 		{
-			for (ind in mates)
+			mate = sample(mates_ra, 1);
+			if (individual.z != mate.z)
+				M = IM;
+			if (individual.z == mate.z & individual.z == 1)
+				M = FM;
+			if (individual.z == mate.z & individual.z == 0)
+				M = HGM;
+			
+			// Frequency of the interaction
+			for (i in seqLen(rpois(1, M)))
 			{
-				mate = ind;
-				if (ind.age > min_repro_age)
+				// Only runs if a mate is nearby
+				if (mate.size())
 				{
-					break;
-				}
-			}
-			if (mate.age > min_repro_age) // Reproductive age of the individual must be reached before mating
-			{
-				if (individual.z != mate.z)
-					M = IM;
-				if (individual.z == mate.z & individual.z == 1)
-					M = FM;
-				if (individual.z == mate.z & individual.z == 0)
-					M = HGM;
-				
-				// Frequency of the interaction
-				for (i in seqLen(rpois(1, M)))
-				{
-					// Only runs if a mate is nearby
-					if (mate.size())
+					offspring = subpop.addCrossed(individual, mate);
+					
+					// -----------------------
+					// Color Based on Genotype
+					// -----------------------
+					value = offspring.countOfMutationsOfType(m1) / 6000;
+					offspring.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
+					
+					// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
+					offspring.z = 0;
+					
+					// If both parents are farmers the child is a farmer
+					if (individual.z == 1 & mate.z == 1)
+						offspring.z = 1;
+					if (Color_scheme == 1)
 					{
-						offspring = subpop.addCrossed(individual, mate);
-						
 						// -----------------------
-						// Color Based on Genotype
+						// Color Based on Behavior
 						// -----------------------
-						value = offspring.countOfMutationsOfType(m1) / 6000;
-						offspring.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
-						
-						// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
-						offspring.z = 0;
-						
-						// If both parents are farmers the child is a farmer
-						if (individual.z == 1 & mate.z == 1)
-							offspring.z = 1;
-						if (Color_scheme == 1)
-						{
-							// -----------------------
-							// Color Based on Behavior
-							// -----------------------
-							// Add color to represent phenotype
-							if (offspring.z == 0)
-								offspring.color = "red";
-							else
-								offspring.color = "blue";
-						}
-						
-						// If the one parent is a farmer and one parent is a HG,
-						// offspring becomes a farmer
-						if (individual.z != mate.z)
-						{
-							offspring.z = 1;
-							if (Color_option1 == 1)
-							{
-								if (offspring.z == 1)
-									offspring.color = "purple"; // Color Based on Behavior
-							}
-						}
-						
-						// set offspring position 
-						if (map_style != 5 & individual.y > northern_slowdown_distance * map_size_length)
-						{
-							do
-							{
-								// This samples from a vector of movement distances based on the probability that they move this distance
-								distance = sample(x=c(movement_distances), size=1, replace=T, weights=c(movement_distance_weights));
-								
-								// Next we need to calculate the x and y coodinates
-								radian_angle = runif(1, 0, 2 * PI);
-								coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance) / northern_slowdown_effect;
-								
-								// Next we can reset the position
-								pos = individual.spatialPosition + coordiates;
-							}
-							while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
-							offspring.setSpatialPosition(pos);
-						}
+						// Add color to represent phenotype
+						if (offspring.z == 0)
+							offspring.color = "red";
 						else
+							offspring.color = "blue";
+					}
+					
+					// If the one parent is a farmer and one parent is a HG,
+					// offspring becomes a farmer
+					if (individual.z != mate.z)
+					{
+						offspring.z = 1;
+						if (Color_option1 == 1)
 						{
-							do
-							{
-								// This samples from a vector of movement distances based on the probability that they move this distance
-								distance = sample(x=c(movement_distances), size=1, replace=T, weights=c(movement_distance_weights));
-								
-								// Next we need to calculate the x and y coodinates
-								radian_angle = runif(1, 0, 2 * PI);
-								coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
-								
-								// Next we can reset the position
-								pos = individual.spatialPosition + coordiates;
-							}
-							while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
-							offspring.setSpatialPosition(pos);
-						}					
+							if (offspring.z == 1)
+								offspring.color = "purple"; // Color Based on Behavior
+						}
+					}
+					
+					// set offspring position 
+					if (map_style != 5 & individual.y > northern_slowdown_distance * map_size_length)
+					{
+						do
+						{
+							// This samples from a vector of movement distances based on the probability that they move this distance
+							distance = sample(x=c(movement_distances), size=1, replace=T, weights=c(movement_distance_weights));
+							
+							// Next we need to calculate the x and y coodinates
+							radian_angle = runif(1, 0, 2 * PI);
+							coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance) / northern_slowdown_effect;
+							
+							// Next we can reset the position
+							pos = individual.spatialPosition + coordiates;
+						}
+						while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
+						offspring.setSpatialPosition(pos);
+					}
+					else
+					{
+						do
+						{
+							// This samples from a vector of movement distances based on the probability that they move this distance
+							distance = sample(x=c(movement_distances), size=1, replace=T, weights=c(movement_distance_weights));
+							
+							// Next we need to calculate the x and y coodinates
+							radian_angle = runif(1, 0, 2 * PI);
+							coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
+							
+							// Next we can reset the position
+							pos = individual.spatialPosition + coordiates;
+						}
+						while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
+						offspring.setSpatialPosition(pos);
 					}
 				}
 			}
@@ -307,20 +297,19 @@ late()
 	if (length(HGs) != 0)
 	{
 		scaled_mortality_HG[HG_ages == length(age_scale) - 1] = 1;
-		scaled_mortality_HG[scaled_mortality_HG>1] = 1;
+		scaled_mortality_HG[scaled_mortality_HG > 1] = 1;
 	}
 	
 	// Calculate chance of survival by refering to the mortality table by age and subtracting the chance of mortality from one
 	farmer_survival = 1 - scaled_mortality_farmer;
 	
-		
 	// Do the same if there are still HGs left
 	if (length(HGs) != 0)
 		HG_survival = 1 - scaled_mortality_HG;
 	
 	// Scale the fitneess of the individual, density-dependent and factoring in individual age based mortality
 	farmers.fitnessScaling = farmer_survival;
-		
+	
 	// Do the same if there are still HGs left
 	if (length(HGs) != 0)
 		HGs.fitnessScaling = HG_survival;
@@ -423,13 +412,11 @@ late()
 	
 	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
 	// Make individuals near anatolia and greece farmers or near the edge if using the square
-	
 	// Set ages of created spawned individuals
 	for (ind in p1.individuals)
 	{
-		ind.age = rdunif(1,1,(length(age_scale) - 1));
+		ind.age = rdunif(1, 1, (length(age_scale) - 1));
 	}
-	
 	if (map_style == 5)
 		p1.individuals[p1.individuals.x < (0.02 * map_size_width)].z = 1;
 	else
@@ -479,7 +466,6 @@ late()
 	stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmertoHG", "Num_Repro_Age_Inds", "NewBirths");
 	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
 	writeFile(wd + output_stats_file_name, stats_header_string, append=T);
-	
 	if (map_style == 5)
 	{
 		// Wave stats headers - write to file
@@ -559,13 +545,13 @@ late()
 		ratio8 = (farmers_partition8 / (farmers_partition8 + HGs_partition8));
 		ratio9 = (farmers_partition9 / (farmers_partition9 + HGs_partition9));
 		ratio10 = (farmers_partition10 / (farmers_partition10 + HGs_partition10));
-	
+		
 		// calculate total num farmers
 		num_farmers = sum(p1.individuals.z);
-	
+		
 		// calculate total num HGs
 		num_HGs = (p1.individuals.length() - sum(p1.individuals.z));
-	
+		
 		// calculate population size statistics
 		pop_size = p1.individuals.length();
 		
@@ -577,14 +563,16 @@ late()
 		
 		// calculate the number of reproductively aged individuals
 		repro_age_inds = (sum(p1.individuals.age > min_repro_age));
-	
+		
+		// calculate the reproduction frequency
+		repro_freq = (new_births/repro_age_inds);
+		
 		// write outputs
 		output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, farmers_partition1, farmers_partition2, farmers_partition3, farmers_partition4, farmers_partition5, farmers_partition6, farmers_partition7, farmers_partition8, farmers_partition9, farmers_partition10, HGs_partition1, HGs_partition2, HGs_partition3, HGs_partition4, HGs_partition5, HGs_partition6, HGs_partition7, HGs_partition8, HGs_partition9, HGs_partition10, ratio1, ratio2, ratio3, ratio4, ratio5, ratio6, ratio7, ratio8, ratio9, ratio10, repro_age_inds, new_births);
 		
 		// output to file
 		output_stats_file_name = ("/sim_square_wave_stats_per_year_" + output_name + ".txt");
 		writeFile(wd + output_stats_file_name, output_string, append=T);
-		
 	}
 }
 
@@ -593,7 +581,6 @@ late()
 	// provide feedback on progress for command line users
 	year_counter = paste("Simulation Year: ", sim.generation);
 	print(year_counter);
-	
 	if (sim.generation == 6000)
 	{
 		print("--------------------------------");
@@ -619,11 +606,8 @@ late()
 	// calculate the number of reproductively aged individuals
 	repro_age_inds = (sum(p1.individuals.age > min_repro_age));
 	
-	// calculate the reproduction frequency
-	repro_freq = (new_births/repro_age_inds);
-			
 	// write outputs
-	output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, repro_age_inds, new_births, repro_freq);
+	output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, repro_age_inds, new_births);
 	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
 	writeFile(wd + output_stats_file_name, output_string, append=T);
 	
