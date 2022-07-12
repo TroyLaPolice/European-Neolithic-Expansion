@@ -536,3 +536,4 @@ if (file.exists(general_input_with_deaths_name)){
   dev.off()
   
 }
+
