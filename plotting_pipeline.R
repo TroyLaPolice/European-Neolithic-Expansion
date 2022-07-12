@@ -6,15 +6,15 @@ library(tidyr)
 # Set WD, input and output file name additions, as well as trimming range for non-informative data
 # ********************************************************************************************************************************************
 
-setwd("/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions/longrun_test/7-8")
+setwd("/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions/longrun_test/7-11")
 
-input_file_extention = "_test3"  # Should be the same as the ending of your SLiM output files
+input_file_extention = "_mating_correction"  # Should be the same as the ending of your SLiM output files
                                 #   if endings are default this will be an empty string.
 
-output_file_extention = "_test3" # Addition to attach to the output files
+output_file_extention = "_mating_correction" # Addition to attach to the output files
                                 #   Best practice is to keep these the same for simplicity.
 
-trimming_range = -1
+trimming_range = -298
 
 # Create file names
 square_input_name = paste("sim_square_wave_stats_per_year", input_file_extention, ".txt", sep = "")
@@ -81,19 +81,20 @@ if (file.exists(square_input_name)){
   
   
   # Name columns
-  colnames(ratio_dat) = c("Year", "Total_RatioFarmerToHG", "RatioFarmerToHG_Partition1", "RatioFarmerToHG_Partition2", 
-                           "RatioFarmerToHG_Partition3", "RatioFarmerToHG_Partition4", "RatioFarmerToHG_Partition5", 
-                           "RatioFarmerToHG_Partition6", "RatioFarmerToHG_Partition7", "RatioFarmerToHG_Partition8", 
-                           "RatioFarmerToHG_Partition9", "RatioFarmerToHG_PartitionTen")
+  colnames(ratio_dat) = c("Year", "Total", "Partition1", "Partition2", 
+                           "Partition3", "Partition4", "Partition5", 
+                           "Partition6", "Partition7", "Partition8", 
+                           "Partition9", "PartitionTen")
+  
   
   # Remove non-informative ratio data
   head_ratio_dat = head(ratio_dat, trimming_range)
   
   # Convert to tidy format
-  ratio_dat_tidyr = tidyr::pivot_longer(head_ratio_dat, cols=c("Total_RatioFarmerToHG", "RatioFarmerToHG_Partition1", "RatioFarmerToHG_Partition2", 
-                                                               "RatioFarmerToHG_Partition3", "RatioFarmerToHG_Partition4", "RatioFarmerToHG_Partition5", 
-                                                               "RatioFarmerToHG_Partition6", "RatioFarmerToHG_Partition7", "RatioFarmerToHG_Partition8", 
-                                                               "RatioFarmerToHG_Partition9", "RatioFarmerToHG_PartitionTen"),
+  ratio_dat_tidyr = tidyr::pivot_longer(head_ratio_dat, cols=c("Total", "Partition1", "Partition2", 
+                                                               "Partition3", "Partition4", "Partition5", 
+                                                               "Partition6", "Partition7", "Partition8", 
+                                                               "Partition9", "PartitionTen"),
                                         names_to = "variable")
   
   # Plot
@@ -104,7 +105,31 @@ if (file.exists(square_input_name)){
   
   # Save ratio plot
   ggsave(ratio_plot_out, plot = ratio_plot, units = "in", width = 10, height = 5, device="tiff", dpi=1000)
-
+  
+  # ************************************************************************************************
+  # Farmer:HG Ratio Partition Plot2
+  # ************************************************************************************************
+  
+  ratio_plot2 = ggplot(ratio_dat_tidyr, aes(x=Year, y=value, fill=variable)) + geom_col(width = 1) + facet_grid(variable~.)
+  
+  # Create output file name
+  ratio_plot_out2 = paste("ratio_partition_plot2", output_file_extention, ".tiff", sep = "")
+  
+  # Save ratio plot
+  ggsave(ratio_plot_out2, plot = ratio_plot2, units = "in", width = 10, height = 12, device="tiff", dpi=1000)
+  
+  # ************************************************************************************************
+  # Farmer:HG Ratio Partition Plot3
+  # ************************************************************************************************
+  
+  ratio_plot3 = ggplot(ratio_dat_tidyr[ratio_dat_tidyr$Year%%100 == 0 & ratio_dat_tidyr$variable != "Total",], aes(x=variable, y=value, col=factor(Year), group=Year)) + geom_line() 
+  
+  # Create output file name
+  ratio_plot_out3 = paste("ratio_partition_plot3", output_file_extention, ".tiff", sep = "")
+  
+  # Save ratio plot
+  ggsave(ratio_plot_out3, plot = ratio_plot3, units = "in", width = 10, height = 5, device="tiff", dpi=1000)
+  
     
   # ************************************************************************************************
   # Farmer Population Size Partition Plot
@@ -346,6 +371,30 @@ if (file.exists(general_input_name)){
   legend("right", legend = c("TotalPopulation", "Reproductive Age Individuals"), pch = 19, col = c("black", "blue"))
   
   dev.off()
+  
+  # ************************************************************************************************
+  # Birth Freq Plot
+  # ************************************************************************************************
+  
+  # Push population size data to its own data frame
+  birthfreq_dat = data.frame(general_input_file$ReproFreq)
+  
+  # Name columns
+  colnames(birthfreq_dat) = "ReproductionFreq"
+  
+  # Remove non-informative data
+  head_birthfreq_dat = head(birthfreq_dat, trimming_range)
+  
+  # Create output file name
+  birthfreq_plot_out = paste("birth_freq_plot", output_file_extention, ".tiff", sep = "")
+  
+  # Save pop plot
+  tiff(birthfreq_plot_out, units = "in", width = 10, height = 5, res = 1000)
+  
+  # Plot
+  matplot(head_birthfreq_dat, col = "blue", xlab = "Year", ylab = "Rate", pch = 20)
+  
+  dev.off()
 
 } 
 
@@ -372,7 +421,7 @@ if (file.exists(general_input_with_deaths_name)){
   tiff(birthrate_plot_out, units = "in", width = 10, height = 5, res = 1000)
   
   # Plot
-  matplot(head_birthdeathrate_dat, col = c("blue", "red"), xlab = "Year", ylab = "Number of New Births", pch = 20, lwd = 0.07)
+  matplot(head_birthdeathrate_dat, col = c("blue", "red"), xlab = "Year", ylab = "Number of New Births/Deaths", pch = 20, lwd = 0.07)
           
   # Create Plot Legend
   legend("topright", legend = c("Births", "Deaths"), pch = 20, lwd = 0.07, col = c("blue", "red"))
@@ -387,7 +436,7 @@ if (file.exists(general_input_with_deaths_name)){
   deathrate_dat = data.frame(general_input_file$NewDeaths)
   
   # Name columns
-  colnames(deathrate_dat) = "New Deaths"
+  colnames(deathrate_dat) = "NewDeaths"
   
   # Remove non-informative data
   head_deathrate_dat = head(deathrate_dat, trimming_range)
