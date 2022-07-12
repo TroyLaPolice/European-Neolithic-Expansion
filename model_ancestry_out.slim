@@ -7,15 +7,15 @@ initialize()
 	//  PARAMETERS --> Initialize Constant Params
 	// ---------------------------------------------------
 	//SET WORKING DIRECTORY AND CUSTOM MAP NAME IF DESIRED
-	defineConstant("wd", "/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions");
+	defineConstant("wd", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab");
 	defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
 	defineConstant("output_name", "mating_correction"); // To run default names make an empty string
 	
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
-	defineConstant("SN", 876160); // Starting number of individuals
-	defineConstant("HGK", 0.064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
-	defineConstant("FK", 0.128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
+	defineConstant("SN", 8761); // Starting number of individuals
+	defineConstant("HGK", 0.00064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
+	defineConstant("FK", 0.00128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
 	// Movement and interaction Distances (ENTER IN KILOMETERS):
 	// ***********************************
@@ -469,7 +469,7 @@ late()
 	if (map_style == 5)
 	{
 		// Wave stats headers - write to file
-		wave_stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmerToHG", "Farmers_in_Partition1", "Farmers_in_Partition2", "Farmers_in_Partition3", "Farmers_in_Partition4", "Farmers_in_Partition5", "Farmers_in_Partition6", "Farmers_in_Partition7", "Farmers_in_Partition8", "Farmers_in_Partition9", "Farmers_in_Partition10", "HGs_in_Partition1", "HGs_in_Partition2", "HGs_in_Partition3", "HGs_in_Partition4", "HGs_in_Partition5", "HGs_in_Partition6", "HGs_in_Partition7", "HGs_in_Partition8", "HGs_in_Partition9", "HGs_in_Partition10", "RatioFarmerToHG_Partition1", "RatioFarmerToHG_Partition2", "RatioFarmerToHG_Partition3", "RatioFarmerToHG_Partition4", "RatioFarmerToHG_Partition5", "RatioFarmerToHG_Partition6", "RatioFarmerToHG_Partition7", "RatioFarmerToHG_Partition8", "RatioFarmerToHG_Partition9", "RatioFarmerToHG_Partition10", "Num_Repro_Age_Inds", "NewBirths");
+		wave_stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmerToHG", "Farmers_in_Partition1", "Farmers_in_Partition2", "Farmers_in_Partition3", "Farmers_in_Partition4", "Farmers_in_Partition5", "Farmers_in_Partition6", "Farmers_in_Partition7", "Farmers_in_Partition8", "Farmers_in_Partition9", "Farmers_in_Partition10", "HGs_in_Partition1", "HGs_in_Partition2", "HGs_in_Partition3", "HGs_in_Partition4", "HGs_in_Partition5", "HGs_in_Partition6", "HGs_in_Partition7", "HGs_in_Partition8", "HGs_in_Partition9", "HGs_in_Partition10", "RatioFarmerToHG_Partition1", "RatioFarmerToHG_Partition2", "RatioFarmerToHG_Partition3", "RatioFarmerToHG_Partition4", "RatioFarmerToHG_Partition5", "RatioFarmerToHG_Partition6", "RatioFarmerToHG_Partition7", "RatioFarmerToHG_Partition8", "RatioFarmerToHG_Partition9", "RatioFarmerToHG_Partition10", "Farmer_Ancestry_Partition1_Farmers", "Farmer_Ancestry_Partition2_Farmers", "Farmer_Ancestry_Partition3_Farmers", "Farmer_Ancestry_Partition4_Farmers", "Farmer_Ancestry_Partition5_Farmers", "Farmer_Ancestry_Partition6_Farmers", "Farmer_Ancestry_Partition7_Farmers", "Farmer_Ancestry_Partition8_Farmers", "Farmer_Ancestry_Partition9_Farmers", "Farmer_Ancestry_Partition10_Farmers", "Farmer_Ancestry_Partition1_HGs", "Farmer_Ancestry_Partition2_HGs", "Farmer_Ancestry_Partition3_HGs", "Farmer_Ancestry_Partition4_HGs", "Farmer_Ancestry_Partition5_HGs", "Farmer_Ancestry_Partition6_HGs", "Farmer_Ancestry_Partition7_HGs", "Farmer_Ancestry_Partition8_HGs", "Farmer_Ancestry_Partition9_HGs", "Farmer_Ancestry_Partition10_HGs", "Farmer_Ancestry_Partition1_All", "Farmer_Ancestry_Partition2_All", "Farmer_Ancestry_Partition3_All", "Farmer_Ancestry_Partition4_All", "Farmer_Ancestry_Partition5_All", "Farmer_Ancestry_Partition6_All", "Farmer_Ancestry_Partition7_All", "Farmer_Ancestry_Partition8_All", "Farmer_Ancestry_Partition9_All", "Farmer_Ancestry_Partition10_All", "Num_Repro_Age_Inds", "NewBirths");
 		output_wave_stats_file_name = ("/sim_square_wave_stats_per_year_" + output_name + ".txt");
 		writeFile(wd + output_wave_stats_file_name, wave_stats_header_string, append=T);
 	}
@@ -482,33 +482,22 @@ late()
 		// define vector of farmers and vector of HGs
 		farmers = p1.individuals[p1.individuals.z == 1];
 		HGs = p1.individuals[p1.individuals.z == 0];
+		all_inds = p1.individuals
 		
 		// Split width into 10 equal parts
 		partition_widths = map_size_width / 10;
 		
-		// set criteria for farmers in each partition
-		farmers_partition1_bool = farmers.x <= partition_widths;
-		farmers_partition2_bool = farmers.x <= 2 * partition_widths & farmers.x > partition_widths;
-		farmers_partition3_bool = farmers.x <= 3 * partition_widths & farmers.x > 2 * partition_widths;
-		farmers_partition4_bool = farmers.x <= 4 * partition_widths & farmers.x > 3 * partition_widths;
-		farmers_partition5_bool = farmers.x <= 5 * partition_widths & farmers.x > 4 * partition_widths;
-		farmers_partition6_bool = farmers.x <= 6 * partition_widths & farmers.x > 5 * partition_widths;
-		farmers_partition7_bool = farmers.x <= 7 * partition_widths & farmers.x > 6 * partition_widths;
-		farmers_partition8_bool = farmers.x <= 8 * partition_widths & farmers.x > 7 * partition_widths;
-		farmers_partition9_bool = farmers.x <= 9 * partition_widths & farmers.x > 8 * partition_widths;
-		farmers_partition10_bool = farmers.x <= 10 * partition_widths & farmers.x > 9 * partition_widths;
-		
-		// Extract vector of farmers in each partition
-		farmers_partition1 = (which(farmers_partition1_bool == T));
-		farmers_partition2 = (which(farmers_partition2_bool == T));
-		farmers_partition3 = (which(farmers_partition3_bool == T));
-		farmers_partition4 = (which(farmers_partition4_bool == T));
-		farmers_partition5 = (which(farmers_partition5_bool == T));
-		farmers_partition6 = (which(farmers_partition6_bool == T));
-		farmers_partition7 = (which(farmers_partition7_bool == T));
-		farmers_partition8 = (which(farmers_partition8_bool == T));
-		farmers_partition9 = (which(farmers_partition9_bool == T));
-		farmers_partition10 = (which(farmers_partition10_bool == T));
+		// set criteria for farmers in each partition and extract vector of farmers in each partition
+		farmers_partition1 = farmers[farmers.x <= partition_widths];
+		farmers_partition2 = farmers[farmers.x <= 2 * partition_widths & farmers.x > partition_widths];
+		farmers_partition3 = farmers[farmers.x <= 3 * partition_widths & farmers.x > 2 * partition_widths];
+		farmers_partition4 = farmers[farmers.x <= 4 * partition_widths & farmers.x > 3 * partition_widths];
+		farmers_partition5 = farmers[farmers.x <= 5 * partition_widths & farmers.x > 4 * partition_widths];
+		farmers_partition6 = farmers[farmers.x <= 6 * partition_widths & farmers.x > 5 * partition_widths];
+		farmers_partition7 = farmers[farmers.x <= 7 * partition_widths & farmers.x > 6 * partition_widths];
+		farmers_partition8 = farmers[farmers.x <= 8 * partition_widths & farmers.x > 7 * partition_widths];
+		farmers_partition9 = farmers[farmers.x <= 9 * partition_widths & farmers.x > 8 * partition_widths];
+		farmers_partition10 = farmers[farmers.x <= 10 * partition_widths & farmers.x > 9 * partition_widths];
 		
 		// count farmers in each partition 
 		num_farmers_partition1 = size(farmers_partition1);
@@ -522,43 +511,90 @@ late()
 		num_farmers_partition9 = size(farmers_partition9);
 		num_farmers_partition10 = size(farmers_partition10);
 		
-		ancestry_partition1 = mean(farmers_partition1.countOfMutationsOfType(m1) / 6000);
+		// calculate farming ancestry in farmers in each partition
+		Farmer_Ancestry_Partition1_farmer = mean(farmers_partition1.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition2_farmer = mean(farmers_partition2.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition3_farmer = mean(farmers_partition3.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition4_farmer = mean(farmers_partition4.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition5_farmer = mean(farmers_partition5.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition6_farmer = mean(farmers_partition6.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition7_farmer = mean(farmers_partition7.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition8_farmer = mean(farmers_partition8.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition9_farmer = mean(farmers_partition9.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition10_farmer = mean(farmers_partition10.countOfMutationsOfType(m1) / 6000);
 		
-		// set criteria for HGs in each partition
-		HGs_partition1_bool = HGs.x <= partition_widths;
-		HGs_partition2_bool = HGs.x <= 2 * partition_widths & HGs.x > partition_widths;
-		HGs_partition3_bool = HGs.x <= 3 * partition_widths & HGs.x > 2 * partition_widths;
-		HGs_partition4_bool = HGs.x <= 4 * partition_widths & HGs.x > 3 * partition_widths;
-		HGs_partition5_bool = HGs.x <= 5 * partition_widths & HGs.x > 4 * partition_widths;
-		HGs_partition6_bool = HGs.x <= 6 * partition_widths & HGs.x > 5 * partition_widths;
-		HGs_partition7_bool = HGs.x <= 7 * partition_widths & HGs.x > 6 * partition_widths;
-		HGs_partition8_bool = HGs.x <= 8 * partition_widths & HGs.x > 7 * partition_widths;
-		HGs_partition9_bool = HGs.x <= 9 * partition_widths & HGs.x > 8 * partition_widths;
-		HGs_partition10_bool = HGs.x <= 10 * partition_widths & HGs.x > 9 * partition_widths;
+		
+		// set criteria for HGs in each partition and extract vector of HGs in each partition
+		HGs_partition1 = HGs[HGs.x <= partition_widths];
+		HGs_partition2 = HGs[HGs.x <= 2 * partition_widths & HGs.x > partition_widths];
+		HGs_partition3 = HGs[HGs.x <= 3 * partition_widths & HGs.x > 2 * partition_widths];
+		HGs_partition4 = HGs[HGs.x <= 4 * partition_widths & HGs.x > 3 * partition_widths];
+		HGs_partition5 = HGs[HGs.x <= 5 * partition_widths & HGs.x > 4 * partition_widths];
+		HGs_partition6 = HGs[HGs.x <= 6 * partition_widths & HGs.x > 5 * partition_widths];
+		HGs_partition7 = HGs[HGs.x <= 7 * partition_widths & HGs.x > 6 * partition_widths];
+		HGs_partition8 = HGs[HGs.x <= 8 * partition_widths & HGs.x > 7 * partition_widths];
+		HGs_partition9 = HGs[HGs.x <= 9 * partition_widths & HGs.x > 8 * partition_widths];
+		HGs_partition10 = HGs[HGs.x <= 10 * partition_widths & HGs.x > 9 * partition_widths];
 		
 		// count HGs in each partition 
-		HGs_partition1 = size(which(HGs_partition1_bool == T));
-		HGs_partition2 = size(which(HGs_partition2_bool == T));
-		HGs_partition3 = size(which(HGs_partition3_bool == T));
-		HGs_partition4 = size(which(HGs_partition4_bool == T));
-		HGs_partition5 = size(which(HGs_partition5_bool == T));
-		HGs_partition6 = size(which(HGs_partition6_bool == T));
-		HGs_partition7 = size(which(HGs_partition7_bool == T));
-		HGs_partition8 = size(which(HGs_partition8_bool == T));
-		HGs_partition9 = size(which(HGs_partition9_bool == T));
-		HGs_partition10 = size(which(HGs_partition10_bool == T));
+		num_HGs_partition1 = size(HGs_partition1);
+		num_HGs_partition2 = size(HGs_partition2);
+		num_HGs_partition3 = size(HGs_partition3);
+		num_HGs_partition4 = size(HGs_partition4);
+		num_HGs_partition5 = size(HGs_partition5);
+		num_HGs_partition6 = size(HGs_partition6);
+		num_HGs_partition7 = size(HGs_partition7);
+		num_HGs_partition8 = size(HGs_partition8);
+		num_HGs_partition9 = size(HGs_partition9);
+		num_HGs_partition10 = size(HGs_partition10);
 		
-		// calculate the ratio of farmers each partition
-		ratio1 = (farmers_partition1 / (farmers_partition1 + HGs_partition1));
-		ratio2 = (farmers_partition2 / (farmers_partition2 + HGs_partition2));
-		ratio3 = (farmers_partition3 / (farmers_partition3 + HGs_partition3));
-		ratio4 = (farmers_partition4 / (farmers_partition4 + HGs_partition4));
-		ratio5 = (farmers_partition5 / (farmers_partition5 + HGs_partition5));
-		ratio6 = (farmers_partition6 / (farmers_partition6 + HGs_partition6));
-		ratio7 = (farmers_partition7 / (farmers_partition7 + HGs_partition7));
-		ratio8 = (farmers_partition8 / (farmers_partition8 + HGs_partition8));
-		ratio9 = (farmers_partition9 / (farmers_partition9 + HGs_partition9));
-		ratio10 = (farmers_partition10 / (farmers_partition10 + HGs_partition10));
+		// calculate farming ancestry in HGs in each partition
+		farmer_ancestry_partition1_HG = mean(HGs_partition1.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition2_HG = mean(HGs_partition2.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition3_HG = mean(HGs_partition3.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition4_HG = mean(HGs_partition4.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition5_HG = mean(HGs_partition5.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition6_HG = mean(HGs_partition6.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition7_HG = mean(HGs_partition7.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition8_HG = mean(HGs_partition8.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition9_HG = mean(HGs_partition9.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition10_HG = mean(HGs_partition10.countOfMutationsOfType(m1) / 6000);
+		
+		// set criteria for all individuals in each partition and extract vector of HGs in each partition
+		all_inds_partition1 = all_inds[all_inds.x <= partition_widths];
+		all_inds_partition2 = all_inds[all_inds.x <= 2 * partition_widths & all_inds.x > partition_widths];
+		all_inds_partition3 = all_inds[all_inds.x <= 3 * partition_widths & all_inds.x > 2 * partition_widths];
+		all_inds_partition4 = all_inds[all_inds.x <= 4 * partition_widths & all_inds.x > 3 * partition_widths];
+		all_inds_partition5 = all_inds[all_inds.x <= 5 * partition_widths & all_inds.x > 4 * partition_widths];
+		all_inds_partition6 = all_inds[all_inds.x <= 6 * partition_widths & all_inds.x > 5 * partition_widths];
+		all_inds_partition7 = all_inds[all_inds.x <= 7 * partition_widths & all_inds.x > 6 * partition_widths];
+		all_inds_partition8 = all_inds[all_inds.x <= 8 * partition_widths & all_inds.x > 7 * partition_widths];
+		all_inds_partition9 = all_inds[all_inds.x <= 9 * partition_widths & all_inds.x > 8 * partition_widths];
+		all_inds_partition10 = all_inds[all_inds.x <= 10 * partition_widths & all_inds.x > 9 * partition_widths];
+		
+		// calculate farming ancestry in all indiviuals in each partition
+		farmer_ancestry_partition1_all = mean(all_inds_partition1.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition2_all = mean(all_inds_partition2.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition3_all = mean(all_inds_partition3.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition4_all = mean(all_inds_partition4.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition5_all = mean(all_inds_partition5.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition6_all = mean(all_inds_partition6.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition7_all = mean(all_inds_partition7.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition8_all = mean(all_inds_partition8.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition9_all = mean(all_inds_partition9.countOfMutationsOfType(m1) / 6000);
+		farmer_ancestry_partition10_all = mean(all_inds_partition10.countOfMutationsOfType(m1) / 6000);
+		
+		// calculate the ratio of farmers to HGs each partition
+		ratio1 = (num_farmers_partition1 / (num_farmers_partition1 + num_HGs_partition1));
+		ratio2 = (num_farmers_partition2 / (num_farmers_partition2 + num_HGs_partition2));
+		ratio3 = (num_farmers_partition3 / (num_farmers_partition3 + num_HGs_partition3));
+		ratio4 = (num_farmers_partition4 / (num_farmers_partition4 + num_HGs_partition4));
+		ratio5 = (num_farmers_partition5 / (num_farmers_partition5 + num_HGs_partition5));
+		ratio6 = (num_farmers_partition6 / (num_farmers_partition6 + num_HGs_partition6));
+		ratio7 = (num_farmers_partition7 / (num_farmers_partition7 + num_HGs_partition7));
+		ratio8 = (num_farmers_partition8 / (num_farmers_partition8 + num_HGs_partition8));
+		ratio9 = (num_farmers_partition9 / (num_farmers_partition9 + num_HGs_partition9));
+		ratio10 = (num_farmers_partition10 / (num_farmers_partition10 + num_HGs_partition10));
 		
 		// calculate total num farmers
 		num_farmers = sum(p1.individuals.z);
@@ -578,11 +614,11 @@ late()
 		// calculate the number of reproductively aged individuals
 		repro_age_inds = (sum(p1.individuals.age > min_repro_age));
 		
-		// calculate the reproduction frequency
+		// calculate reproduction frequency per reproductive age individual
 		repro_freq = (new_births/repro_age_inds);
 		
 		// write outputs
-		output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, farmers_partition1, farmers_partition2, farmers_partition3, farmers_partition4, farmers_partition5, farmers_partition6, farmers_partition7, farmers_partition8, farmers_partition9, farmers_partition10, HGs_partition1, HGs_partition2, HGs_partition3, HGs_partition4, HGs_partition5, HGs_partition6, HGs_partition7, HGs_partition8, HGs_partition9, HGs_partition10, ratio1, ratio2, ratio3, ratio4, ratio5, ratio6, ratio7, ratio8, ratio9, ratio10, repro_age_inds, new_births);
+		output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, num_farmers_partition1, num_farmers_partition2, num_farmers_partition3, num_farmers_partition4, num_farmers_partition5, num_farmers_partition6, num_farmers_partition7, num_farmers_partition8, num_farmers_partition9, num_farmers_partition10, num_HGs_partition1, num_HGs_partition2, num_HGs_partition3, num_HGs_partition4, num_HGs_partition5, num_HGs_partition6, num_HGs_partition7, num_HGs_partition8, num_HGs_partition9, num_HGs_partition10, ratio1, ratio2, ratio3, ratio4, ratio5, ratio6, ratio7, ratio8, ratio9, ratio10, farmer_ancestry_partition1_farmer, farmer_ancestry_partition2_farmer, farmer_ancestry_partition3_farmer, farmer_ancestry_partition4_farmer, farmer_ancestry_partition5_farmer, farmer_ancestry_partition6_farmer, farmer_ancestry_partition7_farmer, farmer_ancestry_partition8_farmer, farmer_ancestry_partition9_farmer, farmer_ancestry_partition10_farmer, farmer_ancestry_partition1_HG, farmer_ancestry_partition2_HG, farmer_ancestry_partition3_HG, farmer_ancestry_partition4_HG, farmer_ancestry_partition5_HG, farmer_ancestry_partition6_HG, farmer_ancestry_partition7_HG, farmer_ancestry_partition8_HG, farmer_ancestry_partition9_HG, farmer_ancestry_partition10_HG, farmer_ancestry_partition1_all, farmer_ancestry_partition2_all, farmer_ancestry_partition3_all, farmer_ancestry_partition4_all, farmer_ancestry_partition5_all, farmer_ancestry_partition6_all, farmer_ancestry_partition7_all, farmer_ancestry_partition8_all, farmer_ancestry_partition9_all, farmer_ancestry_partition10_all, repro_age_inds, new_births, repro_freq);
 		
 		// output to file
 		output_stats_file_name = ("/sim_square_wave_stats_per_year_" + output_name + ".txt");
@@ -620,8 +656,11 @@ late()
 	// calculate the number of reproductively aged individuals
 	repro_age_inds = (sum(p1.individuals.age > min_repro_age));
 	
+	// calculate reproduction frequency per reproductive age individual
+	repro_freq = (new_births/repro_age_inds);
+	
 	// write outputs
-	output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, repro_age_inds, new_births);
+	output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, repro_age_inds, new_births, repro_freq);
 	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
 	writeFile(wd + output_stats_file_name, output_string, append=T);
 	
