@@ -456,7 +456,7 @@ if (file.exists(general_input_name)){
   # ************************************************************************************************
   
   # Push ancestry size data to its own data frame
-  ancestry_dat = data.frame(general_input_file$Total_Farming_Ancestry,
+  ancestry_dat = data.frame(general_input_file$Farmer_Ancestry_All,
                               general_input_file$Farmer_Ancestry_All_Farmers, 
                               general_input_file$Farmer_Ancestry_All_HGs)
   
