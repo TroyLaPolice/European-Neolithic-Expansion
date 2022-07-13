@@ -6,20 +6,24 @@ library(tidyr)
 # Set WD, input and output file name additions, as well as trimming range for non-informative data
 # ********************************************************************************************************************************************
 
-setwd("/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions/longrun_test/7-11")
+setwd("/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions/longrun_test/7-12")
 
-input_file_extention = "_mating_correction"  # Should be the same as the ending of your SLiM output files
+input_file_extention = "_ancestry_out"  # Should be the same as the ending of your SLiM output files
                                 #   if endings are default this will be an empty string.
 
-output_file_extention = "_mating_correction" # Addition to attach to the output files
+output_file_extention = "_ancestry_out" # Addition to attach to the output files
                                 #   Best practice is to keep these the same for simplicity.
 
-trimming_range = -298
+trimming_range = -128
 
 # Create file names
 square_input_name = paste("sim_square_wave_stats_per_year", input_file_extention, ".txt", sep = "")
 general_input_name = paste("sim_pop_stats_per_year", input_file_extention, ".txt", sep = "")
 general_input_with_deaths_name = paste("sim_pop_stats_per_year_with_death", input_file_extention, ".csv", sep = "")
+
+# ********************************************************************************************************************************************
+# Read in Files
+# ********************************************************************************************************************************************
 
 # Check if files exist and read in those that do
 if ((file.exists(square_input_name)) && (file.exists(general_input_with_deaths_name))){
@@ -38,30 +42,9 @@ if ((file.exists(square_input_name)) && (file.exists(general_input_with_deaths_n
   print("Requested files do not exist")
 }
 
-# ************************************************************************************************
-# Melt the wide file dfs into long format
-# ************************************************************************************************
-
-# If run on a square
-if (file.exists(square_input_name)){
-square_input_file_tidyr = tidyr::pivot_longer(square_input_file, cols=c("Farmers_in_Partition1", "Farmers_in_Partition2", "Farmers_in_Partition3", 
-                                                                        "Farmers_in_Partition4", "Farmers_in_Partition5", "Farmers_in_Partition6", 
-                                                                        "Farmers_in_Partition7", "Farmers_in_Partition8", "Farmers_in_Partition9", 
-                                                                        "Farmers_in_Partition10", "RatioFarmerToHG_Partition1", "HGs_in_Partition1", 
-                                                                        "HGs_in_Partition2", "HGs_in_Partition3", "HGs_in_Partition4", 
-                                                                        "HGs_in_Partition5", "HGs_in_Partition6", "HGs_in_Partition7", 
-                                                                        "HGs_in_Partition8", "HGs_in_Partition9", "HGs_in_Partition10",
-                                                                        "RatioFarmerToHG_Partition2", "RatioFarmerToHG_Partition3", "RatioFarmerToHG_Partition4", 
-                                                                        "RatioFarmerToHG_Partition5",  "RatioFarmerToHG_Partition6", "RatioFarmerToHG_Partition7", 
-                                                                        "RatioFarmerToHG_Partition8", "RatioFarmerToHG_Partition9", "RatioFarmerToHG_Partition10"),
-                                      names_to = "Partition Variable")
-}
-
-# If for the general model
-if (file.exists(general_input_name)){
-  general_input_file_tidyr = tidyr::pivot_longer(general_input_file, cols=c("PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmertoHG"),
-                                                names_to = "Variable")
-}
+# ********************************************************************************************************************************************
+# Plotting
+# ********************************************************************************************************************************************
 
 # If the model was run on a square, plot the data
 if (file.exists(square_input_name)){
