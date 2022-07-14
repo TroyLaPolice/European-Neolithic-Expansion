@@ -463,7 +463,7 @@ late()
 	writeFile(wd + output_runtime_file_name, param_string, append=T);
 	
 	// Population stats headers - write to file
-	stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmertoHG", "Farmer_Ancestry_All", "Farmer_Ancestry_Farmers", "Farmer_ancestry_HGs", "Num_Repro_Age_Inds", "ReproFreq", "New_Births");
+	stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmertoHG", "Farmer_Ancestry_All", "Farmer_Ancestry_Farmers", "Farmer_Ancestry_HGs", "Num_Repro_Age_Inds", "ReproFreq", "New_Births");
 	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
 	writeFile(wd + output_stats_file_name, stats_header_string, append=T);
 	if (map_style == 5)
@@ -825,15 +825,21 @@ late()
 	
 	// calculate reproduction frequency per reproductive age individual
 	repro_freq = (new_births/repro_age_inds);
-	
+			
 	// calculate the overall farming ancestry
 	farmer_ancestry_all = mean(all_inds.countOfMutationsOfType(m1) / 6000);
 	
 	// calculate the farming ancestry in all farmers
-	farmer_ancestry_farmers = mean(farmers.countOfMutationsOfType(m1) / 6000);
+	if (length(farmers) != 0)	
+		farmer_ancestry_farmers = mean(farmers.countOfMutationsOfType(m1) / 6000);
+	else
+		farmer_ancestry_farmers = 0.0
 	
-	// calculate the farming ancestry in all farmers
-	farmer_ancestry_HGs = mean(HGs.countOfMutationsOfType(m1) / 6000);
+	// calculate the farming ancestry in all HGs
+	if (length(HGs) != 0)		
+		farmer_ancestry_HGs = mean(HGs_partition10.countOfMutationsOfType(m1) / 6000);
+	else
+		farmer_ancestry_HGs = 0.0;
 	
 	// write outputs
 	output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, farmer_ancestry_all, farmer_ancestry_farmers, farmer_ancestry_HGs, repro_age_inds, repro_freq, new_births);
