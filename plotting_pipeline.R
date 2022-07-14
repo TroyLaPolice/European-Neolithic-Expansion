@@ -357,7 +357,44 @@ if (file.exists(square_input_name)){
   # Save ratio plot
   ggsave(ancestry_partition_plot_all_out, plot = ancestry_partition_all_plot, units = "in", width = 10, height = 12, device="tiff", dpi=1000)
   
-}
+  # ************************************************************************************************
+  # Farmer Ancestry Partition Plot2 - Farmers
+  # ************************************************************************************************
+  
+  ancestry_partition_farmer_plot2 = ggplot(ancestry_dat_farmer_tidyr[ancestry_dat_farmer_tidyr$Year%%100 == 0 & ancestry_dat_farmer_tidyr$variable != "Total",], aes(x=variable, y=value, col=factor(Year), group=Year)) + geom_line() 
+  
+  # Create output file name
+  ancestry_partition_farmer_plot2_out = paste("ancestry_partition_farmer_plot2", output_file_extention, ".tiff", sep = "")
+  
+  # Save ratio plot
+  ggsave(ancestry_partition_farmer_plot2_out, plot = ancestry_partition_farmer_plot2, units = "in", width = 10, height = 5, device="tiff", dpi=1000)
+
+  # ************************************************************************************************
+  # Farmer Ancestry Partition Plot2 - HGs
+  # ************************************************************************************************
+  
+  ancestry_partition_HG_plot2 = ggplot(ancestry_dat_HG_tidyr[ancestry_dat_HG_tidyr$Year%%100 == 0 & ancestry_dat_HG_tidyr$variable != "Total",], aes(x=variable, y=value, col=factor(Year), group=Year)) + geom_line() 
+  
+  # Create output file name
+  ancestry_partition_HG_plot2_out = paste("ancestry_partition_HG_plot2", output_file_extention, ".tiff", sep = "")
+  
+  # Save ratio plot
+  ggsave(ancestry_partition_HG_plot2_out, plot = ancestry_partition_HG_plot2, units = "in", width = 10, height = 5, device="tiff", dpi=1000)
+  
+  # ************************************************************************************************
+  # Farmer Ancestry Partition Plot2 - All
+  # ************************************************************************************************
+  
+  ancestry_partition_all_plot2 = ggplot(ancestry_dat_all_tidyr[ancestry_dat_all_tidyr$Year%%100 == 0 & ancestry_dat_all_tidyr$variable != "Total",], aes(x=variable, y=value, col=factor(Year), group=Year)) + geom_line() 
+  
+  # Create output file name
+  ancestry_partition_all_plot2_out = paste("ancestry_partition_all_plot2", output_file_extention, ".tiff", sep = "")
+  
+  # Save ratio plot
+  ggsave(ancestry_partition_all_plot2_out, plot = ancestry_partition_all_plot2, units = "in", width = 10, height = 5, device="tiff", dpi=1000)
+  
+
+  }
 
 if (file.exists(general_input_name)){
   
