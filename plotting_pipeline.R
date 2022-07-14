@@ -6,15 +6,15 @@ library(tidyr)
 # Set WD, input and output file name additions, as well as trimming range for non-informative data
 # ********************************************************************************************************************************************
 
-setwd("/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions/longrun_test/7-12")
+setwd("/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions/longrun_test/7-13")
 
-input_file_extention = "_ancestry_out"  # Should be the same as the ending of your SLiM output files
+input_file_extention = "_run1"  # Should be the same as the ending of your SLiM output files
                                 #   if endings are default this will be an empty string.
 
-output_file_extention = "_ancestry_out" # Addition to attach to the output files
+output_file_extention = "_run1" # Addition to attach to the output files
                                 #   Best practice is to keep these the same for simplicity.
 
-trimming_range = -128
+trimming_range = -205
 
 # Create file names
 square_input_name = paste("sim_square_wave_stats_per_year", input_file_extention, ".txt", sep = "")
@@ -161,7 +161,7 @@ if (file.exists(square_input_name)){
   # ************************************************************************************************
   
   # Push population size data to its own data frame
-  population_partition_HG_dat = data.frame(square_input_file$HGs_in_Partition1, square_input_file$HGs_in_Partition2,
+  population_partition_HG_dat = data.frame(square_input_file$Year, square_input_file$HGs_in_Partition1, square_input_file$HGs_in_Partition2,
                                           square_input_file$HGs_in_Partition3, square_input_file$HGs_in_Partition4, 
                                           square_input_file$HGs_in_Partition5, square_input_file$HGs_in_Partition6, 
                                           square_input_file$HGs_in_Partition7, square_input_file$HGs_in_Partition8, 
@@ -236,7 +236,7 @@ if (file.exists(square_input_name)){
           col = c("#d00083", "#8e2090", "#5b3bf5", "#1e5187", "#74ffdf", "#b2ceee", "#b3ff80", "#70a71b", "#f8ef1c", "#ff6e2f"))
   
   # Create Plot Legend
-  legend("bottomright", pch = 20, y.intersp=1, cex = 0.65,
+  legend("right", pch = 20, y.intersp=1, cex = 0.65,
          lwd = c(4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1),
          col = c("#d00083", "#8e2090", "#5b3bf5", "#1e5187", "#74ffdf", "#b2ceee", "#b3ff80", "#70a71b", "#f8ef1c", "#ff6e2f"),
          legend = c("Farmers_in_Partition1", "Farmers_in_Partition2", "Farmers_in_Partition3", 
@@ -250,57 +250,40 @@ if (file.exists(square_input_name)){
   dev.off()
   
   # ************************************************************************************************
-  # Combined Ancestry Partition Plot
+  # Farmer Ancestry Partition Plot - Farmers
   # ************************************************************************************************
   
   # Push population size data to its own data frame
-  population_partition_ancestry_combined_dat = data.frame(square_input_file$Farmer_Ancestry_in_Partition1_Farmers, square_input_file$Farmer_Ancestry_in_Partition2_Farmers,
-                                                 square_input_file$Farmer_Ancestry_in_Partition3_Farmers, square_input_file$Farmer_Ancestry_in_Partition4_Farmers, 
-                                                 square_input_file$Farmer_Ancestry_in_Partition5_Farmers, square_input_file$Farmer_Ancestry_in_Partition6_Farmers, 
-                                                 square_input_file$Farmer_Ancestry_in_Partition7_Farmers, square_input_file$Farmer_Ancestry_in_Partition8_Farmers, 
-                                                 square_input_file$Farmer_Ancestry_in_Partition9_Farmers, square_input_file$Farmer_Ancestry_in_Partition10_Farmers,
-                                                 square_input_file$Farmer_Ancestry_in_Partition1_HGs, square_input_file$Farmer_Ancestry_in_Partition2_HGs,
-                                                 square_input_file$Farmer_Ancestry_in_Partition3_HGs, square_input_file$Farmer_Ancestry_in_Partition4_HGs, 
-                                                 square_input_file$Farmer_Ancestry_in_Partition5_HGs, square_input_file$Farmer_Ancestry_in_Partition6_HGs, 
-                                                 square_input_file$Farmer_Ancestry_in_Partition7_HGs, square_input_file$Farmer_Ancestry_in_Partition8_HGs, 
-                                                 square_input_file$Farmer_Ancestry_in_Partition9_HGs, square_input_file$Farmer_Ancestry_in_Partition10_HGs)
+  partition_ancestry_dat = data.frame(square_input_file$Year, square_input_file$Farmer_Ancestry_Partition1_Farmers, square_input_file$Farmer_Ancestry_Partition2_Farmers,
+                                                          square_input_file$Farmer_Ancestry_Partition3_Farmers, square_input_file$Farmer_Ancestry_Partition4_Farmers, 
+                                                          square_input_file$Farmer_Ancestry_Partition5_Farmers, square_input_file$Farmer_Ancestry_Partition6_Farmers, 
+                                                          square_input_file$Farmer_Ancestry_Partition7_Farmers, square_input_file$Farmer_Ancestry_Partition8_Farmers, 
+                                                          square_input_file$Farmer_Ancestry_Partition9_Farmers, square_input_file$Farmer_Ancestry_Partition10_Farmers)
   
   # Name columns
-  colnames(population_partition_ancestry_combined_dat) = c("Farmer_Ancestry_in_Partition1_Farmers", "Farmer_Ancestry_in_Partition2_Farmers", "Farmer_Ancestry_in_Partition3_Farmers", 
-                                                  "Farmer_Ancestry_in_Partition4_Farmers", "Farmer_Ancestry_in_Partition5_Farmers", "Farmer_Ancestry_in_Partition6_Farmers", 
-                                                  "Farmer_Ancestry_in_Partition7_Farmers", "Farmer_Ancestry_in_Partition8_Farmers", "Farmer_Ancestry_in_Partition9_Farmers", 
-                                                  "Farmer_Ancestry_in_Partition10_Farmers", "Farmer_Ancestry_in_Partition1_HGs", "Farmer_Ancestry_in_Partition2_HGs", 
-                                                  "Farmer_Ancestry_in_Partition3_HGs", "Farmer_Ancestry_in_Partition4_HGs", "Farmer_Ancestry_in_Partition5_HGs", 
-                                                  "Farmer_Ancestry_in_Partition6_HGs", "Farmer_Ancestry_in_Partition7_HGs", "Farmer_Ancestry_in_Partition8_HGs", 
-                                                  "Farmer_Ancestry_in_Partition9_HGs", "Farmer_Ancestry_in_Partition10_HGs")
+  colnames(partition_ancestry_dat) = c("Year", "Partition1", "Partition2", 
+                          "Partition3", "Partition4", "Partition5", 
+                          "Partition6", "Partition7", "Partition8", 
+                          "Partition9", "PartitionTen")
   
-  # Remove non-informative data
-  head_population_partition_ancestry_combined_dat = head(population_partition_ancestry_combined_dat, trimming_range)
+  # Remove non-informative ratio data
+  head_partition_ancestry_dat = head(partition_ancestry_dat, trimming_range)
   
-  # Create output file name
-  part_combined_plot_out = paste("population_partition_ancestry_combined_data_plot", output_file_extention, ".tiff", sep = "")
-  
-  # Save pop plot
-  tiff(part_combined_plot_out, units = "in", width = 10, height = 5, res = 1000)
+  # Convert to tidy format
+  ancestry_dat_tidyr = tidyr::pivot_longer(head_partition_ancestry_dat, cols=c("Partition1", "Partition2", 
+                                                               "Partition3", "Partition4", "Partition5", 
+                                                               "Partition6", "Partition7", "Partition8", 
+                                                               "Partition9", "PartitionTen"),
+                                        names_to = "variable")
   
   # Plot
-  matplot(head_population_partition_ancestry_combined_dat, xlab = "Year", ylab = "Percent Farming Ancestry", pch = 20, 
-          lwd = c(7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05),
-          col = c("#d00083", "#8e2090", "#5b3bf5", "#1e5187", "#74ffdf", "#b2ceee", "#b3ff80", "#70a71b", "#f8ef1c", "#ff6e2f"))
+  ancestry_partition_plot = ggplot(ancestry_dat_tidyr, aes(x=Year, y=value, fill=variable)) + geom_col(width = 1) + facet_grid(variable~.)
   
-  # Create Plot Legend
-  legend("bottomright", pch = 20, y.intersp=1, cex = 0.65,
-         lwd = c(4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1),
-         col = c("#d00083", "#8e2090", "#5b3bf5", "#1e5187", "#74ffdf", "#b2ceee", "#b3ff80", "#70a71b", "#f8ef1c", "#ff6e2f"),
-         legend = c("Partition1_Farmers", "Partition2_Farmers", "Partition3_Farmers", 
-                    "Partition4_Farmers", "Partition5_Farmers", "Partition6_Farmers", 
-                    "Partition7_Farmers", "Partition8_Farmers", "Partition9_Farmers", 
-                    "Partition10_Farmers", "Partition1_HGs", "Partition2_HGs", 
-                    "Partition3_HGs", "Partition4_HGs", "Partition5_HGs", 
-                    "Partition6_HGs", "Partition7_HGs", "Partition8_HGs", 
-                    "Partition9_HGs", "Partition10_HGs"))
+  # Create output file name
+  ancestry_partition_plot_out = paste("ancestry_partition_plot", output_file_extention, ".tiff", sep = "")
   
-  dev.off()
+  # Save ratio plot
+  ggsave(ancestry_partition_plot_out, plot = ancestry_partition_plot, units = "in", width = 10, height = 12, device="tiff", dpi=1000)
   
 }
 
@@ -363,7 +346,7 @@ if (file.exists(general_input_name)){
   # ************************************************************************************************
   
   # Push population size data to its own data frame
-  birthrate_dat = data.frame(general_input_file$NewBirths)
+  birthrate_dat = data.frame(general_input_file$New_Births)
   
   # Name columns
   colnames(birthrate_dat) = "New Births"
@@ -406,7 +389,7 @@ if (file.exists(general_input_name)){
   matplot(head_repro_dat, col = c("black", "blue", "red"), xlab = "Year", ylab = "Population Size", pch = 19)
   
   # Create Plot Legend
-  legend("right", legend = c("TotalPopulation", "Reproductive Age Individuals"), pch = 19, col = c("black", "blue"))
+  legend("bottomright", legend = c("TotalPopulation", "Reproductive Age Individuals"), pch = 19, col = c("black", "blue"))
   
   dev.off()
   
@@ -440,8 +423,8 @@ if (file.exists(general_input_name)){
   
   # Push ancestry size data to its own data frame
   ancestry_dat = data.frame(general_input_file$Farmer_Ancestry_All,
-                              general_input_file$Farmer_Ancestry_All_Farmers, 
-                              general_input_file$Farmer_Ancestry_All_HGs)
+                              general_input_file$Farmer_Ancestry_Farmers, 
+                              general_input_file$Farmer_Ancestry_HGs)
   
   # Name columns
   colnames(ancestry_dat) = c("Farmer_Ancestry_All", "Farmer_Ancestry_All_Farmers", "Farmer_Ancestry_All_HGs")
@@ -450,16 +433,16 @@ if (file.exists(general_input_name)){
   head_ancestry_dat = head(ancestry_dat, trimming_range)
   
   # Create output file name
-  pop_plot_out = paste("ancestry_plot", output_file_extention, ".tiff", sep = "")
+  ancestry_plot_out = paste("ancestry_plot", output_file_extention, ".tiff", sep = "")
   
   # Save pop plot
-  tiff(pop_plot_out, units = "in", width = 10, height = 5, res = 1000)
+  tiff(ancestry_plot_out, units = "in", width = 10, height = 5, res = 1000)
   
   # Plot
-  matplot(head_ancestry_dat, col = c("black", "blue", "red"), xlab = "Year", ylab = "Percent Farming Ancestry", pch = 19)
+  matplot(head_ancestry_dat, col = c("black", "blue", "red"), xlab = "Year", ylab = "Percent Farming Ancestry", pch = 20)
   
   # Create Plot Legend
-  legend("right", legend = c("Farmer Ancestry All Individuals", "Farmer Ancestry in Farmers", "Farmer Ancestry in HGs"), pch = 19, col = c("black", "blue", "red"))
+  legend("right", legend = c("Farmer Ancestry in All Individuals", "Farmer Ancestry in Farmers", "Farmer Ancestry in HGs"), pch = 20, col = c("black", "blue", "red"))
   
   dev.off()
 } 
@@ -472,7 +455,7 @@ if (file.exists(general_input_with_deaths_name)){
   # ************************************************************************************************
   
   # Push population size data to its own data frame
-  birthdeathrate_dat = data.frame(general_input_file$NewBirths, general_input_file$NewDeaths)
+  birthdeathrate_dat = data.frame(general_input_file$New_Births, general_input_file$New_Deaths)
   
   # Name columns
   colnames(birthdeathrate_dat) = c("NewBirths", "NewDeaths")
@@ -499,7 +482,7 @@ if (file.exists(general_input_with_deaths_name)){
   # ************************************************************************************************
   
   # Push population size data to its own data frame
-  deathrate_dat = data.frame(general_input_file$NewDeaths)
+  deathrate_dat = data.frame(general_input_file$New_Deaths)
   
   # Name columns
   colnames(deathrate_dat) = "NewDeaths"
