@@ -254,36 +254,108 @@ if (file.exists(square_input_name)){
   # ************************************************************************************************
   
   # Push population size data to its own data frame
-  partition_ancestry_dat = data.frame(square_input_file$Year, square_input_file$Farmer_Ancestry_Partition1_Farmers, square_input_file$Farmer_Ancestry_Partition2_Farmers,
+  partition_ancestry_dat_farmer = data.frame(square_input_file$Year, square_input_file$Farmer_Ancestry_Partition1_Farmers, square_input_file$Farmer_Ancestry_Partition2_Farmers,
                                                           square_input_file$Farmer_Ancestry_Partition3_Farmers, square_input_file$Farmer_Ancestry_Partition4_Farmers, 
                                                           square_input_file$Farmer_Ancestry_Partition5_Farmers, square_input_file$Farmer_Ancestry_Partition6_Farmers, 
                                                           square_input_file$Farmer_Ancestry_Partition7_Farmers, square_input_file$Farmer_Ancestry_Partition8_Farmers, 
                                                           square_input_file$Farmer_Ancestry_Partition9_Farmers, square_input_file$Farmer_Ancestry_Partition10_Farmers)
   
   # Name columns
-  colnames(partition_ancestry_dat) = c("Year", "Partition1", "Partition2", 
+  colnames(partition_ancestry_dat_farmer) = c("Year", "Partition1", "Partition2", 
                           "Partition3", "Partition4", "Partition5", 
                           "Partition6", "Partition7", "Partition8", 
                           "Partition9", "PartitionTen")
   
   # Remove non-informative ratio data
-  head_partition_ancestry_dat = head(partition_ancestry_dat, trimming_range)
+  head_partition_ancestry_dat_farmer = head(partition_ancestry_dat_farmer, trimming_range)
   
   # Convert to tidy format
-  ancestry_dat_tidyr = tidyr::pivot_longer(head_partition_ancestry_dat, cols=c("Partition1", "Partition2", 
+  ancestry_dat_farmer_tidyr = tidyr::pivot_longer(head_partition_ancestry_dat_farmer, cols=c("Partition1", "Partition2", 
                                                                "Partition3", "Partition4", "Partition5", 
                                                                "Partition6", "Partition7", "Partition8", 
                                                                "Partition9", "PartitionTen"),
                                         names_to = "variable")
   
   # Plot
-  ancestry_partition_plot = ggplot(ancestry_dat_tidyr, aes(x=Year, y=value, fill=variable)) + geom_col(width = 1) + facet_grid(variable~.)
+  ancestry_partition_farmer_plot = ggplot(ancestry_dat_farmer_tidyr, aes(x=Year, y=value, fill=variable)) + geom_col(width = 1) + facet_grid(variable~.)
   
   # Create output file name
-  ancestry_partition_plot_out = paste("ancestry_partition_plot", output_file_extention, ".tiff", sep = "")
+  ancestry_partition_plot_farmer_out = paste("ancestry_partition_plot_farmers", output_file_extention, ".tiff", sep = "")
   
   # Save ratio plot
-  ggsave(ancestry_partition_plot_out, plot = ancestry_partition_plot, units = "in", width = 10, height = 12, device="tiff", dpi=1000)
+  ggsave(ancestry_partition_plot_farmer_out, plot = ancestry_partition_farmer_plot, units = "in", width = 10, height = 12, device="tiff", dpi=1000)
+  
+  # ************************************************************************************************
+  # Farmer Ancestry Partition Plot - HGs
+  # ************************************************************************************************
+  
+  # Push population size data to its own data frame
+  partition_ancestry_dat_HG = data.frame(square_input_file$Year, square_input_file$Farmer_Ancestry_Partition1_HGs, square_input_file$Farmer_Ancestry_Partition2_HGs,
+                                             square_input_file$Farmer_Ancestry_Partition3_HGs, square_input_file$Farmer_Ancestry_Partition4_HGs, 
+                                             square_input_file$Farmer_Ancestry_Partition5_HGs, square_input_file$Farmer_Ancestry_Partition6_HGs, 
+                                             square_input_file$Farmer_Ancestry_Partition7_HGs, square_input_file$Farmer_Ancestry_Partition8_HGs, 
+                                             square_input_file$Farmer_Ancestry_Partition9_HGs, square_input_file$Farmer_Ancestry_Partition10_HGs)
+  
+  # Name columns
+  colnames(partition_ancestry_dat_HG) = c("Year", "Partition1", "Partition2", 
+                                              "Partition3", "Partition4", "Partition5", 
+                                              "Partition6", "Partition7", "Partition8", 
+                                              "Partition9", "PartitionTen")
+  
+  # Remove non-informative ratio data
+  head_partition_ancestry_dat_HG = head(partition_ancestry_dat_HG, trimming_range)
+  
+  # Convert to tidy format
+  ancestry_dat_HG_tidyr = tidyr::pivot_longer(head_partition_ancestry_dat_HG, cols=c("Partition1", "Partition2", 
+                                                                                             "Partition3", "Partition4", "Partition5", 
+                                                                                             "Partition6", "Partition7", "Partition8", 
+                                                                                             "Partition9", "PartitionTen"),
+                                                  names_to = "variable")
+  
+  # Plot
+  ancestry_partition_HG_plot = ggplot(ancestry_dat_HG_tidyr, aes(x=Year, y=value, fill=variable)) + geom_col(width = 1) + facet_grid(variable~.)
+  
+  # Create output file name
+  ancestry_partition_plot_HG_out = paste("ancestry_partition_plot_HGs", output_file_extention, ".tiff", sep = "")
+  
+  # Save ratio plot
+  ggsave(ancestry_partition_plot_HG_out, plot = ancestry_partition_HG_plot, units = "in", width = 10, height = 12, device="tiff", dpi=1000)
+  
+  # ************************************************************************************************
+  # Farmer Ancestry Partition Plot - All
+  # ************************************************************************************************
+  
+  # Push population size data to its own data frame
+  partition_ancestry_dat_all = data.frame(square_input_file$Year, square_input_file$Farmer_Ancestry_Partition1_All, square_input_file$Farmer_Ancestry_Partition2_All,
+                                         square_input_file$Farmer_Ancestry_Partition3_All, square_input_file$Farmer_Ancestry_Partition4_All, 
+                                         square_input_file$Farmer_Ancestry_Partition5_All, square_input_file$Farmer_Ancestry_Partition6_All, 
+                                         square_input_file$Farmer_Ancestry_Partition7_All, square_input_file$Farmer_Ancestry_Partition8_All, 
+                                         square_input_file$Farmer_Ancestry_Partition9_All, square_input_file$Farmer_Ancestry_Partition10_All)
+  
+  # Name columns
+  colnames(partition_ancestry_dat_all) = c("Year", "Partition1", "Partition2", 
+                                          "Partition3", "Partition4", "Partition5", 
+                                          "Partition6", "Partition7", "Partition8", 
+                                          "Partition9", "PartitionTen")
+  
+  # Remove non-informative ratio data
+  head_partition_ancestry_dat_all = head(partition_ancestry_dat_all, trimming_range)
+  
+  # Convert to tidy format
+  ancestry_dat_all_tidyr = tidyr::pivot_longer(head_partition_ancestry_dat_all, cols=c("Partition1", "Partition2", 
+                                                                                     "Partition3", "Partition4", "Partition5", 
+                                                                                     "Partition6", "Partition7", "Partition8", 
+                                                                                     "Partition9", "PartitionTen"),
+                                              names_to = "variable")
+  
+  # Plot
+  ancestry_partition_all_plot = ggplot(ancestry_dat_all_tidyr, aes(x=Year, y=value, fill=variable)) + geom_col(width = 1) + facet_grid(variable~.)
+  
+  # Create output file name
+  ancestry_partition_plot_all_out = paste("ancestry_partition_plot_all", output_file_extention, ".tiff", sep = "")
+  
+  # Save ratio plot
+  ggsave(ancestry_partition_plot_all_out, plot = ancestry_partition_all_plot, units = "in", width = 10, height = 12, device="tiff", dpi=1000)
   
 }
 
