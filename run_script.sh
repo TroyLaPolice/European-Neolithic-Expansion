@@ -13,4 +13,4 @@ process_log="process_monitor"
 # Run the slim model and collect statistics on time run and memory usage, log to files
 /usr/bin/time -v slim $model.slim 2> $final_log.log 1> $process_log.log
 
-# NOTE: If the job ends with err code 9 it means that the program used too much RAM and was force killed as a result of the memory not being available
+# NOTE: If the job ends with err code 9 in the final log file, it means that the program used too much RAM and was force killed as a result of the memory not being available
