@@ -664,11 +664,17 @@ late()
 		// calculate the overall farming ancestry
 		farmer_ancestry_all = mean(all_inds.countOfMutationsOfType(m1) / 6000);
 	
-		// calculate the farming ancestry in all farmers
-		farmer_ancestry_farmers = mean(farmers.countOfMutationsOfType(m1) / 6000);
+		/// calculate the farming ancestry in all farmers
+		if (length(farmers) != 0)	
+			farmer_ancestry_farmers = mean(farmers.countOfMutationsOfType(m1) / 6000);
+		else
+			farmer_ancestry_farmers = 0.0;
 	
-		// calculate the farming ancestry in all farmers
-		farmer_ancestry_HGs = mean(HGs.countOfMutationsOfType(m1) / 6000);
+		// calculate the farming ancestry in all HGs
+		if (length(HGs) != 0)		
+			farmer_ancestry_HGs = mean(HGs.countOfMutationsOfType(m1) / 6000);
+		else
+			farmer_ancestry_HGs = 0.0;
 		
 		// write outputs
 		output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, loop_output, 
