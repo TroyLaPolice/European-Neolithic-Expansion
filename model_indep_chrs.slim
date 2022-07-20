@@ -76,7 +76,7 @@ initialize()
 	initializeMutationType("m1", 0.5, "f", 0.0); // Tag farmer ancestry
 	m1.convertToSubstitution = F;
 	initializeGenomicElementType("g1", m1, 1.0);
-	initializeGenomicElement(g1, 0, 2999);
+	initializeGenomicElement(g1, 0, 2886);
 	initializeMutationRate(0.0);
 	
 	rates = c(0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01);
@@ -431,7 +431,7 @@ late()
 	// Tag genomic ancestry of farmers with marker mutations (m1)
 	// Each marker mutation represents 1Mb
 	indFarmers = p1.individuals[p1.individuals.z == 1];
-	indFarmers.genomes.addNewMutation(m1, 0.0, 0:2999);
+	indFarmers.genomes.addNewMutation(m1, 0.0, 0:2886);
 	
 	// Add color to represent phenotype
 	for (i in p1.individuals)
