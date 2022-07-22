@@ -15,7 +15,7 @@ process_log="process_monitor_test"
 
 # NOTE: If the job ends with err code 9 it means that the program used too much RAM and was force killed as a result of the memory not being available
 
-# NOTE: See as written in SLiM Manual:
-# Defined constants can be of type logical, integer, float, or string; defining string constants
+# NOTE: See as quoted from the SLiM Manual:
+    # Defined constants can be of type logical, integer, float, or string; defining string constants
     # probably requires playing quoting games with your Un*x shell, such as:
     # slim -d "foo='bar'" test.txt
