@@ -5,13 +5,16 @@
 # ---------------------------------------------------------
 # SLiM model that will be run
 model="model"
-# File that collects errors, memory and time statistics and end of job message
-final_log="final_statistics_test"
-# File that monitors the process as it is being run, outputs the current year etc
-process_log="process_monitor_test"
+
+# Job name attached to output files
+output_name="test"
 
 # Run the slim model and collect statistics on time run and memory usage, log to files
-/usr/bin/time -v slim -d "output_name='test'" $model.slim 2> $final_log.log 1> $process_log.log
+    # final_statistics.log is file generated which collects errors, memory and time statistics and end of job message
+    # process_monitor.log is file generated which collects and monitors the process as it is being run, outputs the current year etc
+
+# Job1
+/usr/bin/time -v slim -d "output_name='$output_name'" $model.slim 2> final_statistics_$output_name.log 1> process_monitor_$output_name.log
 
 # NOTE: If the job ends with err code 9 it means that the program used too much RAM and was force killed as a result of the memory not being available
 
