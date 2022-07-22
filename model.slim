@@ -31,9 +31,6 @@ initialize()
 	// ***********************************
 	if (!exists("L")) defineConstant("L", 0.02); // Learning rate 
 	if (!exists("LP")) defineConstant("LP", 0.6); // Learning percentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer 
-	if (!exists("HGM")) defineConstant("HGM", 0.1); // HG fertility rate
-	if (!exists("FM")) defineConstant("FM", 0.1); // Farmer fertility rate
-	if (!exists("IM")) defineConstant("IM", 0.1); // Interbreeding fertility rate
 	if (!exists("min_repro_age")) defineConstant("min_repro_age", 11); // Individuals MUST be OLDER than this age to reproduce
 	
 	// Age related mortality table
@@ -122,12 +119,6 @@ reproduction()
 		if (mates_ra.size())
 		{
 			mate = sample(mates_ra, 1);
-			if (individual.z != mate.z)
-				M = IM;
-			if (individual.z == mate.z & individual.z == 1)
-				M = FM;
-			if (individual.z == mate.z & individual.z == 0)
-				M = HGM;
 			
 			// Frequency of the interaction
 			for (i in seqLen(rpois(1, M)))
@@ -434,6 +425,10 @@ late()
 	eq_ages_for_sample = sample(x = 0:(length(prob_of_surv_until)-1), size = num_of_inds, replace = T, weights = eq_age_distr);
 	
 	p1.individuals.age = eq_ages_for_sample;
+	
+	eq_offspring_rate = 1/sum(prob_of_surv_until[(min_repro_age):(length(prob_of_surv_until)-1)]);
+	
+	defineConstant("M", eq_offspring_rate);
 
 	if (map_style == 5)
 		p1.individuals[p1.individuals.x < (0.02 * map_size_width)].z = 1;
@@ -470,10 +465,10 @@ late()
 1 early()
 {
 	// log runtime params
-	param_string = paste(SN, HGK, FK, S, MD, LD, northern_slowdown_effect, northern_slowdown_distance, L, LP, HGM, FM, IM, min_repro_age, scal_fac, map_style, num_partitions, water_crossings, "[", age_scale, "]", "[", movement_distances, "]", "[", movement_distance_weights, "]");
+	param_string = paste(SN, HGK, FK, S, MD, LD, northern_slowdown_effect, northern_slowdown_distance, L, LP, M, min_repro_age, scal_fac, map_style, num_partitions, water_crossings, "[", age_scale, "]", "[", movement_distances, "]", "[", movement_distance_weights, "]");
 	
 	// File headings
-	param_heading = paste("SN HGK FK S MD LD northern_slowdown_effect northern_slowdown_distance L LP HGM FM IM min_repro_age scal_fac map_style num_partitions water_crossings [ age_scale ]  [ movement_distances ]  [ movement_distance_weights ]");
+	param_heading = paste("SN HGK FK S MD LD northern_slowdown_effect northern_slowdown_distance L LP M min_repro_age scal_fac map_style num_partitions water_crossings [ age_scale ]  [ movement_distances ]  [ movement_distance_weights ]");
 	
 	// Runtime params - write to file
 	output_runtime_file_name = ("/sim_runtime_params_" + output_name + ".txt");
