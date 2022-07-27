@@ -8,7 +8,7 @@ initialize()
 	// ---------------------------------------------------
 	//SET WORKING DIRECTORY AND CUSTOM MAP NAME IF DESIRED
 	if (!exists("wd"))
-		defineConstant("wd", "C:/Users/troyl/OneDrive/School/Documents/Grad School/Huber Lab");
+		defineConstant("wd", "/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions");
 	if (!exists("custom_map_filename"))
 		defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
 	if (!exists("output_name"))
@@ -17,11 +17,11 @@ initialize()
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
 	if (!exists("SN"))
-		defineConstant("SN", 8761); // Starting number of individuals
+		defineConstant("SN", 876160); // Starting number of individuals
 	if (!exists("HGK"))
-		defineConstant("HGK", 0.0064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
+		defineConstant("HGK", 0.064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
 	if (!exists("FK"))
-		defineConstant("FK", 0.0128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
+		defineConstant("FK", 0.128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
 	// Movement and interaction Distances (ENTER IN KILOMETERS):
 	// ***********************************
@@ -117,13 +117,6 @@ initialize()
 	// spatial mate choice
 	initializeInteractionType(3, "xy", reciprocal=T, maxDistance=LD);
 	
-	// ---------------------------------------------------
-	//  Define global variables for later
-	// ---------------------------------------------------
-		
-	defineGlobal("new_births", 0);
-	defineGlobal("repro_age_inds", 0);
-	defineGlobal("repro_freq", 0);
 }
 
 first()
@@ -495,10 +488,10 @@ late()
 1 early()
 {
 	// log runtime params
-	param_string = paste(SN, HGK, FK, S, MD, LD, northern_slowdown_effect, northern_slowdown_distance, L, LP, M, min_repro_age, scal_fac, map_style, num_partitions, water_crossings, "[", age_scale, "]", "[", movement_distances, "]", "[", movement_distance_weights, "]");
+	param_string = paste(SN, HGK, FK, S, MD, MP, LD, northern_slowdown_effect, northern_slowdown_distance, L, LP, M, min_repro_age, scal_fac, map_style, num_partitions, water_crossings, "[", age_scale, "]", "[", movement_distances, "]", "[", movement_distance_weights, "]");
 	
 	// File headings
-	param_heading = paste("SN HGK FK S MD LD northern_slowdown_effect northern_slowdown_distance L LP M min_repro_age scal_fac map_style num_partitions water_crossings [ age_scale ]  [ movement_distances ]  [ movement_distance_weights ]");
+	param_heading = paste("SN HGK FK S MD MP LD northern_slowdown_effect northern_slowdown_distance L LP M min_repro_age scal_fac map_style num_partitions water_crossings [ age_scale ]  [ movement_distances ]  [ movement_distance_weights ]");
 	
 	// Runtime params - write to file
 	output_runtime_file_name = ("/sim_runtime_params_" + output_name + ".txt");
@@ -557,6 +550,10 @@ early()
 	
 	// calculate reproduction frequency per reproductive age individual
 	repro_freq = (new_births / repro_age_inds);
+	
+	defineGlobal("new_births", new_births);
+	defineGlobal("repro_age_inds", repro_age_inds);
+	defineGlobal("repro_freq", repro_freq);
 }
 
 late()
