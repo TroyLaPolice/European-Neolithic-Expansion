@@ -46,6 +46,10 @@ This bit of code begins the model and creates the non-WF model and the xy dimens
 
 ##### Parameters
 
+###### These can be altered via the command line by using the -d flag and then setting the parameter equal to a value
+
+i.e. -d HGK=0.30
+
 ```
   	// ---------------------------------------------------
 	//  PARAMETERS --> Initialize Constant Params
@@ -56,9 +60,12 @@ This bit of code begins the model and creates the non-WF model and the xy dimens
 
 ```
 	//SET WORKING DIRECTORY AND CUSTOM MAP NAME IF DESIRED
-	defineConstant("wd", "~/PATH/TO/FILE/HERE");
-	defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
-	defineConstant("output_name", "run_name_goes_here"); // To run default names make an empty string
+	if (!exists("wd"))
+		defineConstant("wd", "~/PATH/TO/FILE/HERE");
+	if (!exists("custom_map_filename"))
+		defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
+	if (!exists("output_name"))
+		defineConstant("output_name", "run_name_goes_here"); // To run default names make an empty string
 ```
 
 *Next begins the set up where parameters for the model will be set. Some of these will not need to be touched but some should be tuned to your liking.*
@@ -68,9 +75,12 @@ This bit of code begins the model and creates the non-WF model and the xy dimens
 ```
   	// Carrying Capacities and Pop Sizes:
 	// ***********************************
-	defineConstant("SN", 8761600); // Starting number of individuals
-	defineConstant("HGK", 0.64); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
-	defineConstant("FK", 1.28); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
+	if (!exists("SN"))
+		defineConstant("SN", 876160); // Starting number of individuals
+	if (!exists("HGK"))
+		defineConstant("HGK", 0.064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
+	if (!exists("FK"))
+		defineConstant("FK", 0.128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
  ```
 The following parameters below describe the starting number of individuals in the sim for HGs and farmers and the distances they can travel.
@@ -81,14 +91,22 @@ The movement_distances parameter is a series of distances that are sampled from 
 ```
 	// Movement and interaction Distances (ENTER IN KILOMETERS):
 	// ***********************************
-	defineConstant("S", 30); // spatial competition distance
-	defineConstant("MD", 30); // Mating distance
-	defineConstant("movement_distances", c(2.3, 7.3, 15, 25, 35, 45, 55, 100)); // Distances sampled from
-	defineConstant("movement_distance_weights", c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02,
-0.01, 0.01)); // Weights for movement distance sampling
-	defineConstant("LD", 10); // Learning distance
-	defineConstant("northern_slowdown_effect", 2); // Number equals the effect of the slowdown in the north (i.e., how many times slower do they move
-	defineConstant("northern_slowdown_distance", 0.3); // How far north on the map does the slow down begin (0.5 is mid point, scale is 0-1 with far South being 0 and North being 1)
+	if (!exists("S"))
+		defineConstant("S", 30); // spatial competition distance
+	if (!exists("MD"))
+		defineConstant("MD", 30); // Mating distance
+	if (!exists("MP"))
+		defineConstant("MP", 0.5); // Level of assortative mating. Probability that mates will choose behaviorally similar mates. 1 = full assortative, 0.5 = no assortative, 0 = individuals only mate with individuals of opposite phenotypes
+	if (!exists("movement_distances"))
+		defineConstant("movement_distances", c(2.3, 7.3, 15, 25, 35, 45, 55, 100)); // Distances sampled from
+	if (!exists("movement_distance_weights"))
+		defineConstant("movement_distance_weights", c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02, 0.01, 0.01)); // Weights for movement distance sampling
+	if (!exists("LD"))
+		defineConstant("LD", 10); // Learning distance
+	if (!exists("northern_slowdown_effect"))
+		defineConstant("northern_slowdown_effect", 2); // Number equals the effect of the slowdown in the north (i.e., how many times slower do they move
+	if (!exists("northern_slowdown_distance"))
+		defineConstant("northern_slowdown_distance", 0.3); // distance up the map where the slowdown starts, (y coordinate times this value, ie if value = 0.5 the slowdown will start in the middle of the map and will continue to the top)
 	
 ```
 
@@ -97,12 +115,12 @@ These parameters are all distance related and will be entered in km.
 ```
 	// Learning, death and mating rate params:
 	// ***********************************
-	defineConstant("L", 0.1); // Learning rate 
-	defineConstant("LP", 0.6); // Learning percentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer 
-	defineConstant("HGM", 0.1); // HG fertility rate
-	defineConstant("FM", 0.1); // Farmer fertility rate
-	defineConstant("IM", 0.01); // Interbreeding fertility rate
-	defineConstant("min_repro_age", 0); // Individuals MUST be OLDER than this age to reproduce
+	if (!exists("L"))
+		defineConstant("L", 0.0); // Learning rate 
+	if (!exists("LP"))
+		defineConstant("LP", 0.6); // Learning percentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer 
+	if (!exists("min_repro_age"))
+		defineConstant("min_repro_age", 11); // Individuals MUST be OLDER than this age to reproduce
 	// Age related mortality table
 	defineConstant("age_scale", c(0.211180124, 0.211180124, 0.211180124, 0.211180124, 0.211180124, 0.251968504, 0.251968504, 0.251968504, 0.251968504, 0.251968504, 0.105263158, 0.105263158, 0.105263158, 0.105263158, 0.105263158, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.253521127, 0.253521127, 0.253521127, 0.253521127, 0.253521127, 0.301886792, 0.301886792, 0.301886792, 0.301886792, 0.301886792, 0.378378378, 0.378378378, 0.378378378, 0.378378378, 0.378378378, 0.47826087, 0.47826087, 0.47826087, 0.47826087, 0.47826087, 0.583333333, 0.583333333, 0.583333333, 0.583333333, 0.583333333, 0.6, 0.6, 0.6, 0.6, 0.6, 1.0));
  ```
@@ -160,10 +178,12 @@ The next two are options that determine if you want special colors for specific 
 	
 	// Map Prefs: 
 	// ***********************************	
-	defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
-	
-	defineConstant("water_crossings", 1); //Parameter of 0 = no water crossing paths, 1 = water crossing paths
-	
+	if (!exists("map_style"))
+		defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
+	if (!exists("num_partitions"))
+		defineConstant("num_partitions", 20); // Number of partitions if using the square
+	if (!exists("water_crossings"))
+		defineConstant("water_crossings", 1); //Parameter of 0 = no water crossing paths, 1 = water crossing paths
 	if (water_crossings == 1)
 		defineConstant("file_extention", "_water.png");
 	else
@@ -181,19 +201,21 @@ The next two are options that determine if you want special colors for specific 
 	defineConstant("square", wd + "/square.png"); // File Path to Map Image
 	defineConstant("custom_map", wd + custom_map_filename); // File Path to Map Image
 ```
+The maps are available for download in the repo. The path points to where the map is in your system so the name of the map MUST be changed to fit your file structure if you altered the name of the map.
 
+The next parameter is the length and width of the map. This will be used when building the map.
 
 These parameters handle the map size in km. If using provided EEA maps, length and width for map style images should be kept at a 1 to 1 aspect ratio (square) to avoid distortion. By default they are 3700 x 3700 km square maps
 
 ```
-	defineConstant("map_size_length", 3700);
-	defineConstant("map_size_width", 3700);
+	if (!exists("map_size_length"))
+		defineConstant("map_size_length", 3700);
+	if (!exists("map_size_width"))
+		defineConstant("map_size_width", 3700);;
 	
 	// Map citation: https://www.eea.europa.eu/data-and-maps/figures/elevation-map-of-europe
 ```
-The first parameter is a path in YOUR file system that the map file can be found in. The maps are available for download in the repo. This path points to where the map is in your system so it MUST be changed to fit your file structure.
 
-The next parameter is the length and width of the map. This will be used when building the map.
 
 *The next two blocks simply initialize the genetic component that is the marker for farmer ancestry and the interactions between individuals*
 
@@ -269,6 +291,18 @@ These all take place within a certain distance range specified by parameters abo
 		ind.setSpatialPosition(newPos);
 	}
 	
+```
+The next section is responsible for setting up the age distribution from the initial population. If the age stucture is not defined then there will be a mating depression and a population crash due to the unrealsitic distributuion of ages in the population. We want the population to be representitive from the first generation. There would never be a real life situation where inidividuals all spawned in at zero years old by themselves.
+
+```
+	// Set ages of created individuals (inital age dist)
+	prob_of_surv_until = cumProduct(1 - age_scale); // Prob of survival until a certain age
+	eq_age_distr = prob_of_surv_until / sum(prob_of_surv_until); // Equilibrium age distribution
+	num_of_inds = SN; // get random ages for individuals sampled from age distribution
+	eq_ages_for_sample = sample(x=0:(length(prob_of_surv_until) - 1), size=num_of_inds, replace=T, weights=eq_age_distr); // samples from pop to get ages
+	p1.individuals.age = eq_ages_for_sample; // sets population ages
+	eq_offspring_rate = 1 / sum(prob_of_surv_until[(min_repro_age):(length(prob_of_surv_until) - 1)]); // calculates how often individuals of repro age have a child
+	defineConstant("M", eq_offspring_rate); // Define this value for use later
 ```
 
 This section sets up how the image file of the map of Europe works.
