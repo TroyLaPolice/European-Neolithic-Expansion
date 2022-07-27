@@ -30,7 +30,7 @@ initialize()
 	if (!exists("MD"))
 		defineConstant("MD", 30); // Mating distance
 	if (!exists("MP"))
-		defineConstant("MP", 0.5); // Level of assortative mating. Probability that mates will choose behaviorally similar mates
+		defineConstant("MP", 0.5); // Level of assortative mating. Probability that mates will choose behaviorally similar mates. 1 = full assortative, 0.5 = no assortative, 0 = individuals only mate with individuals of opposite phenotypes
 	if (!exists("movement_distances"))
 		defineConstant("movement_distances", c(2.3, 7.3, 15, 25, 35, 45, 55, 100)); // Distances sampled from
 	if (!exists("movement_distance_weights"))
@@ -40,7 +40,7 @@ initialize()
 	if (!exists("northern_slowdown_effect"))
 		defineConstant("northern_slowdown_effect", 2); // Number equals the effect of the slowdown in the north (i.e., how many times slower do they move
 	if (!exists("northern_slowdown_distance"))
-		defineConstant("northern_slowdown_distance", 0.3); // 
+		defineConstant("northern_slowdown_distance", 0.3); // distance up the map where the slowdown starts, (y coordinate times this value, ie if value = 0.5 the slowdown will start in the middle of the map and will continue to the top)
 	
 	// Learning, death and mating rate params:
 	// ***********************************
@@ -77,6 +77,7 @@ initialize()
 		defineConstant("file_extention", "_water.png");
 	else
 		defineConstant("file_extention", ".png");
+		
 	defineConstant("mapfile_none", wd + "/EEA_map" + file_extention); // File Path to Map Image
 	defineConstant("mapfile_topo_superlight", wd + "/EEA_map_topo_superlight" + file_extention); // File Path to Map Image
 	defineConstant("mapfile_topo_light", wd + "/EEA_map_topo_light" + file_extention); // File Path to Map Image
@@ -136,23 +137,33 @@ reproduction()
 		mates = i2.nearestInteractingNeighbors(individual, p1.individuals.length());
 		mates_ra = mates[mates.age > min_repro_age];
 		
-		if (mates_ra.size())
+		if (mates_ra.size()) // Runs if there are possible mates near by
 		{
-			mates_similarity_bool = mates_ra.z == individual.z;
+			
+			// Sets up a vector that checks if the individuals in the surrounding area are of like phenotype (i.e. if their z params are the same)
+			mates_similarity_bool = mates_ra.z == individual.z; 
 			mates_similarity = asFloat(mates_similarity_bool);
+			
+			// Generates a vector of probabilites of the individual mating with a particular mate given their phenotype
+			// If assortative mating is complete, HGs will only mate with other HGs and farmers only with farmers
+			// If there is no assortative mating there will be an equal proability for all individuals
 			mates_similarity[mates_similarity_bool == T] = MP;
 			mates_similarity[mates_similarity_bool == F] = (1 - MP);
 			
+			// If there are individuals in the neary area that there is a chance the individual mates with it will run this section
 			if (sum(mates_similarity) != 0)
 			{
+				// Samples an individual in the population based on the assortative mating probabilities. 
+				// If no assortative mating all indivduals have an equal chance of getting selected
 				mate = sample(mates_ra, 1, weights = mates_similarity);
 				
-				// Frequency of the interaction
+				// Frequency of the interaction is based on the calculated reproduction value given by the mortality curve (below)
 				for (i in seqLen(rpois(1, M)))
 				{
 					// Only runs if a mate is nearby
 					if (mate.size())
 					{
+						// Generates an offspring
 						offspring = subpop.addCrossed(individual, mate);
 						
 						// -----------------------
@@ -312,14 +323,14 @@ late()
 		HG_ages = HGs.age;
 	
 	// Modify mortality curve to account for population density around the indiviudal
-	dens_scal_farmer = (farmers_num_in_s + 1) / (PI * (S^2) * FK + 1);
-	scaled_mortality_farmer = ((dens_scal_farmer - 1) * scal_fac + 1) * age_scale[farmer_ages];
+	dens_scal_farmer = (farmers_num_in_s + 1) / (PI * (S^2) * FK + 1); // Density of farmers in the given area
+	scaled_mortality_farmer = ((dens_scal_farmer - 1) * scal_fac + 1) * age_scale[farmer_ages];  // Scale by a growth factor if desired. If scaling factor = 0 there isn't any scaling, population grows unrestricted based on the other parameters that govern equalibrium.
 	
 	// Do the same if there are still HGs left
 	if (length(HGs) != 0)
 	{
-		dens_scal_HG = (HG_num_in_s + 1) / (PI * (S^2) * HGK + 1);
-		scaled_mortality_HG = ((dens_scal_HG - 1) * scal_fac + 1) * age_scale[HG_ages];
+		dens_scal_HG = (HG_num_in_s + 1) / (PI * (S^2) * HGK + 1); // Density of HGs in the given area
+		scaled_mortality_HG = ((dens_scal_HG - 1) * scal_fac + 1) * age_scale[HG_ages]; // Scale by a growth factor if desired. If scaling factor = 0 there isn't any scaling, population grows unrestricted based on the other parameters that govern equalibrium.
 	}
 	
 	// Set a maximum age and make sure there are no negative fittnesses
@@ -447,10 +458,10 @@ late()
 	prob_of_surv_until = cumProduct(1 - age_scale); // Prob of survival until a certain age
 	eq_age_distr = prob_of_surv_until / sum(prob_of_surv_until); // Equilibrium age distribution
 	num_of_inds = SN; // get random ages for individuals sampled from age distribution
-	eq_ages_for_sample = sample(x=0:(length(prob_of_surv_until) - 1), size=num_of_inds, replace=T, weights=eq_age_distr);
-	p1.individuals.age = eq_ages_for_sample;
-	eq_offspring_rate = 1 / sum(prob_of_surv_until[(min_repro_age):(length(prob_of_surv_until) - 1)]);
-	defineConstant("M", eq_offspring_rate);
+	eq_ages_for_sample = sample(x=0:(length(prob_of_surv_until) - 1), size=num_of_inds, replace=T, weights=eq_age_distr); // samples from pop to get ages
+	p1.individuals.age = eq_ages_for_sample; // sets population ages
+	eq_offspring_rate = 1 / sum(prob_of_surv_until[(min_repro_age):(length(prob_of_surv_until) - 1)]); // calculates how often individuals of repro age have a child
+	defineConstant("M", eq_offspring_rate); // Define this value for use later
 	
 	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
 	// Make individuals near anatolia and greece farmers or near the edge if using the square
@@ -485,6 +496,22 @@ late()
 				i.color = "blue";
 		}
 	}
+}
+
+early()
+{
+	// calculate the number of new births this year
+	new_births = sum(p1.individuals.age == 0);
+	
+	// calculate the number of reproductively aged individuals
+	repro_age_inds = (sum(p1.individuals.age > min_repro_age));
+	
+	// calculate reproduction frequency per reproductive age individual
+	repro_freq = (new_births / repro_age_inds);
+	
+	defineGlobal("new_births", new_births);
+	defineGlobal("repro_age_inds", repro_age_inds);
+	defineGlobal("repro_freq", repro_freq);
 }
 
 1 early()
@@ -540,22 +567,6 @@ late()
 		output_wave_stats_file_name = ("/sim_square_wave_stats_per_year_" + output_name + ".txt");
 		writeFile(wd + output_wave_stats_file_name, wave_stats_header_string, append=T);
 	}
-}
-
-early()
-{
-	// calculate the number of new births this year
-	new_births = sum(p1.individuals.age == 0);
-	
-	// calculate the number of reproductively aged individuals
-	repro_age_inds = (sum(p1.individuals.age > min_repro_age));
-	
-	// calculate reproduction frequency per reproductive age individual
-	repro_freq = (new_births / repro_age_inds);
-	
-	defineGlobal("new_births", new_births);
-	defineGlobal("repro_age_inds", repro_age_inds);
-	defineGlobal("repro_freq", repro_freq);
 }
 
 late()
