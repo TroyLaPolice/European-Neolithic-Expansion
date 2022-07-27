@@ -7,7 +7,7 @@
 #PBS -A open        
 # Email when the job starts and when it terminates or aborts
 #PBS -m bea
-# specify your email address
+# specify email address
 #PBS -M troy.lapolice@psu.edu
 
 # Move to directory where job was submitted from
