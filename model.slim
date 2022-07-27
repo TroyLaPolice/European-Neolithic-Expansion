@@ -443,9 +443,7 @@ late()
 		ind.setSpatialPosition(newPos);
 	}
 	
-	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
-	// Make individuals near anatolia and greece farmers or near the edge if using the square
-	// Set ages of created spawned individuals
+	// Set ages of created individuals (inital age dist)
 	prob_of_surv_until = cumProduct(1 - age_scale); // Prob of survival until a certain age
 	eq_age_distr = prob_of_surv_until / sum(prob_of_surv_until); // Equilibrium age distribution
 	num_of_inds = SN; // get random ages for individuals sampled from age distribution
@@ -453,6 +451,10 @@ late()
 	p1.individuals.age = eq_ages_for_sample;
 	eq_offspring_rate = 1 / sum(prob_of_surv_until[(min_repro_age):(length(prob_of_surv_until) - 1)]);
 	defineConstant("M", eq_offspring_rate);
+	
+	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
+	// Make individuals near anatolia and greece farmers or near the edge if using the square
+	
 	if (map_style == 5)
 		p1.individuals[p1.individuals.x < (0.02 * map_size_width)].z = 1;
 	else
