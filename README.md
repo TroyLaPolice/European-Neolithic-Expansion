@@ -109,7 +109,8 @@ The movement_distances parameter is a series of distances that are sampled from 
 		defineConstant("northern_slowdown_distance", 0.3); // distance up the map where the slowdown starts, (y coordinate times this value, ie if value = 0.5 the slowdown will start in the middle of the map and will continue to the top)
 		
 ```
-
+ This next block contains parameters about rates for mating, learning and death. 
+ 	
 ```
 	// Learning, death and mating rate params:
 	// ***********************************
@@ -125,8 +126,6 @@ The movement_distances parameter is a series of distances that are sampled from 
 	
 	defineConstant("age_scale", c(0.211180124, 0.211180124, 0.211180124, 0.211180124, 0.211180124, 0.251968504, 0.251968504, 0.251968504, 0.251968504, 0.251968504, 0.105263158, 0.105263158, 0.105263158, 0.105263158, 0.105263158, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.253521127, 0.253521127, 0.253521127, 0.253521127, 0.253521127, 0.301886792, 0.301886792, 0.301886792, 0.301886792, 0.301886792, 0.378378378, 0.378378378, 0.378378378, 0.378378378, 0.378378378, 0.47826087, 0.47826087, 0.47826087, 0.47826087, 0.47826087, 0.583333333, 0.583333333, 0.583333333, 0.583333333, 0.583333333, 0.6, 0.6, 0.6, 0.6, 0.6, 1.0));
  ```
- 
- These parameters are all about rates for mating, learning and death. 
  
  The first perameter L refers to likelihood that farmers will teach a HG how to farm.
  
