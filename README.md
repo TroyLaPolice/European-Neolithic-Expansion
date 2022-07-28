@@ -89,39 +89,42 @@ These parameters should be adjusted to your liking.
 The movement_distances parameter is a series of distances that are sampled from based on the probability that an individual travels that distance. The movement_distance_weights parameter is the vector of corresponding probabilities.
 
 ```
-	// Movement and interaction Distances (ENTER IN KILOMETERS):
+	// Movement and interaction and competition:
 	// ***********************************
 	if (!exists("S"))
-		defineConstant("S", 30); // spatial competition distance
+		defineConstant("S", 30); // spatial competition distance (ENTER IN KILOMETERS)
+	if (!exists("C"))
+		defineConstant("C", 0); // If C = 1 that means there will be competition between individuals of different phenotypes (ie HGs compete with Farmers for space) If C = 0 then competition only happens within their like groups
 	if (!exists("MD"))
-		defineConstant("MD", 30); // Mating distance
-	if (!exists("MP"))
-		defineConstant("MP", 0.5); // Level of assortative mating. Probability that mates will choose behaviorally similar mates. 1 = full assortative, 0.5 = no assortative, 0 = individuals only mate with individuals of opposite phenotypes
+		defineConstant("MD", 30); // Mating distance (ENTER IN KILOMETERS)
 	if (!exists("movement_distances"))
-		defineConstant("movement_distances", c(2.3, 7.3, 15, 25, 35, 45, 55, 100)); // Distances sampled from
+		defineConstant("movement_distances", c(2.3, 7.3, 15, 25, 35, 45, 55, 100)); // Distances sampled from (ENTER IN KILOMETERS)
 	if (!exists("movement_distance_weights"))
 		defineConstant("movement_distance_weights", c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02, 0.01, 0.01)); // Weights for movement distance sampling
 	if (!exists("LD"))
-		defineConstant("LD", 10); // Learning distance
+		defineConstant("LD", 10); // Learning distance (ENTER IN KILOMETERS)
 	if (!exists("northern_slowdown_effect"))
 		defineConstant("northern_slowdown_effect", 2); // Number equals the effect of the slowdown in the north (i.e., how many times slower do they move
 	if (!exists("northern_slowdown_distance"))
 		defineConstant("northern_slowdown_distance", 0.3); // distance up the map where the slowdown starts, (y coordinate times this value, ie if value = 0.5 the slowdown will start in the middle of the map and will continue to the top)
-	
+		
 ```
 
-These parameters are all distance related and will be entered in km.
-
 ```
+	// Learning, death and mating rate params:
+	// ***********************************
 	// Learning, death and mating rate params:
 	// ***********************************
 	if (!exists("L"))
 		defineConstant("L", 0.0); // Learning rate 
 	if (!exists("LP"))
 		defineConstant("LP", 0.6); // Learning percentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer 
+	if (!exists("MP"))
+		defineConstant("MP", 0.5); // Level of assortative mating. Probability that mates will choose behaviorally similar mates. 1 = full assortative, 0.5 = no assortative, 0 = individuals only mate with individuals of opposite phenotypes
 	if (!exists("min_repro_age"))
 		defineConstant("min_repro_age", 11); // Individuals MUST be OLDER than this age to reproduce
 	// Age related mortality table
+	
 	defineConstant("age_scale", c(0.211180124, 0.211180124, 0.211180124, 0.211180124, 0.211180124, 0.251968504, 0.251968504, 0.251968504, 0.251968504, 0.251968504, 0.105263158, 0.105263158, 0.105263158, 0.105263158, 0.105263158, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.253521127, 0.253521127, 0.253521127, 0.253521127, 0.253521127, 0.301886792, 0.301886792, 0.301886792, 0.301886792, 0.301886792, 0.378378378, 0.378378378, 0.378378378, 0.378378378, 0.378378378, 0.47826087, 0.47826087, 0.47826087, 0.47826087, 0.47826087, 0.583333333, 0.583333333, 0.583333333, 0.583333333, 0.583333333, 0.6, 0.6, 0.6, 0.6, 0.6, 1.0));
  ```
  
@@ -133,11 +136,7 @@ These parameters are all distance related and will be entered in km.
  
  The next block of parameters handles reproduction probabilities (i.e., the probability that a pair mates and produces an offspring) 
  
- HGM is this rate for a pairing of two hunter gatherers will produce an offspring <HGM * 100> percent of the time. 
- 
- The other parameters are the same idea- FM is the mating probability for two farmers.
- 
- IM is how often a farmer and hunter gatherer interbreed and produce an offspring (controls assortative mating)
+ MP is the amount of assortative mating, i.e., the probability that mates will choose behaviorally similar mates. 1 = full assortative, 0.5 = no assortative, 0 = individuals only mate with individuals of opposite phenotypes
  
  Next is a minimum age required for reproduction. Individuals MUST BE OLDER than the provided age in this parameter for them to be able to reproduce. This prevents infants and small children from being able to reproduce which is unrealistic.
  
@@ -566,17 +565,8 @@ early()
 	farmers = p1.individuals[p1.individuals.z == 1];
 	HGs = p1.individuals[p1.individuals.z == 0];
 ```
-
-This part handles competition between nearby individuals. This is density dependent. There can be different K's for HGs and farmers here which we will see later. First we count the number nearby competing individuals.
-
+This gets a vector of the ages that is used for age based mortality
 ```
-	// Count number of neighbors within S for farmers
-	farmers_num_in_s = i1.interactingNeighborCount(farmers);
-	
-	// Do the same for HGs if there are still HGs left
-	if (length(HGs) != 0)
-		HG_num_in_s = i1.interactingNeighborCount(HGs);
-	
 	// Life table based individual mortality, get vector of individual ages
 	farmer_ages = farmers.age;
 	
@@ -585,19 +575,50 @@ This part handles competition between nearby individuals. This is density depend
 		HG_ages = HGs.age;
 ```
 
+This part handles competition between nearby individuals. This is density dependent. There can be different K's for HGs and farmers here which we will see later. First we count the number nearby competing individuals. This process is slightly different depending on if the parameter is selected where individuals compete with everyone or just their own group. It counts the number of nearby individuals and calculates the density.
+
+```
+if (C == 0) // If individuals only complete within their own groups
+	{
+	
+		// Count number of neighbors within S for farmers
+		farmers_num_in_s = i1.interactingNeighborCount(farmers);
+	
+		// Do the same for HGs if there are still HGs left
+		if (length(HGs) != 0)
+			HG_num_in_s = i1.interactingNeighborCount(HGs);
+			
+		// Modify mortality curve to account for population density around the indiviudal
+		dens_scal_farmer = (farmers_num_in_s + 1) / (PI * (S^2) * FK + 1); // Density of farmers in the given area
+	
+		// Do the same if there are still HGs left
+		if (length(HGs) != 0)
+			dens_scal_HG = (HG_num_in_s + 1) / (PI * (S^2) * HGK + 1); // Density of HGs in the given area
+		
+	}
+	else // If individuals complete with everyone
+	{
+	
+		// Count number of neighbors within S for everyone
+		inds_num_in_s = i1.interactingNeighborCount(p1.individuals);
+		
+		// Modify mortality curve to account for population density around the indiviudal
+		dens_scal_farmer = (inds_num_in_s + 1) / (PI * (S^2) * FK + 1); // Density of all individuals in the given area
+	
+		// Do the same if there are still HGs left
+		if (length(HGs) != 0)
+			dens_scal_HG = (inds_num_in_s + 1) / (PI * (S^2) * HGK + 1); // Density of all individuals in the given area	
+	}
+	
+```
+
 This next part keeps individuals from living beyond realistic limits. Without this individuals in the sim can live hundreds of years because death it not dependent on age, only population density. (See life table above)
 
 ```
-	// Modify mortality curve to account for population density around the indiviudal
-	dens_scal_farmer = (farmers_num_in_s + 1) / (PI * (S^2) * FK + 1); // Density of farmers in the given area
 	scaled_mortality_farmer = ((dens_scal_farmer - 1) * scal_fac + 1) * age_scale[farmer_ages];  // Scale by a growth factor if desired. If scaling factor = 0 there isn't any scaling, population grows unrestricted based on the other parameters that govern equalibrium.
 	
-	// Do the same if there are still HGs left
 	if (length(HGs) != 0)
-	{
-		dens_scal_HG = (HG_num_in_s + 1) / (PI * (S^2) * HGK + 1); // Density of HGs in the given area
 		scaled_mortality_HG = ((dens_scal_HG - 1) * scal_fac + 1) * age_scale[HG_ages]; // Scale by a growth factor if desired. If scaling factor = 0 there isn't any scaling, population grows unrestricted based on the other parameters that govern equalibrium.
-	}
 	
 	// Set a maximum age and make sure there are no negative fittnesses
 	scaled_mortality_farmer[farmer_ages == length(age_scale) - 1] = 1;
