@@ -61,7 +61,7 @@ initialize()
 	// ---------------------------------------------------
 	// Determine Coloring Schemes:
 	// ***********************************	
-	defineConstant("Color_scheme", 0); // Parameter of 0 = Genomic Coloring, 1 = Behavioral Coloring
+	defineConstant("Color_scheme", 1); // Parameter of 0 = Genomic Coloring, 1 = Behavioral Coloring
 	defineConstant("Color_option1", 0); // Parameter of 0 = No special color for 1st generation 'hybrid' offspring, 1 = Coloring for 1st generation 'hybrid' offspring
 	defineConstant("Color_option2", 1); // Parameter of 0 = No special color for 1st generation HG individuals who have learned, 1 = Coloring for 1st generation HG individuals who have learned
 	
@@ -452,6 +452,7 @@ late()
 			newPos = c(runif(1, 0, map_size_width), runif(1, 0, map_size_length));
 		while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
 		ind.setSpatialPosition(newPos);
+		ind.z = 0;
 	}
 	
 	// Set ages of created individuals (inital age dist)
@@ -497,6 +498,7 @@ late()
 		}
 	}
 }
+
 
 early()
 {
