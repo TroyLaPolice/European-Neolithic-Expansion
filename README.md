@@ -113,8 +113,6 @@ The movement_distances parameter is a series of distances that are sampled from 
 ```
 	// Learning, death and mating rate params:
 	// ***********************************
-	// Learning, death and mating rate params:
-	// ***********************************
 	if (!exists("L"))
 		defineConstant("L", 0.0); // Learning rate 
 	if (!exists("LP"))
