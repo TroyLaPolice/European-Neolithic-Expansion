@@ -2,13 +2,14 @@
 
 # Provide job name
 #PBS -N cluster_test3
-# request cpu time
+# Request cpu time
 #PBS -l cput=48:00:00
+# Specify queue
 #PBS -A open
+# Request memory allocation
 #PBS -l mem=128gb
 # Email when the job starts and when it terminates or aborts
 #PBS -m bea
-# specify your email address
 #PBS -M troy.lapolice@psu.edu
 
 # Move to directory where job was submitted from
@@ -27,7 +28,7 @@ output_name="cluster_test3"
     # process_monitor.log is file generated which collects and monitors the process as it is being run, outputs the current year etc
 
 # Job1
-/usr/bin/time -v /storage/home/tml5905/conda/miniconda3/envs/env/bin/slim -d "output_name='$output_name'" -d "wd='/storage/home/tml5905/work/HuberLab/HunterGatherFarmerInteractions'" $model.slim 2> fina$
+/usr/bin/time -v /storage/home/tml5905/conda/miniconda3/envs/env/bin/slim -d "output_name='$output_name'" -d MP=1 -d "wd='/storage/home/tml5905/work/HuberLab/HunterGatherFarmerInteractions'" $model.slim 2> fina$
 
 # NOTE: If the job ends with err code 9 it means that the program used too much RAM and was force killed as a result of the memory not being available
 
