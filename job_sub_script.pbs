@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Provide job name
-#PBS -N run54
+#PBS -N run1
 # Request amount of walltime
 #PBS -l walltime=48:00:00
 # Specify queue
@@ -21,7 +21,7 @@ cd $PBS_O_WORKDIR
 model="model"
 
 # Job name attached to output files
-output_name="run54"
+output_name="run1"
 
 # Run the slim model and collect statistics on time run and memory usage, log to files
     # final_statistics.log is file generated which collects errors, memory and time statistics and end of job message
