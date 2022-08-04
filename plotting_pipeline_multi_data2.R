@@ -37,6 +37,7 @@ all_sim_data = lapply(1:length(square_files), function(x)
 }
 )
 all_sim_data = rbindlist(all_sim_data)
+
 # Plotting (examples)
 no_assort_ratio = ggplot(all_sim_data[Assortative_Mating == "Assortative Mating = None"]) + geom_point(aes(Year, RatioFarmerToHG)) + 
   facet_grid(Movement_SD ~ Learning_Prob) + theme_bw() + labs(title = "No Assortative Mating") + labs(y = "Population Ratio of Farmers to HGs")
@@ -56,6 +57,12 @@ full_assort_parts_ancestry = ggplot(all_sim_data[Assortative_Mating == "Assortat
 no_assort_parts_ancestry = ggplot(all_sim_data[Assortative_Mating == "Assortative Mating = None" & Year %% 50 == 0]) + geom_line(aes(as.numeric(Partition), Farmer_Ancestry_Partition_Farmers, col = Year, group = factor(Year))) + 
   facet_grid(Movement_SD ~ Learning_Prob) + theme_bw() + labs(title = "No Assortative Mating") + labs(x = "Partition") + labs(y = "Percent Farming Ancestry") + ylim(0,1.0)
 
+no_assort_pop = ggplot(all_sim_data[Assortative_Mating == "Assortative Mating = None"]) + geom_point(colour="blue", aes(Year, TotalFarmers, col = "Farmers")) + geom_point(colour="red", aes(Year, TotalHGs, col = "Hunter Gatherers")) + 
+  facet_grid(Movement_SD ~ Learning_Prob) + theme_bw() + labs(title = "No Assortative Mating") + labs(y = "Population Size")
+
+full_assort_pop = ggplot(all_sim_data[Assortative_Mating == "Assortative Mating = Full Assortative"]) + geom_point(colour="blue", aes(Year, TotalFarmers, col = "Farmers")) + geom_point(colour="red", aes(Year, TotalHGs, col = "Hunter Gatherers")) + 
+  facet_grid(Movement_SD ~ Learning_Prob) + theme_bw() + labs(title = "Full Assortative Mating") + labs(y = "Population Size")
+
 # Save plots
 ggsave("full_assort_parts_out.png", plot = full_assort_parts, units = "in", width = 10, height = 8, device="png", dpi=700)
 ggsave("no_assort_parts_out.png", plot = no_assort_parts, units = "in", width = 10, height = 8, device="png", dpi=700)
@@ -63,3 +70,5 @@ ggsave("no_assort_ratio_out.png", plot = no_assort_ratio, units = "in", width = 
 ggsave("full_assort_ratio_out.png", plot = full_assort_ratio, units = "in", width = 10, height = 8, device="png", dpi=700)
 ggsave("full_assort_parts_ancestry_out.png", plot = full_assort_parts_ancestry, units = "in", width = 10, height = 8, device="png", dpi=700)
 ggsave("no_assort_parts_ancestry_out.png", plot = no_assort_parts_ancestry, units = "in", width = 10, height = 8, device="png", dpi=700)
+ggsave("no_assort_pop_out.png", plot = no_assort_pop, units = "in", width = 10, height = 8, device="png", dpi=700)
+ggsave("full_assort_pop_out.png", plot = full_assort_pop, units = "in", width = 10, height = 8, device="png", dpi=700)
