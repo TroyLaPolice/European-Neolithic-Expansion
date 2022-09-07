@@ -5,7 +5,7 @@ library(data.table)
 library(dplyr)
 
 # Set input params
-setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/scal_fact_test")
+setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/8-4")
 map_size_km = 3700
 
 square_file_names = list.files(".", pattern="sim_sq*", full.names = TRUE)
@@ -46,7 +46,7 @@ all_sim_data = rbindlist(all_sim_data)
 
 # Add extra column with partition numbers to be replaced with km values
 all_sim_data_km_values = cbind(all_sim_data, all_sim_data$Partition)
-colnames(all_sim_data_km_values)[21] = "Mid_Point_km"
+names(all_sim_data_km_values)[names(all_sim_data_km_values) == "V2"] = "Mid_Point_km"
 
 num_parts = max(as.integer(all_sim_data$Partition))
 
