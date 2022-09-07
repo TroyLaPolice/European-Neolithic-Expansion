@@ -8,16 +8,16 @@ initialize()
 	// ---------------------------------------------------
 	//SET WORKING DIRECTORY AND CUSTOM MAP NAME IF DESIRED
 	if (!exists("wd"))
-		defineConstant("wd", "/home/tml5905/Documents/HuberLab/HunterGatherFarmerInteractions");
+		defineConstant("wd", "/home/tml5905/Documents/HunterGatherFarmerInteractions");
 	if (!exists("custom_map_filename"))
 		defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
 	if (!exists("output_name"))
-		defineConstant("output_name", "out"); // To run default names make an empty string
+		defineConstant("output_name", "all_farmers"); // To run default names make an empty string
 	
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
 	if (!exists("SN"))
-		defineConstant("SN", 876160); // Starting number of individuals
+		defineConstant("SN", 8761); // Starting number of individuals
 	if (!exists("HGK"))
 		defineConstant("HGK", 0.064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
 	if (!exists("FK"))
@@ -30,29 +30,29 @@ initialize()
 	if (!exists("C"))
 		defineConstant("C", 0); // If C = 1 that means there will be competition between individuals of different phenotypes (ie HGs compete with Farmers for space) If C = 0 then competition only happens within their like groups
 	if (!exists("SDX"))
-		defineConstant("SDX", 10); // Movement standard diviation for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
+		defineConstant("SDX", 30); // Movement standard diviation for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
 	if (!exists("SDY"))
-		defineConstant("SDY", 10); // Movement standard diviation for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
+		defineConstant("SDY", 30); // Movement standard diviation for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
 	
 	// Learning, death and mating rate params:
 	// ***********************************
 	if (!exists("L"))
-		defineConstant("L", 0.0); // Learning rate 
-	if (!exists("LP"))
-		defineConstant("LP", 0.6); // Learning percentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer
-	if (!exists("LD"));
-	defineConstant("LD", 10); // Learning distance (ENTER IN KILOMETERS)
+		defineConstant("L", 0.1); // Learning rate - product of constant number of teachers times probability of learning per contact
+	if (!exists("gamma"))
+		defineConstant("gamma", 1); // preference of farmer teacher over HG
+	if (!exists("LD"))
+	defineConstant("LD", 30); // Learning distance (ENTER IN KILOMETERS)
 	if (!exists("MD"))
 		defineConstant("MD", 30); // Mating distance (ENTER IN KILOMETERS)	
 	if (!exists("MP"))
-		defineConstant("MP", 1); // Level of assortative mating. Probability that mates will choose behaviorally similar mates. 1 = full assortative, 0.5 = no assortative, 0 = individuals only mate with individuals of opposite phenotypes
+		defineConstant("MP", 0.5); // Level of assortative mating. Probability that mates will choose behaviorally similar mates. 1 = full assortative, 0.5 = no assortative, 0 = individuals only mate with individuals of opposite phenotypes
 	if (!exists("min_repro_age"))
 		defineConstant("min_repro_age", 11); // Individuals MUST be OLDER than this age to reproduce
 	
 	// Age related mortality table
 	defineConstant("age_scale", c(0.046335604111134, 0.046335604111134, 0.046335604111134, 0.046335604111134, 0.046335604111134, 0.056408593819562, 0.056408593819562, 0.056408593819562, 0.056408593819562, 0.056408593819562, 0.021999528676968, 0.021999528676968, 0.021999528676968, 0.021999528676968, 0.021999528676968, 0.035354184793731, 0.035354184793731, 0.035354184793731, 0.035354184793731, 0.035354184793731, 0.056800625283728, 0.056800625283728, 0.056800625283728, 0.056800625283728, 0.056800625283728, 0.069352594596266, 0.069352594596266, 0.069352594596266, 0.069352594596266, 0.069352594596266, 0.090704121931891, 0.090704121931891, 0.090704121931891, 0.090704121931891, 0.090704121931891, 0.12200775084549, 0.12200775084549, 0.12200775084549, 0.12200775084549, 0.12200775084549, 0.160621672514612, 0.160621672514612, 0.160621672514612, 0.160621672514612, 0.160621672514612, 0.167446792598127, 0.167446792598127, 0.167446792598127, 0.167446792598127, 0.167446792598127, 1));
 	if (!exists("scal_fac"))
-		defineConstant("scal_fac", 1); // mortality scaling factor
+		defineConstant("scal_fac", 0.5); // mortality scaling factor
 	
 	// ---------------------------------------------------
 	// RUN TIME PREFERENCE PARAMETERS
@@ -115,10 +115,15 @@ initialize()
 	initializeInteractionType(3, "xy", reciprocal=T, maxDistance=LD);
 }
 
-first()
+1 early()
+{
+	sim.addSubpop("p1", SN);
+}
+
+2: first()
 {
 	// look for mates
-	i2.evaluate();
+	i2.evaluate(p1);
 }
 
 reproduction()
@@ -210,60 +215,48 @@ late()
 	// ---------------------------------------------------
 	//  LEARNING --> HGs learn to farm from nearby farmers
 	// ---------------------------------------------------
-	i3.evaluate();
+	i3.evaluate(p1);
 	for (individual in p1.individuals)
 	{
 		if (individual.z == 1)
 			next;
 		
 		// Get a vector the nearest neighbors within the learning distance (D) 
-		neighbors = i3.nearestNeighbors(individual);
+		neighbors = i3.nearestNeighbors(individual, p1.individuals.length());
 		
-		// Get ratio of HGs to farmers in the neighbors of the individual
-		neighbor_freq = (sum(neighbors.z) / length(neighbors));
+		// Determine z for neighbors of the individual
+		farmer_neighbors = sum(neighbors.z);
+		HG_neighbors = (length(neighbors) - farmer_neighbors);
 		
-		// If the HG is surrounded by a certain ratio of farmers (LP) it has the ablity to convert to farming by learning
-		if (neighbor_freq >= LP & L != 0)
-		{
-			// choose nearest neighbor as a teacher, within the max distance
-			teacher = i3.nearestNeighbors(individual, 1);
-			
-			// Frequency of the interaction
-			for (i in seqLen(rpois(1, L)))
+		LP = L * (farmer_neighbors) / (farmer_neighbors + gamma * HG_neighbors);
+		
+		// Frequency of the interaction
+		if ((isNAN(LP) == F) & LP != 0.0)
+		{	
+
+			for (i in seqLen(rpois(1, LP)))
 			{
-				// Only runs if a potential teacher is nearby
-				if (teacher.size())
+				individual.z = 1;
+				
+				if (Color_option2 == 1)
 				{
-					// If teacher is a farmer and individual is a HG
-					if (teacher.z == 1)
-					{
-						if (Color_option2 == 1)
-						{
-							// -----------------------
-							// Color Based on Behavior
-							// -----------------------
-							// Change the HG to green to see the interaction
-							// and change its phenotype (z coordinate) from 0 to 1
-							// to represent the conversion to farmer
-							// Only first generation HG -> F converts are green
-							individual.color = "green";
-						}
-						individual.z = 1;
-					}
+					// -----------------------
+					// Color Based on Behavior
+					// -----------------------
+					// Change the HG to green to see the interaction
+					// and change its phenotype (z coordinate) from 0 to 1
+					// to represent the conversion to farmer
+					// Only first generation HG -> F converts are green
+					individual.color = "green";
 				}
 			}
 		}
 	}
 }
 
-1 early()
-{
-	sim.addSubpop("p1", SN);
-}
-
 late()
 {
-	i1.evaluate();
+	i1.evaluate(p1);
 	
 	// define vector of farmers and vector of HGs
 	farmers = p1.individuals[p1.individuals.z == 1];
@@ -286,6 +279,8 @@ late()
 		
 		// Modify mortality curve to account for population density around the indiviudal
 		dens_scal_farmer = (farmers_num_in_s + 1) / (PI * (S^2) * FK + 1); // Density of farmers in the given area
+		dens = mean(dens_scal_farmer);
+		defineGlobal("density", dens);
 		
 		// Do the same if there are still HGs left
 		if (length(HGs) != 0)
@@ -331,6 +326,8 @@ late()
 	// Do the same if there are still HGs left
 	if (length(HGs) != 0)
 		HGs.fitnessScaling = HG_survival;
+	expected_deaths = sum(scaled_mortality_farmer);
+	defineGlobal("expected_deaths", expected_deaths);
 }
 
 late()
@@ -338,21 +335,19 @@ late()
 	// ---------------------------------------------------
 	//  MOVEMENT --> How individuals move around
 	// ---------------------------------------------------
-	
 	for (ind in p1.individuals)
 	{
 		// How far individuals diffuse away from their location
-			do
-			{
-				coordinate_matrix = rmvnorm(1, c(0,0), matrix(c(SDX^2, 0, 0, SDY^2), nrow=2));
-				
-				coordinates = c(coordinate_matrix[0], coordinate_matrix[1]);
-				
-				// Next we can reset the position
-				newPos = ind.spatialPosition + coordinates;
-			}
-			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
-			ind.setSpatialPosition(newPos);
+		do
+		{
+			coordinate_matrix = rmvnorm(1, c(0, 0), matrix(c(SDX^2, 0, 0, SDY^2), nrow=2));
+			coordinates = c(coordinate_matrix[0], coordinate_matrix[1]);
+			
+			// Next we can reset the position
+			newPos = ind.spatialPosition + coordinates;
+		}
+		while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
+		ind.setSpatialPosition(newPos);
 	}
 }
 
@@ -394,7 +389,8 @@ late()
 	num_of_inds = SN; // get random ages for individuals sampled from age distribution
 	eq_ages_for_sample = sample(x=0:(length(prob_of_surv_until) - 1), size=num_of_inds, replace=T, weights=eq_age_distr); // samples from pop to get ages
 	p1.individuals.age = eq_ages_for_sample; // sets population ages
-	eq_offspring_rate = 1 / sum(prob_of_surv_until[(min_repro_age):(length(prob_of_surv_until) - 1)]); // calculates how often individuals of repro age have a child
+	rate_dying = sum(prob_of_surv_until / sum(prob_of_surv_until) * age_scale); // Prob of dying of random individual, assuming equilibrium age distr
+	eq_offspring_rate = rate_dying * sum(prob_of_surv_until) / sum(prob_of_surv_until[(min_repro_age):(length(prob_of_surv_until) - 1)]); // calculates how often individuals of repro age need to have a child at equilibrium	
 	defineConstant("M", eq_offspring_rate); // Define this value for use later
 	
 	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
@@ -449,10 +445,10 @@ early()
 1 early()
 {
 	// log runtime params
-	param_string = paste(SN, HGK, FK, S, C, SDX, SDY, L, LP, LD, MD, MP, min_repro_age, scal_fac, map_style, num_partitions, water_crossings, map_size_length, map_size_width, "[", age_scale, "]");
+	param_string = paste(SN, HGK, FK, S, C, SDX, SDY, L, gamma, LD, MD, MP, min_repro_age, scal_fac, map_style, num_partitions, water_crossings, map_size_length, map_size_width, "[", age_scale, "]");
 	
 	// File headings
-	param_heading = paste("SN HGK FK S C SDX SDY L LP LD MD MP min_repro_age scal_fac map_style num_partitions water_crossings map_size_length map_size_width [ age_scale ]");
+	param_heading = paste("SN HGK FK S C SDX SDY L gamma LD MD MP min_repro_age scal_fac map_style num_partitions water_crossings map_size_length map_size_width [ age_scale ]");
 	
 	// Runtime params - write to file
 	output_runtime_file_name = ("/sim_runtime_params_" + output_name + ".txt");
@@ -460,7 +456,7 @@ early()
 	writeFile(wd + output_runtime_file_name, param_string, append=T);
 	
 	// Population stats headers - write to file
-	stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmertoHG", "Farmer_Ancestry_All", "Farmer_Ancestry_Farmers", "Farmer_Ancestry_HGs", "Num_Repro_Age_Inds", "ReproFreq", "New_Births", sep=",");
+	stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmertoHG", "Farmer_Ancestry_All", "Farmer_Ancestry_Farmers", "Farmer_Ancestry_HGs", "Num_Repro_Age_Inds", "ReproFreq", "New_Births", "Density", "expected_deaths", sep=",");
 	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
 	writeFile(wd + output_stats_file_name, stats_header_string, append=T);
 	if (map_style == 5)
@@ -645,7 +641,7 @@ late()
 			farmer_ancestry_HGs = 0.0;
 		
 		// write outputs
-		output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, loop_output, farmer_ancestry_all, farmer_ancestry_farmers, farmer_ancestry_HGs, repro_age_inds, new_births, repro_freq, sep=",");
+		output_string = paste(sim.cycle, pop_size, num_farmers, num_HGs, ratio, loop_output, farmer_ancestry_all, farmer_ancestry_farmers, farmer_ancestry_HGs, repro_age_inds, new_births, repro_freq, sep=",");
 		
 		// output to file
 		output_stats_file_name = ("/sim_square_wave_stats_per_year_" + output_name + ".txt");
@@ -656,9 +652,9 @@ late()
 1:6000 late()
 {
 	// provide feedback on progress for command line users
-	year_counter = paste("Simulation Year: ", sim.generation);
+	year_counter = paste("Simulation Year: ", sim.cycle);
 	print(year_counter);
-	if (sim.generation == 6000)
+	if (sim.cycle == 6000)
 	{
 		print("--------------------------------");
 		print("Simulation Complete");
@@ -698,14 +694,14 @@ late()
 		farmer_ancestry_HGs = 0.0;
 	
 	// write outputs
-	output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, farmer_ancestry_all, farmer_ancestry_farmers, farmer_ancestry_HGs, repro_age_inds, repro_freq, new_births, sep=",");
+	output_string = paste(sim.cycle, pop_size, num_farmers, num_HGs, ratio, farmer_ancestry_all, farmer_ancestry_farmers, farmer_ancestry_HGs, repro_age_inds, repro_freq, new_births, density, expected_deaths, sep=",");
 	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
 	writeFile(wd + output_stats_file_name, output_string, append=T);
 	
 	// log individual data
 	//for (ind in p1.individuals)
 	//{
-	//individuals = paste(sim.generation, ind.z, ind.x, ind.y);
+	//individuals = paste(sim.cycle , ind.z, ind.x, ind.y);
 	//writeFile(wd + "/sim_individuals.txt", individuals, append=T);
 	//}
 }
