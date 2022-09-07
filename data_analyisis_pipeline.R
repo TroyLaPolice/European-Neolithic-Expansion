@@ -94,13 +94,16 @@ colnames(test_year_df_simple) = c("km", "ratio")
 
 interpolate = function(data){
   
+  # Approximate a distance from the x-axis in km when the ratio of farmers to HGs is 50/50
   interpolation = approx(test_year_df_simple$ratio, test_year_df_simple$km, xout=0.5, method="linear")
 
+  # Pull out the distance from the approximation list
   approximated_x = interpolation[[2]]
 
   plot(test_year_df_simple, pch = 19)
   points(approximated_x, 0.5, col='red', pch=19)
   
+  # Return value
   return(approximated_x)
   
 }
