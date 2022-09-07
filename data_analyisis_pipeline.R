@@ -16,6 +16,7 @@ param_file_name = "initial_run_params_clean.txt"
 square_files = lapply(square_file_names, read.csv)
 param_file = lapply(param_file_name, read.csv)
 
+# ----------------------------------------------------------------------------------------------------------------
 
 # Transforming data to "long" format and combining different parameter combinations
 all_sim_data = lapply(1:length(square_files), function(x) 
@@ -41,6 +42,8 @@ all_sim_data = lapply(1:length(square_files), function(x)
 )
 
 all_sim_data = rbindlist(all_sim_data)
+
+# ----------------------------------------------------------------------------------------------------------------
 
 # Transforming data to include km values for partitions
 
@@ -76,3 +79,30 @@ for (partition in 1:(num_parts)) {
 
 # Turn back to factor
 all_sim_data_km_values$Mid_Point_km = as.factor(all_sim_data_km_values$Mid_Point_km)
+
+# ----------------------------------------------------------------------------------------------------------------
+
+test_year_df = all_sim_data_km_values[(all_sim_data_km_values$Year == 600) & all_sim_data_km_values$Scale_Factor == "Scale Factor = 0.5" & 
+                                        all_sim_data_km_values$Movement_SD == "Movement SD = 10km" & 
+                                        all_sim_data_km_values$Learning_Prob == "Learning Prob = 0.0" & 
+                                        all_sim_data_km_values$Assortative_Mating == "Assortative Mating = None"]
+
+test_year_df_simple = data.table(as.character(test_year_df$Mid_Point_km), as.character(test_year_df$RatioFarmerToHG_Partition))
+colnames(test_year_df_simple) = c("km", "ratio")
+
+# ----------------------------------------------------------------------------------------------------------------
+
+interpolate = function(data){
+  
+  interpolation = approx(test_year_df_simple$ratio, test_year_df_simple$km, xout=0.5, method="linear")
+
+  approximated_x = interpolation[[2]]
+
+  plot(test_year_df_simple, pch = 19)
+  points(approximated_x, 0.5, col='red', pch=19)
+  
+  return(approximated_x)
+  
+}
+
+interpolate(test_year_df_simple)
