@@ -1,5 +1,8 @@
 # Load Libraries
+library(tidyr)
+library(gtools)
 library(data.table)
+library(dplyr)
 
 # Set input params
 setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/8-4")
@@ -48,7 +51,6 @@ all_sim_data = rbindlist(all_sim_data)
 all_sim_data_km_values = cbind(all_sim_data, all_sim_data$Partition)
 names(all_sim_data_km_values)[names(all_sim_data_km_values) == "V2"] = "Mid_Point_km"
 
-# Calculate the number of partitions used
 num_parts = max(as.integer(all_sim_data$Partition))
 
 # Calculate where the first partition midpoint point is
