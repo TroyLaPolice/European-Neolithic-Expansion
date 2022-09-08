@@ -1,8 +1,5 @@
 # Load Libraries
-library(tidyr)
-library(gtools)
 library(data.table)
-library(dplyr)
 
 # Set input params
 setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/8-4")
