@@ -48,6 +48,7 @@ all_sim_data = rbindlist(all_sim_data)
 all_sim_data_km_values = cbind(all_sim_data, all_sim_data$Partition)
 names(all_sim_data_km_values)[names(all_sim_data_km_values) == "V2"] = "Mid_Point_km"
 
+# Calculate the number of partitions used
 num_parts = max(as.integer(all_sim_data$Partition))
 
 # Calculate where the first partition midpoint point is
