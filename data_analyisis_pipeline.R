@@ -82,10 +82,11 @@ all_sim_data_km_values$Mid_Point_km = as.factor(all_sim_data_km_values$Mid_Point
 
 # ----------------------------------------------------------------------------------------------------------------
 
-test_year_df = all_sim_data_km_values[(all_sim_data_km_values$Year == 600) & all_sim_data_km_values$Scale_Factor == "Scale Factor = 0.5" & 
-                                        all_sim_data_km_values$Movement_SD == "Movement SD = 10km" & 
-                                        all_sim_data_km_values$Learning_Prob == "Learning Prob = 0.0" & 
-                                        all_sim_data_km_values$Assortative_Mating == "Assortative Mating = None"]
+test_year_df = all_sim_data_km_values[Year == 600 & 
+                                        Scale_Factor == "Scale Factor = 0.5" & 
+                                        Movement_SD == "Movement SD = 10km" & 
+                                        Learning_Prob == "Learning Prob = 0.0" & 
+                                        Assortative_Mating == "Assortative Mating = None"]
 
 test_year_df_simple = data.table(as.character(test_year_df$Mid_Point_km), as.character(test_year_df$RatioFarmerToHG_Partition))
 colnames(test_year_df_simple) = c("km", "ratio")
