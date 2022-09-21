@@ -8,7 +8,7 @@ library(gtools)
 # ----------------------------------------------------------------------------------------------------------------
 
 # Set input params
-setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/9-12")
+setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/9-19")
 map_size_km = 3700
 
 square_file_names = list.files(".", pattern="sim_sq*", full.names = TRUE)
@@ -85,10 +85,10 @@ interpolate = function(km, ratio){
 # Add column to data for the distance traveled on the x-axis in km when the ratio of farmers to HGs is 50/50
 all_sim_data[, km_50perc := as.numeric(0)]
 all_sim_data[, km_50perc := interpolate(km = Mid_Point_km, ratio = RatioFarmerToHG_Partition), 
-                       .(Year, Scale_Factor, Downscale, Movement_SD, Learning_Prob, Assortative_Mating)]
+                       .(Year, Downscale, Movement_SD, Learning_Prob, Assortative_Mating)]
 
 # Run a linear model to calculate the speed of wave and add as a column
-all_sim_data[, speedOfWave := lm(km_50perc ~ Year)$coeff[2], .(Downscale, Scale_Factor, Movement_SD, Learning_Prob, Assortative_Mating)]
+all_sim_data[, speedOfWave := lm(km_50perc ~ Year)$coeff[2], .(Downscale, Movement_SD, Learning_Prob, Assortative_Mating)]
 
 # Write to output file
 fwrite(all_sim_data, file = "all_sim_data.csv", append = FALSE, quote = "auto", sep = ",")
@@ -105,23 +105,20 @@ fwrite(sim_data_simple, file = "sim_data_simple.csv", append = FALSE, quote = "a
 # ----------------------------------------------------------------------------------------------------------------
 
 plot1 = ggplot(all_sim_data) + 
-  geom_point(aes(Year, km_50perc, col= Learning_Prob)) + facet_grid(Scale_Factor ~ Downscale)
+  geom_point(aes(Year, km_50perc, col=Assortative_Mating)) + facet_grid(Movement_SD ~ Learning_Prob)
 
-plot2 = ggplot(all_sim_data[Learning_Prob == "Learning_Prob = 0.01" & Movement_SD == "Movement_SD = 10" & Year %% 200 == 0]) + 
-  geom_line(aes(Mid_Point_km, RatioFarmerToHG_Partition, col= factor(Year))) + facet_grid(Scale_Factor ~ Downscale)
+plot2 = ggplot(all_sim_data[Year %% 200 == 0]) + 
+  geom_line(aes(Mid_Point_km, RatioFarmerToHG_Partition, col=Assortative_Mating)) + facet_grid(Movement_SD ~ Learning_Prob)
 
 plot3 = ggplot(all_sim_data) + 
-  geom_point(aes(Movement_SD, speedOfWave, col= Movement_SD)) + facet_grid(Scale_Factor ~ Downscale)
-
-plot5 = ggplot(all_sim_data) + 
-  geom_point(aes(Learning_Prob, speedOfWave, col= Learning_Prob)) + facet_grid(Scale_Factor ~ Downscale)
+  geom_point(aes(Movement_SD, speedOfWave, col=Assortative_Mating)) + facet_grid(Movement_SD ~ Learning_Prob)
 
 no_assort_ancestry = ggplot(all_sim_data[Assortative_Mating == "Assortative Mating = None" & Year %% 50 == 0]) + 
   geom_line(aes(Mid_Point_km, Farmer_Ancestry_Partition_Farmers, col = Year, group = factor(Year))) + 
   facet_grid(Movement_SD ~ Learning_Prob) + theme_bw() + labs(title = "No Assortative Mating") + labs(x = "Distance From Origin (km)") + 
   labs(y = "Percent Farming Ancestry")
 
-some_assort_ancestry = ggplot(all_sim_data[Assortative_Mating == "Assortative Mating = 0.8" & Year %% 50 == 0]) + 
+some_assort_ancestry = ggplot(all_sim_data[Assortative_Mating == "Assortative Mating = Full Assortative" & Year %% 50 == 0]) + 
   geom_line(aes(Mid_Point_km, Farmer_Ancestry_Partition_Farmers, col = Year, group = factor(Year))) + 
   facet_grid(Movement_SD ~ Learning_Prob) + theme_bw() + labs(title = "Some Assortative Mating") + labs(x = "Distance From Origin (km)") + 
   labs(y = "Percent Farming Ancestry")
@@ -135,6 +132,5 @@ ggsave("plot1.png", plot = plot1, units = "in", width = 10, height = 8, device="
 ggsave("plot2.png", plot = plot2, units = "in", width = 10, height = 8, device="png", dpi=700)
 ggsave("plot3.png", plot = plot3, units = "in", width = 10, height = 8, device="png", dpi=700)
 ggsave("plot4.png", plot = no_assort_ancestry, units = "in", width = 10, height = 8, device="png", dpi=700)
-ggsave("plot5.png", plot = plot5, units = "in", width = 10, height = 8, device="png", dpi=700)
 ggsave("plot6.png", plot = some_assort_ancestry, units = "in", width = 10, height = 8, device="png", dpi=700)
 ggsave("plot7.png", plot = full_assort_ancestry, units = "in", width = 10, height = 8, device="png", dpi=700)
