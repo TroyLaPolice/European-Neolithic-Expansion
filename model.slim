@@ -12,23 +12,25 @@ initialize()
 	if (!exists("custom_map_filename"))
 		defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
 	if (!exists("output_name"))
-		defineConstant("output_name", "all_farmers"); // To run default names make an empty string
+		defineConstant("output_name", "out"); // To run default names make an empty string
 	
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
+	if (!exists("DS"))
+		defineConstant("DS", 5); // Down scale the simulation ( Must be >= 1)
 	if (!exists("SN"))
-		defineConstant("SN", 8761); // Starting number of individuals
+		defineConstant("SN", integerDiv(876160,DS)); // Starting number of individuals
 	if (!exists("HGK"))
-		defineConstant("HGK", 0.064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
+		defineConstant("HGK", 0.064/DS); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
 	if (!exists("FK"))
-		defineConstant("FK", 0.128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
+		defineConstant("FK", 0.128/DS); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
 	// Movement and interaction and competition:
 	// ***********************************
 	if (!exists("S"))
 		defineConstant("S", 30); // spatial competition distance (ENTER IN KILOMETERS)
 	if (!exists("C"))
-		defineConstant("C", 0); // If C = 1 that means there will be competition between individuals of different phenotypes (ie HGs compete with Farmers for space) If C = 0 then competition only happens within their like groups
+		defineConstant("C", 1); // If C = 1 that means there will be competition between individuals of different phenotypes (ie HGs compete with Farmers for space) If C = 0 then competition only happens within their like groups
 	if (!exists("SDX"))
 		defineConstant("SDX", 30); // Movement standard diviation for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
 	if (!exists("SDY"))
@@ -52,7 +54,7 @@ initialize()
 	// Age related mortality table
 	defineConstant("age_scale", c(0.046335604111134, 0.046335604111134, 0.046335604111134, 0.046335604111134, 0.046335604111134, 0.056408593819562, 0.056408593819562, 0.056408593819562, 0.056408593819562, 0.056408593819562, 0.021999528676968, 0.021999528676968, 0.021999528676968, 0.021999528676968, 0.021999528676968, 0.035354184793731, 0.035354184793731, 0.035354184793731, 0.035354184793731, 0.035354184793731, 0.056800625283728, 0.056800625283728, 0.056800625283728, 0.056800625283728, 0.056800625283728, 0.069352594596266, 0.069352594596266, 0.069352594596266, 0.069352594596266, 0.069352594596266, 0.090704121931891, 0.090704121931891, 0.090704121931891, 0.090704121931891, 0.090704121931891, 0.12200775084549, 0.12200775084549, 0.12200775084549, 0.12200775084549, 0.12200775084549, 0.160621672514612, 0.160621672514612, 0.160621672514612, 0.160621672514612, 0.160621672514612, 0.167446792598127, 0.167446792598127, 0.167446792598127, 0.167446792598127, 0.167446792598127, 1));
 	if (!exists("scal_fac"))
-		defineConstant("scal_fac", 0.5); // mortality scaling factor
+		defineConstant("scal_fac", 1); // mortality scaling factor
 	
 	// ---------------------------------------------------
 	// RUN TIME PREFERENCE PARAMETERS
@@ -298,7 +300,9 @@ late()
 		if (length(HGs) != 0)
 			dens_scal_HG = (inds_num_in_s + 1) / (PI * (S^2) * HGK + 1); // Density of all individuals in the given area	
 	}
+	
 	scaled_mortality_farmer = ((dens_scal_farmer - 1) * scal_fac + 1) * age_scale[farmer_ages]; // Scale by a growth factor if desired. If scaling factor = 0 there isn't any scaling, population grows unrestricted based on the other parameters that govern equalibrium.
+	
 	if (length(HGs) != 0)
 		scaled_mortality_HG = ((dens_scal_HG - 1) * scal_fac + 1) * age_scale[HG_ages]; // Scale by a growth factor if desired. If scaling factor = 0 there isn't any scaling, population grows unrestricted based on the other parameters that govern equalibrium.
 	
@@ -654,12 +658,6 @@ late()
 	// provide feedback on progress for command line users
 	year_counter = paste("Simulation Year: ", sim.cycle);
 	print(year_counter);
-	if (sim.cycle == 6000)
-	{
-		print("--------------------------------");
-		print("Simulation Complete");
-		print("--------------------------------");
-	}
 	
 	// define vector of farmers and vector of HGs
 	farmers = p1.individuals[p1.individuals.z == 1];
@@ -705,3 +703,4 @@ late()
 	//writeFile(wd + "/sim_individuals.txt", individuals, append=T);
 	//}
 }
+
