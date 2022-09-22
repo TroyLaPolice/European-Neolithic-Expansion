@@ -105,34 +105,48 @@ fwrite(sim_data_simple, file = "sim_data_simple.csv", append = FALSE, quote = "a
 # Plot to make visual checks
 # ----------------------------------------------------------------------------------------------------------------
 
-plot1 = ggplot(all_sim_data) + 
+distance_over_time = ggplot(all_sim_data) + 
   geom_point(aes(Year, km_50perc, col=Assortative_Mating)) + facet_grid(Movement_SD ~ Learning_Prob)
 
-plot2 = ggplot(all_sim_data[Year %% 200 == 0]) + 
-  geom_line(aes(Mid_Point_km, RatioFarmerToHG_Partition, col=Assortative_Mating)) + facet_grid(Movement_SD ~ Learning_Prob)
+no_assort_wave = ggplot(all_sim_data[Assortative_Mating == "Assortative Mating = None" & Year %% 200 == 0]) + 
+  geom_line(aes(Mid_Point_km, RatioFarmerToHG_Partition, col = Year, group = factor(Year))) + 
+  facet_grid(Movement_SD ~ Learning_Prob) + theme_bw() + labs(title = "No Assortative Mating") + labs(x = "Distance From Origin (km)") + 
+  labs(y = "Percent Farmers")
 
-plot3 = ggplot(data) + 
-  geom_point(show.legend = FALSE, aes(Assortative_Mating, speedOfWave, col=factor(Learning_Prob), size=3.5)) + theme_bw() + facet_grid(Movement_SD ~ Learning_Prob) + 
-  labs(y = "Speed of Wave (km per year)") + labs(x = "Percentage of Assortative Mating")
+some_assort_wave = ggplot(all_sim_data[Assortative_Mating == "Assortative Mating = 0.8" & Year %% 200 == 0]) + 
+  geom_line(aes(Mid_Point_km, RatioFarmerToHG_Partition, col = Year, group = factor(Year))) + 
+  facet_grid(Movement_SD ~ Learning_Prob) + theme_bw() + labs(title = "Some Assortative Mating") + labs(x = "Distance From Origin (km)") + 
+  labs(y = "Percent Farmers")
 
-no_assort_ancestry = ggplot(all_sim_data[Assortative_Mating == "Assortative Mating = None" & Year %% 50 == 0]) + 
+full_assort_wave = ggplot(all_sim_data[Assortative_Mating == "Assortative Mating = Full Assortative" & Year %% 200 == 0]) + 
+  geom_line(aes(Mid_Point_km, RatioFarmerToHG_Partition, col = Year, group = factor(Year))) + 
+  facet_grid(Movement_SD ~ Learning_Prob) + theme_bw() + labs(title = "Full Assortative Mating") + labs(x = "Distance From Origin (km)") + 
+  labs(y = "Percent Farmers")
+
+speed = ggplot(data) + 
+  geom_point(show.legend = FALSE, aes(Movement_SD, speedOfWave, col=factor(Learning_Prob), size=3.5)) + theme_bw() + facet_grid(Assortative_Mating ~ .) + 
+  labs(y = "Speed of Wave (km per year)") + labs(x = "Individual Movement Range Per Year (km)")
+
+no_assort_ancestry = ggplot(all_sim_data[Assortative_Mating == "Assortative Mating = None" & Year %% 200 == 0]) + 
   geom_line(aes(Mid_Point_km, Farmer_Ancestry_Partition_Farmers, col = Year, group = factor(Year))) + 
   facet_grid(Movement_SD ~ Learning_Prob) + theme_bw() + labs(title = "No Assortative Mating") + labs(x = "Distance From Origin (km)") + 
   labs(y = "Percent Farming Ancestry")
 
-some_assort_ancestry = ggplot(all_sim_data[Assortative_Mating == "Assortative Mating = 0.8" & Year %% 50 == 0]) + 
+some_assort_ancestry = ggplot(all_sim_data[Assortative_Mating == "Assortative Mating = 0.8" & Year %% 200 == 0]) + 
   geom_line(aes(Mid_Point_km, Farmer_Ancestry_Partition_Farmers, col = Year, group = factor(Year))) + 
   facet_grid(Movement_SD ~ Learning_Prob) + theme_bw() + labs(title = "Some Assortative Mating") + labs(x = "Distance From Origin (km)") + 
   labs(y = "Percent Farming Ancestry")
 
-full_assort_ancestry = ggplot(all_sim_data[Assortative_Mating == "Assortative Mating = Full Assortative" & Year %% 50 == 0]) + 
+full_assort_ancestry = ggplot(all_sim_data[Assortative_Mating == "Assortative Mating = Full Assortative" & Year %% 200 == 0]) + 
   geom_line(aes(Mid_Point_km, Farmer_Ancestry_Partition_Farmers, col = Year, group = factor(Year))) + 
   facet_grid(Movement_SD ~ Learning_Prob) + theme_bw() + labs(title = "Full Assortative Mating") + labs(x = "Distance From Origin (km)") + 
   labs(y = "Percent Farming Ancestry")
 
-ggsave("plot1.png", plot = plot1, units = "in", width = 10, height = 8, device="png", dpi=700)
-ggsave("plot2.png", plot = plot2, units = "in", width = 10, height = 8, device="png", dpi=700)
-ggsave("plot3.png", plot = plot3, units = "in", width = 10, height = 8, device="png", dpi=700)
-ggsave("plot4.png", plot = no_assort_ancestry, units = "in", width = 10, height = 8, device="png", dpi=700)
-ggsave("plot5.png", plot = some_assort_ancestry, units = "in", width = 10, height = 8, device="png", dpi=700)
-ggsave("plot6.png", plot = full_assort_ancestry, units = "in", width = 10, height = 8, device="png", dpi=700)
+ggsave("distance_over_time.png", plot = distance_over_time, units = "in", width = 10, height = 8, device="png", dpi=700)
+ggsave("speed.png", plot = speed, units = "in", width = 10, height = 8, device="png", dpi=700)
+ggsave("no_assort_ancestry.png", plot = no_assort_ancestry, units = "in", width = 10, height = 8, device="png", dpi=700)
+ggsave("some_assort_ancestry.png", plot = some_assort_ancestry, units = "in", width = 10, height = 8, device="png", dpi=700)
+ggsave("full_assort_ancestry.png", plot = full_assort_ancestry, units = "in", width = 10, height = 8, device="png", dpi=700)
+ggsave("no_assort_wave.png", plot = no_assort_wave, units = "in", width = 10, height = 8, device="png", dpi=700)
+ggsave("some_assort_wave.png", plot = some_assort_wave, units = "in", width = 10, height = 8, device="png", dpi=700)
+ggsave("full_assort_wave.png", plot = full_assort_wave, units = "in", width = 10, height = 8, device="png", dpi=700)
