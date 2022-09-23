@@ -9,7 +9,7 @@ It is a Non-WF model featuring spatial competition, reproduction and learning. I
 
 ### About the map:
 
-The map is a square approximation of Europe which by default is 3,700 km^2.
+The map is a square approximation of Europe which, by default is 3,700 km^2.
 
 ### Color schemes:
 
@@ -48,7 +48,7 @@ This bit of code begins the model and creates the non-WF model and the xy dimens
 
 ###### These can be altered via the command line by using the -d flag and then setting the parameter equal to a value
 
-i.e. -d HGK=0.30
+i.e. -d HGK=0.60
 
 ```
   	// ---------------------------------------------------
@@ -94,42 +94,38 @@ The movement_distances parameter is a series of distances that are sampled from 
 	if (!exists("S"))
 		defineConstant("S", 30); // spatial competition distance (ENTER IN KILOMETERS)
 	if (!exists("C"))
-		defineConstant("C", 0); // If C = 1 that means there will be competition between individuals of different phenotypes (ie HGs compete with Farmers for space) If C = 0 then competition only happens within their like groups
-	if (!exists("MD"))
-		defineConstant("MD", 30); // Mating distance (ENTER IN KILOMETERS)
-	if (!exists("movement_distances"))
-		defineConstant("movement_distances", c(2.3, 7.3, 15, 25, 35, 45, 55, 100)); // Distances sampled from (ENTER IN KILOMETERS)
-	if (!exists("movement_distance_weights"))
-		defineConstant("movement_distance_weights", c(0.42, 0.23, 0.16, 0.08, 0.07, 0.02, 0.01, 0.01)); // Weights for movement distance sampling
-	if (!exists("LD"))
-		defineConstant("LD", 10); // Learning distance (ENTER IN KILOMETERS)
-	if (!exists("northern_slowdown_effect"))
-		defineConstant("northern_slowdown_effect", 2); // Number equals the effect of the slowdown in the north (i.e., how many times slower do they move
-	if (!exists("northern_slowdown_distance"))
-		defineConstant("northern_slowdown_distance", 0.3); // distance up the map where the slowdown starts, (y coordinate times this value, ie if value = 0.5 the slowdown will start in the middle of the map and will continue to the top)
+		defineConstant("C", 1); // If C = 1 that means there will be competition between individuals of different phenotypes (ie HGs compete with Farmers for space) If C = 0 then competition only happens within their like groups
+	if (!exists("SDX"))
+		defineConstant("SDX", 30); // Movement standard diviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
+	if (!exists("SDY"))
+		defineConstant("SDY", 30); // Movement standard diviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
 		
 ```
  This next block contains parameters about rates for mating, learning and death. 
  	
 ```
-	// Learning, death and mating rate params:
+/ Learning, death and mating rate params:
 	// ***********************************
 	if (!exists("L"))
-		defineConstant("L", 0.0); // Learning rate 
-	if (!exists("LP"))
-		defineConstant("LP", 0.6); // Learning percentage = the ratio of farmers to HGs required in an area for an individual HG to learn from a farmer 
+		defineConstant("L", 0.1); // Learning rate - product of constant number of teachers times probability of learning per contact
+	if (!exists("gamma"))
+		defineConstant("gamma", 1); // preference of farmer teacher over HG
+	if (!exists("LD"))
+	defineConstant("LD", 30); // Learning distance (ENTER IN KILOMETERS)
+	if (!exists("MD"))
+		defineConstant("MD", 30); // Mating distance (ENTER IN KILOMETERS)	
 	if (!exists("MP"))
 		defineConstant("MP", 0.5); // Level of assortative mating. Probability that mates will choose behaviorally similar mates. 1 = full assortative, 0.5 = no assortative, 0 = individuals only mate with individuals of opposite phenotypes
 	if (!exists("min_repro_age"))
 		defineConstant("min_repro_age", 11); // Individuals MUST be OLDER than this age to reproduce
-	// Age related mortality table
 	
+	// Age related mortality table
 	defineConstant("age_scale", c(0.211180124, 0.211180124, 0.211180124, 0.211180124, 0.211180124, 0.251968504, 0.251968504, 0.251968504, 0.251968504, 0.251968504, 0.105263158, 0.105263158, 0.105263158, 0.105263158, 0.105263158, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.253521127, 0.253521127, 0.253521127, 0.253521127, 0.253521127, 0.301886792, 0.301886792, 0.301886792, 0.301886792, 0.301886792, 0.378378378, 0.378378378, 0.378378378, 0.378378378, 0.378378378, 0.47826087, 0.47826087, 0.47826087, 0.47826087, 0.47826087, 0.583333333, 0.583333333, 0.583333333, 0.583333333, 0.583333333, 0.6, 0.6, 0.6, 0.6, 0.6, 1.0));
  ```
  
- The first perameter L refers to likelihood that farmers will teach a HG how to farm.
+ The first perameter L refers to likelihood that farmers will teach a HG how to farm is is the product of constant number of teachers times probability of learning per contact.
  
- The second (LP) is the ratio of farmers to HGs in an area that is required for a HG to learn. For example, if a given area is majority HG it may be less likely that the minority farmers teach. This of course can be changed as you see fit. By default here we see the param is 60%.
+ The second (gamma) is the preference of a HG to choose a farmer as a teacher over choosing a HG
  
  The next block of parameters handles reproduction probabilities (i.e., the probability that a pair mates and produces an offspring) 
  
@@ -213,7 +209,7 @@ These parameters handle the map size in km. If using provided EEA maps, length a
 ```
 
 
-*The next two blocks simply initialize the genetic component that is the marker for farmer ancestry and the interactions between individuals*
+*The next two blocks initialize the genetic component that is the marker for farmer ancestry and the interactions between individuals*
 
 ```
 	
@@ -256,6 +252,12 @@ These all take place within a certain distance range specified by parameters abo
 
 #### First generation of the simulation- building initial population
 ```
+
+1 early()
+{
+	sim.addSubpop("p1", SN);
+}
+
 1 early()
 {
 	// Check user input for what style of topogrpahy they want on the map
@@ -355,10 +357,10 @@ It sets it up both by phenotype (behavioral) coloring and genomic coloring based
 #### Reproduction
 
 ```
-first()
+2: first()
 {
 	// look for mates
-	i2.evaluate();
+	i2.evaluate(p1);
 }
 
 reproduction()
@@ -371,12 +373,10 @@ reproduction()
 	{
 		mates = i2.nearestInteractingNeighbors(individual, p1.individuals.length());
 		mates_ra = mates[mates.age > min_repro_age];
-		
 		if (mates_ra.size()) // Runs if there are possible mates near by
 		{
-			
 			// Sets up a vector that checks if the individuals in the surrounding area are of like phenotype (i.e. if their z params are the same)
-			mates_similarity_bool = mates_ra.z == individual.z; 
+			mates_similarity_bool = mates_ra.z == individual.z;
 			mates_similarity = asFloat(mates_similarity_bool);
 			
 			// Generates a vector of probabilites of the individual mating with a particular mate given their phenotype
@@ -390,7 +390,7 @@ reproduction()
 			{
 				// Samples an individual in the population based on the assortative mating probabilities. 
 				// If no assortative mating all indivduals have an equal chance of getting selected
-				mate = sample(mates_ra, 1, weights = mates_similarity);
+				mate = sample(mates_ra, 1, weights=mates_similarity);
 				
 				// Frequency of the interaction is based on the calculated reproduction value given by the mortality curve (below)
 				for (i in seqLen(rpois(1, M)))
@@ -437,41 +437,9 @@ reproduction()
 							}
 						}
 						
-						// set offspring position 
-						if (map_style != 5 & individual.y > northern_slowdown_distance * map_size_length)
-						{
-							do
-							{
-								// This samples from a vector of movement distances based on the probability that they move this distance
-								distance = sample(x=c(movement_distances), size=1, replace=T, weights=c(movement_distance_weights));
-								
-								// Next we need to calculate the x and y coodinates
-								radian_angle = runif(1, 0, 2 * PI);
-								coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance) / northern_slowdown_effect;
-								
-								// Next we can reset the position
-								pos = individual.spatialPosition + coordiates;
-							}
-							while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
-							offspring.setSpatialPosition(pos);
-						}
-						else
-						{
-							do
-							{
-								// This samples from a vector of movement distances based on the probability that they move this distance
-								distance = sample(x=c(movement_distances), size=1, replace=T, weights=c(movement_distance_weights));
-								
-								// Next we need to calculate the x and y coodinates
-								radian_angle = runif(1, 0, 2 * PI);
-								coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
-								
-								// Next we can reset the position
-								pos = individual.spatialPosition + coordiates;
-							}
-							while (!p1.pointInBounds(pos) | p1.spatialMapValue("map_object", pos) == 0.0);
-							offspring.setSpatialPosition(pos);
-						}
+						// Next we set the position of the offspring at the parent's location
+						pos = individual.spatialPosition;
+						offspring.setSpatialPosition(pos);
 					}
 				}
 			}
@@ -483,11 +451,11 @@ reproduction()
 First the simulation looks for possible mates nearby and then the reproduction function is run.
 
 This reproduction function runs for each individual each generation.
-In the reproduction function the phenotype of new offspring is tagged with the Z coordinate of the individual. We also see this in the function where the individuals are initialized at the start of the simulation.
-
-The offspring then moves away from its parents within a specified distance range.
+In the reproduction function the phenotype of new offspring is tagged with the Z coordinate of the individual. We also see this in the function where the individuals are initialized at the start of the simulation. The offspring is generated on the map at the parental location. 
 
 Color is also specified here. It can be based on ancestry proportion or simply what the individual is behaviorally- HG or farmer.
+
+Assortative mating is handled here as well. Based on the specified amount of assortative mating above (MP) the probabability of the individual choosing a similar mate is calculated and used as weights for the sampling function that selects a mate for the individual.
 
 #### Learning
 
@@ -497,54 +465,49 @@ late()
 	// ---------------------------------------------------
 	//  LEARNING --> HGs learn to farm from nearby farmers
 	// ---------------------------------------------------
-	i3.evaluate();
+	i3.evaluate(p1);
 	for (individual in p1.individuals)
 	{
+		// Skip if the individual is a farmer and therefore doesn't learn farming as it is already practicing the behavior.
 		if (individual.z == 1)
 			next;
 		
 		// Get a vector the nearest neighbors within the learning distance (D) 
-		neighbors = i3.nearestNeighbors(individual);
+		neighbors = i3.nearestNeighbors(individual, p1.individuals.length());
 		
-		// Get ratio of HGs to farmers in the neighbors of the individual
-		neighbor_freq = (sum(neighbors.z) / length(neighbors));
+		// Determine z for neighbors of the individual
+		farmer_neighbors = sum(neighbors.z);
+		HG_neighbors = (length(neighbors) - farmer_neighbors);
 		
-		// If the HG is surrounded by a certain ratio of farmers (LP) it has the ablity to convert to farming by learning
-		if (neighbor_freq >= LP)
-		{
-			// choose nearest neighbor as a teacher, within the max distance
-			teacher = i3.nearestNeighbors(individual, 1);
-			
-			// Frequency of the interaction
-			for (i in seqLen(rpois(1, L)))
+		// Calculate the probability that the individual will learn farming based on the behavorial characteristics of its neighbors and its teacher preference.
+		LP = L * (farmer_neighbors) / (farmer_neighbors + gamma * HG_neighbors);
+		
+		// Only ruyn if the probability of learning is greater than zero
+		if ((isNAN(LP) == F) & LP != 0.0)
+		{	
+
+			// Frequency of the interaction -> Individual learns at a probability defined above
+			for (i in seqLen(rpois(1, LP)))
 			{
-				// Only runs if a potential teacher is nearby
-				if (teacher.size())
+				// Change to farmer
+				individual.z = 1;
+				
+				if (Color_option2 == 1)
 				{
-					// If teacher is a farmer and individual is a HG
-					if (teacher.z == 1)
-					{
-						if (Color_option2 == 1)
-						{
-							// -----------------------
-							// Color Based on Behavior
-							// -----------------------
-							// Change the HG to green to see the interaction
-							// and change its phenotype (z coordinate) from 0 to 1
-							// to represent the conversion to farmer
-							// Only first generation HG -> F converts are green
-							individual.color = "green";
-						}
-						individual.z = 1;
-					}
+					// -----------------------
+					// Color Based on Behavior
+					// -----------------------
+					// Change the HG to green to see the interaction
+					// and change its phenotype (z coordinate) from 0 to 1
+					// to represent the conversion to farmer
+					// Only first generation HG -> F converts are green
+					individual.color = "green";
 				}
 			}
 		}
 	}
 }
 ```
-
-Learning is implemented in a similar way to reproduction. Where it differs is that a specified ratio of farmers to HGs must be met for learning to happen.
 
 Individual HGs can learn from farmers and their z coordinate changes but their ancestry stays the same.
 
