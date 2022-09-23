@@ -17,7 +17,7 @@ initialize()
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
 	if (!exists("DS"))
-		defineConstant("DS", 5); // Down scale the simulation ( Must be >= 1)
+		defineConstant("DS", 1); // Down scale the simulation ( Must be >= 1)
 	if (!exists("SN"))
 		defineConstant("SN", integerDiv(876160,DS)); // Starting number of individuals
 	if (!exists("HGK"))
@@ -32,9 +32,9 @@ initialize()
 	if (!exists("C"))
 		defineConstant("C", 1); // If C = 1 that means there will be competition between individuals of different phenotypes (ie HGs compete with Farmers for space) If C = 0 then competition only happens within their like groups
 	if (!exists("SDX"))
-		defineConstant("SDX", 30); // Movement standard diviation for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
+		defineConstant("SDX", 30); // Movement standard diviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
 	if (!exists("SDY"))
-		defineConstant("SDY", 30); // Movement standard diviation for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
+		defineConstant("SDY", 30); // Movement standard diviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
 	
 	// Learning, death and mating rate params:
 	// ***********************************
@@ -220,6 +220,7 @@ late()
 	i3.evaluate(p1);
 	for (individual in p1.individuals)
 	{
+		// Skip if the individual is a farmer and therefore doesn't learn farming as it is already practicing the behavior.
 		if (individual.z == 1)
 			next;
 		
@@ -230,14 +231,17 @@ late()
 		farmer_neighbors = sum(neighbors.z);
 		HG_neighbors = (length(neighbors) - farmer_neighbors);
 		
+		// Calculate the probability that the individual will learn farming based on the behavorial characteristics of its neighbors and its teacher preference.
 		LP = L * (farmer_neighbors) / (farmer_neighbors + gamma * HG_neighbors);
 		
-		// Frequency of the interaction
+		// Only ruyn if the probability of learning is greater than zero
 		if ((isNAN(LP) == F) & LP != 0.0)
 		{	
 
+			// Frequency of the interaction -> Individual learns at a probability defined above
 			for (i in seqLen(rpois(1, LP)))
 			{
+				// Change to farmer
 				individual.z = 1;
 				
 				if (Color_option2 == 1)
@@ -270,16 +274,26 @@ late()
 	// Do the same for HGs if there are still HGs left
 	if (length(HGs) != 0)
 		HG_ages = HGs.age;
+		
 	if (C == 0) // If individuals only complete within their own groups
 	{
 		// Count number of neighbors within S for farmers
-		farmers_num_in_s = i1.interactingNeighborCount(farmers);
+		farmers_num_in_s = sapply(farmers, "sum(i1.nearestNeighbors(applyValue, count = farmers.length()).z==1.0);");
 		
 		// Do the same for HGs if there are still HGs left
 		if (length(HGs) != 0)
-			HG_num_in_s = i1.interactingNeighborCount(HGs);
+			HG_num_in_s = sapply(HGs, "sum(i1.nearestNeighbors(applyValue, count = HGs.length()).z==0.0);");;
 		
-		// Modify mortality curve to account for population density around the indiviudal
+	}
+	else // Individuals complete with everyone
+	{
+		// Count number of neighbors within S for everyone
+		farmers_num_in_s = i1.interactingNeighborCount(farmers);
+		HG_num_in_s = i1.interactingNeighborCount(HGs);
+		
+	}
+	
+	// Modify mortality curve to account for population density around the indiviudal
 		dens_scal_farmer = (farmers_num_in_s + 1) / (PI * (S^2) * FK + 1); // Density of farmers in the given area
 		dens = mean(dens_scal_farmer);
 		defineGlobal("density", dens);
@@ -287,19 +301,6 @@ late()
 		// Do the same if there are still HGs left
 		if (length(HGs) != 0)
 			dens_scal_HG = (HG_num_in_s + 1) / (PI * (S^2) * HGK + 1); // Density of HGs in the given area
-	}
-	else // If individuals complete with everyone
-	{
-		// Count number of neighbors within S for everyone
-		inds_num_in_s = i1.interactingNeighborCount(p1.individuals);
-		
-		// Modify mortality curve to account for population density around the indiviudal
-		dens_scal_farmer = (inds_num_in_s + 1) / (PI * (S^2) * FK + 1); // Density of all individuals in the given area
-		
-		// Do the same if there are still HGs left
-		if (length(HGs) != 0)
-			dens_scal_HG = (inds_num_in_s + 1) / (PI * (S^2) * HGK + 1); // Density of all individuals in the given area	
-	}
 	
 	scaled_mortality_farmer = ((dens_scal_farmer - 1) * scal_fac + 1) * age_scale[farmer_ages]; // Scale by a growth factor if desired. If scaling factor = 0 there isn't any scaling, population grows unrestricted based on the other parameters that govern equalibrium.
 	
@@ -324,12 +325,13 @@ late()
 	if (length(HGs) != 0)
 		HG_survival = 1 - scaled_mortality_HG;
 	
-	// Scale the fitneess of the individual, density-dependent and factoring in individual age based mortality
+	// Scale the fitnesses of the individual, density-dependent and factoring in individual age based mortality
 	farmers.fitnessScaling = farmer_survival;
 	
 	// Do the same if there are still HGs left
 	if (length(HGs) != 0)
 		HGs.fitnessScaling = HG_survival;
+		
 	expected_deaths = sum(scaled_mortality_farmer);
 	defineGlobal("expected_deaths", expected_deaths);
 }
@@ -342,6 +344,7 @@ late()
 	for (ind in p1.individuals)
 	{
 		// How far individuals diffuse away from their location
+		// While the new position is off the map or in the ocean, a new position will be selected until the point is in bounds
 		do
 		{
 			coordinate_matrix = rmvnorm(1, c(0, 0), matrix(c(SDX^2, 0, 0, SDY^2), nrow=2));
