@@ -303,7 +303,7 @@ The next section is responsible for setting up the age distribution from the ini
 	defineConstant("M", eq_offspring_rate); // Define this value for use later
 ```
 
-This section sets up how the image file of the map of Europe works.
+This section sets up how the image file of the map works.
 
 It defines the map and its bounds.
 
@@ -511,71 +511,68 @@ late()
 
 Individual HGs can learn from farmers and their z coordinate changes but their ancestry stays the same.
 
+Learning is based on the probability that the individual will learn farming based on the behavorial characteristics of its neighbors and its teacher preference.
+
+HGs learn at a higher probability when surrounded by more farmers
+
 #### Competition
 
 
 First we evaluate the interaction type and define vectors of the two groups
 
 ```
-early()
+late()
 {
-	i1.evaluate();
+	i1.evaluate(p1);
 	
 	// define vector of farmers and vector of HGs
 	farmers = p1.individuals[p1.individuals.z == 1];
 	HGs = p1.individuals[p1.individuals.z == 0];
-```
-This gets a vector of the ages that is used for age based mortality
-```
+	
 	// Life table based individual mortality, get vector of individual ages
 	farmer_ages = farmers.age;
 	
 	// Do the same for HGs if there are still HGs left
 	if (length(HGs) != 0)
 		HG_ages = HGs.age;
+		
 ```
 
 This part handles competition between nearby individuals. This is density dependent. There can be different K's for HGs and farmers here which we will see later. First we count the number nearby competing individuals. This process is slightly different depending on if the parameter is selected where individuals compete with everyone or just their own group. It counts the number of nearby individuals and calculates the density.
 
 ```
-if (C == 0) // If individuals only complete within their own groups
+	if (C == 0) // If individuals only complete within their own groups
 	{
-	
 		// Count number of neighbors within S for farmers
-		farmers_num_in_s = i1.interactingNeighborCount(farmers);
-	
+		farmers_num_in_s = sapply(farmers, "sum(i1.nearestNeighbors(applyValue, count = farmers.length()).z==1.0);");
+		
 		// Do the same for HGs if there are still HGs left
 		if (length(HGs) != 0)
-			HG_num_in_s = i1.interactingNeighborCount(HGs);
-			
-		// Modify mortality curve to account for population density around the indiviudal
-		dens_scal_farmer = (farmers_num_in_s + 1) / (PI * (S^2) * FK + 1); // Density of farmers in the given area
+			HG_num_in_s = sapply(HGs, "sum(i1.nearestNeighbors(applyValue, count = HGs.length()).z==0.0);");;
+		
+	}
+	else // Individuals complete with everyone
+	{
+		// Count number of neighbors within S for everyone
+		farmers_num_in_s = i1.interactingNeighborCount(farmers);
+		HG_num_in_s = i1.interactingNeighborCount(HGs);
+		
+	}
 	
+	// Modify mortality curve to account for population density around the indiviudal
+		dens_scal_farmer = (farmers_num_in_s + 1) / (PI * (S^2) * FK + 1); // Density of farmers in the given area
+		dens = mean(dens_scal_farmer);
+		defineGlobal("density", dens);
+		
 		// Do the same if there are still HGs left
 		if (length(HGs) != 0)
 			dens_scal_HG = (HG_num_in_s + 1) / (PI * (S^2) * HGK + 1); // Density of HGs in the given area
-		
-	}
-	else // If individuals complete with everyone
-	{
-	
-		// Count number of neighbors within S for everyone
-		inds_num_in_s = i1.interactingNeighborCount(p1.individuals);
-		
-		// Modify mortality curve to account for population density around the indiviudal
-		dens_scal_farmer = (inds_num_in_s + 1) / (PI * (S^2) * FK + 1); // Density of all individuals in the given area
-	
-		// Do the same if there are still HGs left
-		if (length(HGs) != 0)
-			dens_scal_HG = (inds_num_in_s + 1) / (PI * (S^2) * HGK + 1); // Density of all individuals in the given area	
-	}
-	
 ```
 
 This next part keeps individuals from living beyond realistic limits. Without this individuals in the sim can live hundreds of years because death it not dependent on age, only population density. (See life table above)
 
 ```
-	scaled_mortality_farmer = ((dens_scal_farmer - 1) * scal_fac + 1) * age_scale[farmer_ages];  // Scale by a growth factor if desired. If scaling factor = 0 there isn't any scaling, population grows unrestricted based on the other parameters that govern equalibrium.
+	scaled_mortality_farmer = ((dens_scal_farmer - 1) * scal_fac + 1) * age_scale[farmer_ages]; // Scale by a growth factor if desired. If scaling factor = 0 there isn't any scaling, population grows unrestricted based on the other parameters that govern equalibrium.
 	
 	if (length(HGs) != 0)
 		scaled_mortality_HG = ((dens_scal_HG - 1) * scal_fac + 1) * age_scale[HG_ages]; // Scale by a growth factor if desired. If scaling factor = 0 there isn't any scaling, population grows unrestricted based on the other parameters that govern equalibrium.
@@ -608,6 +605,9 @@ Finally we scale the individuals' fitness by the calculated value.
 	// Do the same if there are still HGs left
 	if (length(HGs) != 0)
 		HGs.fitnessScaling = HG_survival;
+				
+	expected_deaths = sum(scaled_mortality_farmer);
+	defineGlobal("expected_deaths", expected_deaths);
 }
 ```
 
@@ -617,68 +617,28 @@ Finally we scale the individuals' fitness by the calculated value.
 ```
 late()
 {
-	// move around
+	// ---------------------------------------------------
+	//  MOVEMENT --> How individuals move around
+	// ---------------------------------------------------
 	for (ind in p1.individuals)
 	{
-		// How far farmers diffuse away from their location
-		if (ind.z == 1)
+		// How far individuals diffuse away from their location
+		// While the new position is off the map or in the ocean, a new position will be selected until the point is in bounds
+		do
 		{
-			if (map_style != 5 & ind.y > northern_slowdown_distance * map_size_length)
-			{
-				do
-				{
-					// This samples from a vector of movement distances based on the probability that they move this distance
-					distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
-					// Next we need to calculate the x and y coodinates
-					radian_angle = runif(1, 0, 2*PI);
-					coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance) / northern_slowdown_effect;
-					// Next we can reset the position
-					newPos = ind.spatialPosition + coordiates;
-				}
-				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
-				ind.setSpatialPosition(newPos);
-			}
-			else
-			{
-				do
-				{
-					// This samples from a vector of movement distances based on the probability that they move this distance
-					distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
-					// Next we need to calculate the x and y coodinates
-					radian_angle = runif(1, 0, 2*PI);
-					coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
-					// Next we can reset the position
-					newPos = ind.spatialPosition + coordiates;
-				}
-				while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
-				ind.setSpatialPosition(newPos);
-			}
+			coordinate_matrix = rmvnorm(1, c(0, 0), matrix(c(SDX^2, 0, 0, SDY^2), nrow=2));
+			coordinates = c(coordinate_matrix[0], coordinate_matrix[1]);
+			
+			// Next we can reset the position
+			newPos = ind.spatialPosition + coordinates;
 		}
-		if (ind.z == 0)
-		{
-			// How far HGs diffuse away from their location
-			do
-			{
-				// This samples from a vector of movement distances based on the probability that they move this distance
-				distance = sample(x = c(movement_distances), size = 1, replace = T, weights = c(movement_distance_weights));
-				// Next we need to calculate the x and y coodinates
-				radian_angle = runif(1, 0, 2*PI);
-				coordiates = c(cos(radian_angle) * distance, sin(radian_angle) * distance);
-				// Next we can reset the position
-				newPos = ind.spatialPosition + coordiates;
-			}
-			while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
-			ind.setSpatialPosition(newPos);
-		}
+		while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
+		ind.setSpatialPosition(newPos);
 	}
 }
 ```
 
-The individuals cannot move to locations outside of the bounds of the map. They can potentially jump across the water (simulating water travel) to other land masses, assuming it is not beyond their movement range, but they cannot stay in the ocean.
-
-The individuals can have different distances they can travel based on if they are a HG or a farmer. This is set up above in the parameters. This allows for simulation of HGs being more migratory and farmers being more localized around their farm.
-
-Of course if you chose to run the simulation with the simple black square the individuals can move anywhere within the given map size.
+The individuals cannot move to locations outside of the bounds of the map. They can potentially jump across the water (simulating water travel) to other land masses, assuming it is not beyond their movement range, but they cannot stay in the ocean. Of course if you chose to run the simulation with the simple black square the individuals can move anywhere within the given map size.
 
 #### Birth rate function
 
@@ -709,10 +669,10 @@ This first early function only runs once and generates the headers for the files
 1 early()
 {
 	// log runtime params
-	param_string = paste(SN, HGK, FK, S, MD, MP, LD, northern_slowdown_effect, northern_slowdown_distance, L, LP, M, min_repro_age, scal_fac, map_style, num_partitions, water_crossings, "[", age_scale, "]", "[", movement_distances, "]", "[", movement_distance_weights, "]");
+	param_string = paste(SN, HGK, FK, S, C, SDX, SDY, L, gamma, LD, MD, MP, min_repro_age, scal_fac, map_style, num_partitions, water_crossings, map_size_length, map_size_width, "[", age_scale, "]");
 	
 	// File headings
-	param_heading = paste("SN HGK FK S MD MP LD northern_slowdown_effect northern_slowdown_distance L LP M min_repro_age scal_fac map_style num_partitions water_crossings [ age_scale ]  [ movement_distances ]  [ movement_distance_weights ]");
+	param_heading = paste("SN HGK FK S C SDX SDY L gamma LD MD MP min_repro_age scal_fac map_style num_partitions water_crossings map_size_length map_size_width [ age_scale ]");
 	
 	// Runtime params - write to file
 	output_runtime_file_name = ("/sim_runtime_params_" + output_name + ".txt");
@@ -720,7 +680,7 @@ This first early function only runs once and generates the headers for the files
 	writeFile(wd + output_runtime_file_name, param_string, append=T);
 	
 	// Population stats headers - write to file
-	stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmertoHG", "Farmer_Ancestry_All", "Farmer_Ancestry_Farmers", "Farmer_Ancestry_HGs", "Num_Repro_Age_Inds", "ReproFreq", "New_Births", sep=",");
+	stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmertoHG", "Farmer_Ancestry_All", "Farmer_Ancestry_Farmers", "Farmer_Ancestry_HGs", "Num_Repro_Age_Inds", "ReproFreq", "New_Births", "Density", "expected_deaths", sep=",");
 	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
 	writeFile(wd + output_stats_file_name, stats_header_string, append=T);
 	if (map_style == 5)
@@ -764,14 +724,8 @@ This first early function only runs once and generates the headers for the files
 1:6000 late()
 {
 	// provide feedback on progress for command line users
-	year_counter = paste("Simulation Year: ", sim.generation);
+	year_counter = paste("Simulation Year: ", sim.cycle);
 	print(year_counter);
-	if (sim.generation == 6000)
-	{
-		print("--------------------------------");
-		print("Simulation Complete");
-		print("--------------------------------");
-	}
 	
 	// define vector of farmers and vector of HGs
 	farmers = p1.individuals[p1.individuals.z == 1];
@@ -791,29 +745,29 @@ This first early function only runs once and generates the headers for the files
 	pop_size = p1.individuals.length();
 	
 	// calculate the overall farming ancestry
-	farmer_ancestry_all = mean(all_inds.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+	farmer_ancestry_all = mean(all_inds.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
 	
 	// calculate the farming ancestry in all farmers
 	if (length(farmers) != 0)
-		farmer_ancestry_farmers = mean(farmers.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+		farmer_ancestry_farmers = mean(farmers.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
 	else
 		farmer_ancestry_farmers = 0.0;
 	
 	// calculate the farming ancestry in all HGs
 	if (length(HGs) != 0)
-		farmer_ancestry_HGs = mean(HGs.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+		farmer_ancestry_HGs = mean(HGs.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
 	else
 		farmer_ancestry_HGs = 0.0;
 	
 	// write outputs
-	output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, farmer_ancestry_all, farmer_ancestry_farmers, farmer_ancestry_HGs, repro_age_inds, repro_freq, new_births, sep=",");
+	output_string = paste(sim.cycle, pop_size, num_farmers, num_HGs, ratio, farmer_ancestry_all, farmer_ancestry_farmers, farmer_ancestry_HGs, repro_age_inds, repro_freq, new_births, density, expected_deaths, sep=",");
 	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
 	writeFile(wd + output_stats_file_name, output_string, append=T);
 	
 	// log individual data
 	//for (ind in p1.individuals)
 	//{
-	//individuals = paste(sim.generation, ind.z, ind.x, ind.y);
+	//individuals = paste(sim.cycle , ind.z, ind.x, ind.y);
 	//writeFile(wd + "/sim_individuals.txt", individuals, append=T);
 	//}
 }
@@ -821,6 +775,7 @@ This first early function only runs once and generates the headers for the files
 ```
 The following block of code runs of the sim is run on a square rather than a map and provides more detailed outputs regarding the wave progression
 ```
+
 late()
 {
 	if (map_style == 5)
@@ -950,22 +905,22 @@ late()
 		ratio = (sum(p1.individuals.z) / p1.individuals.length());
 		
 		// calculate the overall farming ancestry
-		farmer_ancestry_all = mean(all_inds.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+		farmer_ancestry_all = mean(all_inds.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
 		
 		/// calculate the farming ancestry in all farmers
 		if (length(farmers) != 0)
-			farmer_ancestry_farmers = mean(farmers.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+			farmer_ancestry_farmers = mean(farmers.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
 		else
 			farmer_ancestry_farmers = 0.0;
 		
 		// calculate the farming ancestry in all HGs
 		if (length(HGs) != 0)
-			farmer_ancestry_HGs = mean(HGs.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+			farmer_ancestry_HGs = mean(HGs.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
 		else
 			farmer_ancestry_HGs = 0.0;
 		
 		// write outputs
-		output_string = paste(sim.generation, pop_size, num_farmers, num_HGs, ratio, loop_output, farmer_ancestry_all, farmer_ancestry_farmers, farmer_ancestry_HGs, repro_age_inds, new_births, repro_freq, sep=",");
+		output_string = paste(sim.cycle, pop_size, num_farmers, num_HGs, ratio, loop_output, farmer_ancestry_all, farmer_ancestry_farmers, farmer_ancestry_HGs, repro_age_inds, new_births, repro_freq, sep=",");
 		
 		// output to file
 		output_stats_file_name = ("/sim_square_wave_stats_per_year_" + output_name + ".txt");
