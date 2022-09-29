@@ -289,7 +289,10 @@ late()
 	{
 		// Count number of neighbors within S for everyone
 		farmers_num_in_s = i1.interactingNeighborCount(farmers);
-		HG_num_in_s = i1.interactingNeighborCount(HGs);
+		
+		// Do the same if there are still HGs left
+		if (length(HGs) != 0)
+			HG_num_in_s = i1.interactingNeighborCount(HGs);
 		
 	}
 	
@@ -698,12 +701,6 @@ late()
 	output_string = paste(sim.cycle, pop_size, num_farmers, num_HGs, ratio, farmer_ancestry_all, farmer_ancestry_farmers, farmer_ancestry_HGs, repro_age_inds, repro_freq, new_births, density, expected_deaths, sep=",");
 	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
 	writeFile(wd + output_stats_file_name, output_string, append=T);
-	
-	// log individual data
-	//for (ind in p1.individuals)
-	//{
-	//individuals = paste(sim.cycle , ind.z, ind.x, ind.y);
-	//writeFile(wd + "/sim_individuals.txt", individuals, append=T);
-	//}
+
 }
 
