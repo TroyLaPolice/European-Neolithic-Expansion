@@ -555,7 +555,10 @@ This part handles competition between nearby individuals. This is density depend
 	{
 		// Count number of neighbors within S for everyone
 		farmers_num_in_s = i1.interactingNeighborCount(farmers);
-		HG_num_in_s = i1.interactingNeighborCount(HGs);
+		
+		// Do the same for HGs if there are still HGs left
+		if (length(HGs) != 0)
+			HG_num_in_s = i1.interactingNeighborCount(HGs);
 		
 	}
 	
