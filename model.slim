@@ -31,10 +31,14 @@ initialize()
 		defineConstant("S", 30); // spatial competition distance (ENTER IN KILOMETERS)
 	if (!exists("C"))
 		defineConstant("C", 1); // If C = 1 that means there will be competition between individuals of different phenotypes (ie HGs compete with Farmers for space) If C = 0 then competition only happens within their like groups
-	if (!exists("SDX"))
-		defineConstant("SDX", 30); // Movement standard diviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
-	if (!exists("SDY"))
-		defineConstant("SDY", 30); // Movement standard diviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
+	if (!exists("F_SDX"))
+		defineConstant("F_SDX", 30); // Farmer Movement standard diviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
+	if (!exists("F_SDY"))
+		defineConstant("F_SDY", 30); // Farmer Movement standard diviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
+	if (!exists("HG_SDX"))
+		defineConstant("HG_SDX", 30); // HG Movement standard diviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
+	if (!exists("HG_SDY"))
+		defineConstant("HG_SDY", 30); // HG Movement standard diviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
 	
 	// Learning, death and mating rate params:
 	// ***********************************
@@ -128,11 +132,93 @@ initialize()
 	i2.evaluate(p1);
 }
 
+1 early()
+{
+
+	// -----------------------------------------------------------
+	//  Model Initialization --> Generate the model and initalize
+	// -----------------------------------------------------------
+	
+	// Check user input for what style of topogrpahy they want on the map
+	if (map_style == 0)
+		mapImage = Image(mapfile_none); //none
+	else if (map_style == 1)
+		mapImage = Image(mapfile_topo_superlight); //superlight topo
+	else if (map_style == 2)
+		mapImage = Image(mapfile_topo_light); //light
+	else if (map_style == 3)
+		mapImage = Image(mapfile_topo_regular); //regular
+	else if (map_style == 4)
+		mapImage = Image(mapfile_topo_heavy); //heavy
+	else if (map_style == 5)
+		mapImage = Image(square); //square
+	else if (map_style == 6)
+		mapImage = Image(custom_map); //custom
+	
+	// Set up map
+	p1.setSpatialBounds(c(0.0, 0.0, map_size_width, map_size_length));
+	p1.defineSpatialMap("map_object", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#000000"));
+	
+	// place individuals on the map
+	for (ind in p1.individuals)
+	{
+		do
+			newPos = c(runif(1, 0, map_size_width), runif(1, 0, map_size_length));
+		while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
+		ind.setSpatialPosition(newPos);
+		ind.z = 0;
+	}
+	
+	// Set ages of created individuals (inital age dist)
+	prob_of_surv_until = cumProduct(1 - age_scale); // Prob of survival until a certain age
+	eq_age_distr = prob_of_surv_until / sum(prob_of_surv_until); // Equilibrium age distribution
+	num_of_inds = SN; // get random ages for individuals sampled from age distribution
+	eq_ages_for_sample = sample(x=0:(length(prob_of_surv_until) - 1), size=num_of_inds, replace=T, weights=eq_age_distr); // samples from pop to get ages
+	p1.individuals.age = eq_ages_for_sample; // sets population ages
+	rate_dying = sum(prob_of_surv_until / sum(prob_of_surv_until) * age_scale); // Prob of dying of random individual, assuming equilibrium age distr
+	eq_offspring_rate = rate_dying * sum(prob_of_surv_until) / sum(prob_of_surv_until[(min_repro_age):(length(prob_of_surv_until) - 1)]); // calculates how often individuals of repro age need to have a child at equilibrium	
+	defineConstant("M", eq_offspring_rate); // Define this value for use later
+	
+	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
+	// Make individuals near anatolia and greece farmers or near the edge if using the square
+	if (map_style == 5)
+		p1.individuals[p1.individuals.x < (0.02 * map_size_width)].z = 1;
+	else
+		p1.individuals[p1.individuals.x > (0.72 * map_size_width) & p1.individuals.y < (0.09 * map_size_length)].z = 1;
+	
+	// Tag genomic ancestry of farmers with marker mutations (m1)
+	// Each marker mutation represents 1Mb
+	indFarmers = p1.individuals[p1.individuals.z == 1];
+	indFarmers.genomes.addNewMutation(m1, 0.0, 0:2886);
+	
+	// Add color to represent phenotype
+	for (i in p1.individuals)
+	{
+		// -----------------------
+		// Color Based on Phenotype
+		// -----------------------
+		value = i.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2);
+		i.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
+		if (Color_scheme == 1)
+		{
+			// -----------------------
+			// Color Based on Behavior
+			// -----------------------
+			// HGs are red, farmers are blue
+			if (i.z == 0)
+				i.color = "red";
+			else
+				i.color = "blue";
+		}
+	}
+}
+
 reproduction()
 {
 	// ---------------------------------------------------
 	//  MATING --> Individuals mate with those close by
 	// ---------------------------------------------------
+	
 	// choose nearest neighbor as a mate, within the max distance
 	if (individual.age > min_repro_age) // Reproductive age of the individual must be reached before mating
 	{
@@ -217,6 +303,7 @@ late()
 	// ---------------------------------------------------
 	//  LEARNING --> HGs learn to farm from nearby farmers
 	// ---------------------------------------------------
+	
 	i3.evaluate(p1);
 	for (individual in p1.individuals)
 	{
@@ -262,6 +349,12 @@ late()
 
 late()
 {
+
+	// -----------------------------------------------------------------
+	//  COMPETITON AND MORTALITY --> Age and Density Dependent Mortality
+	// -----------------------------------------------------------------
+	
+	
 	i1.evaluate(p1);
 	
 	// define vector of farmers and vector of HGs
@@ -344,101 +437,53 @@ late()
 	// ---------------------------------------------------
 	//  MOVEMENT --> How individuals move around
 	// ---------------------------------------------------
-	for (ind in p1.individuals)
+	
+	// define vector of farmers and vector of HGs
+	farmers = p1.individuals[p1.individuals.z == 1];
+	HGs = p1.individuals[p1.individuals.z == 0];
+	
+	for (farmer in farmers)
 	{
 		// How far individuals diffuse away from their location
 		// While the new position is off the map or in the ocean, a new position will be selected until the point is in bounds
 		do
 		{
-			coordinate_matrix = rmvnorm(1, c(0, 0), matrix(c(SDX^2, 0, 0, SDY^2), nrow=2));
+			coordinate_matrix = rmvnorm(1, c(0, 0), matrix(c(F_SDX^2, 0, 0, F_SDY^2), nrow=2));
 			coordinates = c(coordinate_matrix[0], coordinate_matrix[1]);
 			
 			// Next we can reset the position
-			newPos = ind.spatialPosition + coordinates;
+			newPos = farmer.spatialPosition + coordinates;
 		}
 		while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
-		ind.setSpatialPosition(newPos);
+		farmer.setSpatialPosition(newPos);
 	}
-}
-
-1 early()
-{
-	// Check user input for what style of topogrpahy they want on the map
-	if (map_style == 0)
-		mapImage = Image(mapfile_none); //none
-	else if (map_style == 1)
-		mapImage = Image(mapfile_topo_superlight); //superlight topo
-	else if (map_style == 2)
-		mapImage = Image(mapfile_topo_light); //light
-	else if (map_style == 3)
-		mapImage = Image(mapfile_topo_regular); //regular
-	else if (map_style == 4)
-		mapImage = Image(mapfile_topo_heavy); //heavy
-	else if (map_style == 5)
-		mapImage = Image(square); //square
-	else if (map_style == 6)
-		mapImage = Image(custom_map); //custom
 	
-	// Set up map
-	p1.setSpatialBounds(c(0.0, 0.0, map_size_width, map_size_length));
-	p1.defineSpatialMap("map_object", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#000000"));
-	
-	// place individuals on the map
-	for (ind in p1.individuals)
+	for (HG in HGs)
 	{
+		// How far individuals diffuse away from their location
+		// While the new position is off the map or in the ocean, a new position will be selected until the point is in bounds
 		do
-			newPos = c(runif(1, 0, map_size_width), runif(1, 0, map_size_length));
-		while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
-		ind.setSpatialPosition(newPos);
-		ind.z = 0;
-	}
-	
-	// Set ages of created individuals (inital age dist)
-	prob_of_surv_until = cumProduct(1 - age_scale); // Prob of survival until a certain age
-	eq_age_distr = prob_of_surv_until / sum(prob_of_surv_until); // Equilibrium age distribution
-	num_of_inds = SN; // get random ages for individuals sampled from age distribution
-	eq_ages_for_sample = sample(x=0:(length(prob_of_surv_until) - 1), size=num_of_inds, replace=T, weights=eq_age_distr); // samples from pop to get ages
-	p1.individuals.age = eq_ages_for_sample; // sets population ages
-	rate_dying = sum(prob_of_surv_until / sum(prob_of_surv_until) * age_scale); // Prob of dying of random individual, assuming equilibrium age distr
-	eq_offspring_rate = rate_dying * sum(prob_of_surv_until) / sum(prob_of_surv_until[(min_repro_age):(length(prob_of_surv_until) - 1)]); // calculates how often individuals of repro age need to have a child at equilibrium	
-	defineConstant("M", eq_offspring_rate); // Define this value for use later
-	
-	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
-	// Make individuals near anatolia and greece farmers or near the edge if using the square
-	if (map_style == 5)
-		p1.individuals[p1.individuals.x < (0.02 * map_size_width)].z = 1;
-	else
-		p1.individuals[p1.individuals.x > (0.72 * map_size_width) & p1.individuals.y < (0.09 * map_size_length)].z = 1;
-	
-	// Tag genomic ancestry of farmers with marker mutations (m1)
-	// Each marker mutation represents 1Mb
-	indFarmers = p1.individuals[p1.individuals.z == 1];
-	indFarmers.genomes.addNewMutation(m1, 0.0, 0:2886);
-	
-	// Add color to represent phenotype
-	for (i in p1.individuals)
-	{
-		// -----------------------
-		// Color Based on Phenotype
-		// -----------------------
-		value = i.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2);
-		i.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
-		if (Color_scheme == 1)
 		{
-			// -----------------------
-			// Color Based on Behavior
-			// -----------------------
-			// HGs are red, farmers are blue
-			if (i.z == 0)
-				i.color = "red";
-			else
-				i.color = "blue";
+			coordinate_matrix = rmvnorm(1, c(0, 0), matrix(c(HG_SDX^2, 0, 0, HG_SDY^2), nrow=2));
+			coordinates = c(coordinate_matrix[0], coordinate_matrix[1]);
+			
+			// Next we can reset the position
+			newPos = HG.spatialPosition + coordinates;
 		}
+		while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
+		HG.setSpatialPosition(newPos);
 	}
+	
+	
 }
 
 early()
 {
+	
+	// -----------------------------------------------------------------------------------
+	//  Simple function defining a few population stats for use in output functions below
+	// -----------------------------------------------------------------------------------
+	
 	// calculate the number of new births this year
 	new_births = sum(p1.individuals.age == 0);
 	
@@ -454,11 +499,15 @@ early()
 
 1 early()
 {
+	// ----------------------------------------
+	//  OUTPUT1 --> Initialize output files
+	// ----------------------------------------
+	
 	// log runtime params
-	param_string = paste(SN, HGK, FK, S, C, SDX, SDY, L, gamma, LD, MD, MP, min_repro_age, scal_fac, map_style, num_partitions, water_crossings, map_size_length, map_size_width, "[", age_scale, "]");
+	param_string = paste(SN, HGK, FK, S, C, F_SDX, F_SDY, HG_SDX, HG_SDY, L, gamma, LD, MD, MP, min_repro_age, scal_fac, map_style, num_partitions, water_crossings, map_size_length, map_size_width, "[", age_scale, "]");
 	
 	// File headings
-	param_heading = paste("SN HGK FK S C SDX SDY L gamma LD MD MP min_repro_age scal_fac map_style num_partitions water_crossings map_size_length map_size_width [ age_scale ]");
+	param_heading = paste("SN HGK FK S C F_SDX F_SDY HG_SDX HG_SDY L gamma LD MD MP min_repro_age scal_fac map_style num_partitions water_crossings map_size_length map_size_width [ age_scale ]");
 	
 	// Runtime params - write to file
 	output_runtime_file_name = ("/sim_runtime_params_" + output_name + ".txt");
@@ -509,6 +558,11 @@ early()
 
 late()
 {
+
+	// -----------------------------------------------------------
+	//  OUTPUT2 --> Output function when using the simplfied model
+	// -----------------------------------------------------------
+	
 	if (map_style == 5)
 	{
 		// define vector of farmers and vector of HGs
@@ -661,6 +715,11 @@ late()
 
 1:6000 late()
 {
+
+	// -----------------------------------------------------------
+	//  OUTPUT3/RUN --> Run the model and print standard outputs
+	// -----------------------------------------------------------
+	
 	// provide feedback on progress for command line users
 	year_counter = paste("Simulation Year: ", sim.cycle);
 	print(year_counter);
