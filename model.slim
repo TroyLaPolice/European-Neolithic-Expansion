@@ -19,11 +19,11 @@ initialize()
 	if (!exists("DS"))
 		defineConstant("DS", 1); // Down scale the simulation ( Must be >= 1)
 	if (!exists("SN"))
-		defineConstant("SN", integerDiv(876160,DS)); // Starting number of individuals
+		defineConstant("SN", integerDiv(876160, DS)); // Starting number of individuals
 	if (!exists("HGK"))
-		defineConstant("HGK", 0.064/DS); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
+		defineConstant("HGK", 0.064 / DS); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
 	if (!exists("FK"))
-		defineConstant("FK", 0.128/DS); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
+		defineConstant("FK", 0.128 / DS); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
 	// Movement and interaction and competition:
 	// ***********************************
@@ -32,24 +32,24 @@ initialize()
 	if (!exists("C"))
 		defineConstant("C", 1); // If C = 1 that means there will be competition between individuals of different phenotypes (ie HGs compete with Farmers for space) If C = 0 then competition only happens within their like groups
 	if (!exists("F_SDX"))
-		defineConstant("F_SDX", 30); // Farmer Movement standard diviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
+		defineConstant("F_SDX", 5); // Farmer Movement standard diviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
 	if (!exists("F_SDY"))
-		defineConstant("F_SDY", 30); // Farmer Movement standard diviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
+		defineConstant("F_SDY", 5); // Farmer Movement standard diviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
 	if (!exists("HG_SDX"))
-		defineConstant("HG_SDX", 30); // HG Movement standard diviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
+		defineConstant("HG_SDX", 5); // HG Movement standard diviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
 	if (!exists("HG_SDY"))
-		defineConstant("HG_SDY", 30); // HG Movement standard diviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
+		defineConstant("HG_SDY", 5); // HG Movement standard diviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
 	
 	// Learning, death and mating rate params:
 	// ***********************************
 	if (!exists("L"))
-		defineConstant("L", 0.1); // Learning rate - product of constant number of teachers times probability of learning per contact
+		defineConstant("L", 0.0); // Learning rate - product of constant number of teachers times probability of learning per contact
 	if (!exists("gamma"))
 		defineConstant("gamma", 1); // preference of farmer teacher over HG
 	if (!exists("LD"))
-	defineConstant("LD", 30); // Learning distance (ENTER IN KILOMETERS)
+		defineConstant("LD", 10); // Learning distance (ENTER IN KILOMETERS)
 	if (!exists("MD"))
-		defineConstant("MD", 30); // Mating distance (ENTER IN KILOMETERS)	
+		defineConstant("MD", 10); // Mating distance (ENTER IN KILOMETERS)	
 	if (!exists("MP"))
 		defineConstant("MP", 0.5); // Level of assortative mating. Probability that mates will choose behaviorally similar mates. 1 = full assortative, 0.5 = no assortative, 0 = individuals only mate with individuals of opposite phenotypes
 	if (!exists("min_repro_age"))
@@ -66,8 +66,8 @@ initialize()
 	// Determine Coloring Schemes:
 	// ***********************************	
 	defineConstant("Color_scheme", 1); // Parameter of 0 = Genomic Coloring, 1 = Behavioral Coloring
-	defineConstant("Color_option1", 0); // Parameter of 0 = No special color for 1st generation 'hybrid' offspring, 1 = Coloring for 1st generation 'hybrid' offspring
-	defineConstant("Color_option2", 1); // Parameter of 0 = No special color for 1st generation HG individuals who have learned, 1 = Coloring for 1st generation HG individuals who have learned
+	defineConstant("Color_option1", 1); // Parameter of 0 = No special color for 1st generation 'hybrid' offspring, 1 = Coloring for 1st generation 'hybrid' offspring
+	defineConstant("Color_option2", 0); // Parameter of 0 = No special color for 1st generation HG individuals who have learned, 1 = Coloring for 1st generation HG individuals who have learned
 	
 	// Map Prefs: 
 	// ***********************************	
@@ -134,11 +134,9 @@ initialize()
 
 1 early()
 {
-
 	// -----------------------------------------------------------
 	//  Model Initialization --> Generate the model and initalize
 	// -----------------------------------------------------------
-	
 	// Check user input for what style of topogrpahy they want on the map
 	if (map_style == 0)
 		mapImage = Image(mapfile_none); //none
@@ -218,80 +216,83 @@ reproduction()
 	// ---------------------------------------------------
 	//  MATING --> Individuals mate with those close by
 	// ---------------------------------------------------
-	
 	// choose nearest neighbor as a mate, within the max distance
 	if (individual.age > min_repro_age) // Reproductive age of the individual must be reached before mating
 	{
-		mates = i2.nearestInteractingNeighbors(individual, p1.individuals.length());
-		mates_ra = mates[mates.age > min_repro_age];
+		mates = i2.nearestInteractingNeighbors(individual, p1.individuals.length()); // Get vector of neighbors within mating range
+		mates_ra = mates[mates.age > min_repro_age]; // Narrows down to those of reproductive age (ra)
 		if (mates_ra.size()) // Runs if there are possible mates near by
 		{
-			// Sets up a vector that checks if the individuals in the surrounding area are of like phenotype (i.e. if their z params are the same)
-			mates_similarity_bool = mates_ra.z == individual.z;
-			mates_similarity = asFloat(mates_similarity_bool);
-			
-			// Generates a vector of probabilites of the individual mating with a particular mate given their phenotype
-			// If assortative mating is complete, HGs will only mate with other HGs and farmers only with farmers
-			// If there is no assortative mating there will be an equal proability for all individuals
-			mates_similarity[mates_similarity_bool == T] = MP;
-			mates_similarity[mates_similarity_bool == F] = (1 - MP);
-			
-			// If there are individuals in the neary area that there is a chance the individual mates with it will run this section
-			if (sum(mates_similarity) != 0)
+			if (MP != 0.5) // Runs if there is any level of assortative mating
 			{
-				// Samples an individual in the population based on the assortative mating probabilities. 
-				// If no assortative mating all indivduals have an equal chance of getting selected
-				mate = sample(mates_ra, 1, weights=mates_similarity);
-				
-				// Frequency of the interaction is based on the calculated reproduction value given by the mortality curve (below)
-				for (i in seqLen(rpois(1, M)))
+				assort_prob = c(MP, (1 - MP)); // Proabaility of assortatively mating
+				choice = c(0, 1); // Vector of choices, will the individual mate assortatively (0) or not (1)
+				assort_pref = sample(choice, 1, weights=assort_prob); // Select a mate
+			}
+			else
+				assort_pref = 1; // If no assortative mating assortative mating preference is always 1 for every individual
+			if (assort_pref == 1) // This individual has the possibility of mating with unlike individuals
+			{
+				// Samples an individual to mate with from the whole population
+				mate = sample(mates_ra, 1);
+			}
+			else // This individual only mates assortatively
+			{
+				possible_mates = mates_ra[mates_ra.z == individual.z]; // Select only like individuals
+				if (possible_mates.size()) // Runs if there are possible mates near by
+					mate = sample(possible_mates, 1); // Select a mate
+				else
+					mate = NULL; // If no mates possible, NULL
+			}
+			
+			// Frequency of the interaction is based on the calculated reproduction value given by the mortality curve (below)
+			for (i in seqLen(rpois(1, M)))
+			{
+				// Only runs if a mate is nearby
+				if (isNULL(mate) != T)
 				{
-					// Only runs if a mate is nearby
-					if (mate.size())
+					// Generates an offspring
+					offspring = subpop.addCrossed(individual, mate);
+					
+					// -----------------------
+					// Color Based on Genotype
+					// -----------------------
+					value = offspring.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2);
+					offspring.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
+					
+					// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
+					offspring.z = 0;
+					
+					// If both parents are farmers the child is a farmer
+					if (individual.z == 1 & mate.z == 1)
+						offspring.z = 1;
+					if (Color_scheme == 1)
 					{
-						// Generates an offspring
-						offspring = subpop.addCrossed(individual, mate);
-						
 						// -----------------------
-						// Color Based on Genotype
+						// Color Based on Behavior
 						// -----------------------
-						value = offspring.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2);
-						offspring.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
-						
-						// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
-						offspring.z = 0;
-						
-						// If both parents are farmers the child is a farmer
-						if (individual.z == 1 & mate.z == 1)
-							offspring.z = 1;
-						if (Color_scheme == 1)
-						{
-							// -----------------------
-							// Color Based on Behavior
-							// -----------------------
-							// Add color to represent phenotype
-							if (offspring.z == 0)
-								offspring.color = "red";
-							else
-								offspring.color = "blue";
-						}
-						
-						// If the one parent is a farmer and one parent is a HG,
-						// offspring becomes a farmer
-						if (individual.z != mate.z)
-						{
-							offspring.z = 1;
-							if (Color_option1 == 1)
-							{
-								if (offspring.z == 1)
-									offspring.color = "purple"; // Color Based on Behavior
-							}
-						}
-						
-						// Next we set the position of the offspring at the parent's location
-						pos = individual.spatialPosition;
-						offspring.setSpatialPosition(pos);
+						// Add color to represent phenotype
+						if (offspring.z == 0)
+							offspring.color = "red";
+						else
+							offspring.color = "blue";
 					}
+					
+					// If the one parent is a farmer and one parent is a HG,
+					// offspring becomes a farmer
+					if (individual.z != mate.z)
+					{
+						offspring.z = 1;
+						if (Color_option1 == 1)
+						{
+							if (offspring.z == 1)
+								offspring.color = "yellow"; // Color Based on Behavior
+						}
+					}
+					
+					// Next we set the position of the offspring at the parent's location
+					pos = individual.spatialPosition;
+					offspring.setSpatialPosition(pos);
 				}
 			}
 		}
@@ -303,7 +304,6 @@ late()
 	// ---------------------------------------------------
 	//  LEARNING --> HGs learn to farm from nearby farmers
 	// ---------------------------------------------------
-	
 	i3.evaluate(p1);
 	for (individual in p1.individuals)
 	{
@@ -323,14 +323,12 @@ late()
 		
 		// Only ruyn if the probability of learning is greater than zero
 		if ((isNAN(LP) == F) & LP != 0.0)
-		{	
-
+		{
 			// Frequency of the interaction -> Individual learns at a probability defined above
 			for (i in seqLen(rpois(1, LP)))
 			{
 				// Change to farmer
 				individual.z = 1;
-				
 				if (Color_option2 == 1)
 				{
 					// -----------------------
@@ -349,12 +347,9 @@ late()
 
 late()
 {
-
 	// -----------------------------------------------------------------
 	//  COMPETITON AND MORTALITY --> Age and Density Dependent Mortality
 	// -----------------------------------------------------------------
-	
-	
 	i1.evaluate(p1);
 	
 	// define vector of farmers and vector of HGs
@@ -367,7 +362,6 @@ late()
 	// Do the same for HGs if there are still HGs left
 	if (length(HGs) != 0)
 		HG_ages = HGs.age;
-		
 	if (C == 0) // If individuals only complete within their own groups
 	{
 		// Count number of neighbors within S for farmers
@@ -375,8 +369,8 @@ late()
 		
 		// Do the same for HGs if there are still HGs left
 		if (length(HGs) != 0)
-			HG_num_in_s = sapply(HGs, "sum(i1.nearestNeighbors(applyValue, count = HGs.length()).z==0.0);");;
-		
+			HG_num_in_s = sapply(HGs, "sum(i1.nearestNeighbors(applyValue, count = HGs.length()).z==0.0);");
+		;
 	}
 	else // Individuals complete with everyone
 	{
@@ -386,20 +380,17 @@ late()
 		// Do the same if there are still HGs left
 		if (length(HGs) != 0)
 			HG_num_in_s = i1.interactingNeighborCount(HGs);
-		
 	}
 	
 	// Modify mortality curve to account for population density around the indiviudal
-		dens_scal_farmer = (farmers_num_in_s + 1) / (PI * (S^2) * FK + 1); // Density of farmers in the given area
-		dens = mean(dens_scal_farmer);
-		defineGlobal("density", dens);
-		
-		// Do the same if there are still HGs left
-		if (length(HGs) != 0)
-			dens_scal_HG = (HG_num_in_s + 1) / (PI * (S^2) * HGK + 1); // Density of HGs in the given area
+	dens_scal_farmer = (farmers_num_in_s + 1) / (PI * (S^2) * FK + 1); // Density of farmers in the given area
+	dens = mean(dens_scal_farmer);
+	defineGlobal("density", dens);
 	
+	// Do the same if there are still HGs left
+	if (length(HGs) != 0)
+		dens_scal_HG = (HG_num_in_s + 1) / (PI * (S^2) * HGK + 1); // Density of HGs in the given area
 	scaled_mortality_farmer = ((dens_scal_farmer - 1) * scal_fac + 1) * age_scale[farmer_ages]; // Scale by a growth factor if desired. If scaling factor = 0 there isn't any scaling, population grows unrestricted based on the other parameters that govern equalibrium.
-	
 	if (length(HGs) != 0)
 		scaled_mortality_HG = ((dens_scal_HG - 1) * scal_fac + 1) * age_scale[HG_ages]; // Scale by a growth factor if desired. If scaling factor = 0 there isn't any scaling, population grows unrestricted based on the other parameters that govern equalibrium.
 	
@@ -427,7 +418,6 @@ late()
 	// Do the same if there are still HGs left
 	if (length(HGs) != 0)
 		HGs.fitnessScaling = HG_survival;
-		
 	expected_deaths = sum(scaled_mortality_farmer);
 	defineGlobal("expected_deaths", expected_deaths);
 }
@@ -437,11 +427,9 @@ late()
 	// ---------------------------------------------------
 	//  MOVEMENT --> How individuals move around
 	// ---------------------------------------------------
-	
 	// define vector of farmers and vector of HGs
 	farmers = p1.individuals[p1.individuals.z == 1];
 	HGs = p1.individuals[p1.individuals.z == 0];
-	
 	for (farmer in farmers)
 	{
 		// How far individuals diffuse away from their location
@@ -457,7 +445,6 @@ late()
 		while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
 		farmer.setSpatialPosition(newPos);
 	}
-	
 	for (HG in HGs)
 	{
 		// How far individuals diffuse away from their location
@@ -473,17 +460,13 @@ late()
 		while (!p1.pointInBounds(newPos) | p1.spatialMapValue("map_object", newPos) == 0.0);
 		HG.setSpatialPosition(newPos);
 	}
-	
-	
 }
 
 early()
 {
-	
 	// -----------------------------------------------------------------------------------
 	//  Simple function defining a few population stats for use in output functions below
 	// -----------------------------------------------------------------------------------
-	
 	// calculate the number of new births this year
 	new_births = sum(p1.individuals.age == 0);
 	
@@ -502,7 +485,6 @@ early()
 	// ----------------------------------------
 	//  OUTPUT1 --> Initialize output files
 	// ----------------------------------------
-	
 	// log runtime params
 	param_string = paste(SN, HGK, FK, S, C, F_SDX, F_SDY, HG_SDX, HG_SDY, L, gamma, LD, MD, MP, min_repro_age, scal_fac, map_style, num_partitions, water_crossings, map_size_length, map_size_width, "[", age_scale, "]");
 	
@@ -513,11 +495,13 @@ early()
 	output_runtime_file_name = ("/sim_runtime_params_" + output_name + ".txt");
 	writeFile(wd + output_runtime_file_name, param_heading, append=T);
 	writeFile(wd + output_runtime_file_name, param_string, append=T);
-	
-	// Population stats headers - write to file
-	stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmertoHG", "Farmer_Ancestry_All", "Farmer_Ancestry_Farmers", "Farmer_Ancestry_HGs", "Num_Repro_Age_Inds", "ReproFreq", "New_Births", "Density", "expected_deaths", sep=",");
-	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
-	writeFile(wd + output_stats_file_name, stats_header_string, append=T);
+	if (map_style != 5) // Prints Standard Output if not square map
+	{
+		// Population stats headers - write to file
+		stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmertoHG", "Farmer_Ancestry_All", "Farmer_Ancestry_Farmers", "Farmer_Ancestry_HGs", "Num_Repro_Age_Inds", "ReproFreq", "New_Births", "Density", "expected_deaths", sep=",");
+		output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
+		writeFile(wd + output_stats_file_name, stats_header_string, append=T);
+	}
 	if (map_style == 5)
 	{
 		for (part in 1:num_partitions)
@@ -558,11 +542,9 @@ early()
 
 late()
 {
-
 	// -----------------------------------------------------------
 	//  OUTPUT2 --> Output function when using the simplfied model
 	// -----------------------------------------------------------
-	
 	if (map_style == 5)
 	{
 		// define vector of farmers and vector of HGs
@@ -690,17 +672,17 @@ late()
 		ratio = (sum(p1.individuals.z) / p1.individuals.length());
 		
 		// calculate the overall farming ancestry
-		farmer_ancestry_all = mean(all_inds.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
+		farmer_ancestry_all = mean(all_inds.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
 		
 		/// calculate the farming ancestry in all farmers
 		if (length(farmers) != 0)
-			farmer_ancestry_farmers = mean(farmers.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
+			farmer_ancestry_farmers = mean(farmers.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
 		else
 			farmer_ancestry_farmers = 0.0;
 		
 		// calculate the farming ancestry in all HGs
 		if (length(HGs) != 0)
-			farmer_ancestry_HGs = mean(HGs.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
+			farmer_ancestry_HGs = mean(HGs.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
 		else
 			farmer_ancestry_HGs = 0.0;
 		
@@ -715,50 +697,49 @@ late()
 
 1:6000 late()
 {
-
 	// -----------------------------------------------------------
 	//  OUTPUT3/RUN --> Run the model and print standard outputs
 	// -----------------------------------------------------------
-	
 	// provide feedback on progress for command line users
 	year_counter = paste("Simulation Year: ", sim.cycle);
 	print(year_counter);
-	
-	// define vector of farmers and vector of HGs
-	farmers = p1.individuals[p1.individuals.z == 1];
-	HGs = p1.individuals[p1.individuals.z == 0];
-	all_inds = p1.individuals;
-	
-	// calculate num farmers
-	num_farmers = sum(p1.individuals.z);
-	
-	//calculate num HGs
-	num_HGs = (p1.individuals.length() - sum(p1.individuals.z));
-	
-	// calculate the ratio of farmers in the total population to file
-	ratio = (sum(p1.individuals.z) / p1.individuals.length());
-	
-	// calculate population size statistics
-	pop_size = p1.individuals.length();
-	
-	// calculate the overall farming ancestry
-	farmer_ancestry_all = mean(all_inds.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
-	
-	// calculate the farming ancestry in all farmers
-	if (length(farmers) != 0)
-		farmer_ancestry_farmers = mean(farmers.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
-	else
-		farmer_ancestry_farmers = 0.0;
-	
-	// calculate the farming ancestry in all HGs
-	if (length(HGs) != 0)
-		farmer_ancestry_HGs = mean(HGs.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
-	else
-		farmer_ancestry_HGs = 0.0;
-	
-	// write outputs
-	output_string = paste(sim.cycle, pop_size, num_farmers, num_HGs, ratio, farmer_ancestry_all, farmer_ancestry_farmers, farmer_ancestry_HGs, repro_age_inds, repro_freq, new_births, density, expected_deaths, sep=",");
-	output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
-	writeFile(wd + output_stats_file_name, output_string, append=T);
-
+	if (map_style != 5) // Prints Standard Output if not square map
+	{
+		// define vector of farmers and vector of HGs
+		farmers = p1.individuals[p1.individuals.z == 1];
+		HGs = p1.individuals[p1.individuals.z == 0];
+		all_inds = p1.individuals;
+		
+		// calculate num farmers
+		num_farmers = sum(p1.individuals.z);
+		
+		//calculate num HGs
+		num_HGs = (p1.individuals.length() - sum(p1.individuals.z));
+		
+		// calculate the ratio of farmers in the total population to file
+		ratio = (sum(p1.individuals.z) / p1.individuals.length());
+		
+		// calculate population size statistics
+		pop_size = p1.individuals.length();
+		
+		// calculate the overall farming ancestry
+		farmer_ancestry_all = mean(all_inds.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+		
+		// calculate the farming ancestry in all farmers
+		if (length(farmers) != 0)
+			farmer_ancestry_farmers = mean(farmers.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+		else
+			farmer_ancestry_farmers = 0.0;
+		
+		// calculate the farming ancestry in all HGs
+		if (length(HGs) != 0)
+			farmer_ancestry_HGs = mean(HGs.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+		else
+			farmer_ancestry_HGs = 0.0;
+		
+		// write outputs
+		output_string = paste(sim.cycle, pop_size, num_farmers, num_HGs, ratio, farmer_ancestry_all, farmer_ancestry_farmers, farmer_ancestry_HGs, repro_age_inds, repro_freq, new_births, density, expected_deaths, sep=",");
+		output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
+		writeFile(wd + output_stats_file_name, output_string, append=T);
+	}
 }
