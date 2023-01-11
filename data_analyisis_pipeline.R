@@ -2,7 +2,6 @@
 library(data.table)
 library(ggplot2)
 library(gtools)
-library(dplyr)
 
 # ----------------------------------------------------------------------------------------------------------------
 # Set inputs and read in files to be used for analysis
@@ -12,7 +11,6 @@ library(dplyr)
 setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/200gb")
 map_size_km = 3700
 
-# Specify and select files
 square_file_names = list.files(".", pattern="sim_sq*", full.names = TRUE)
 square_file_names = mixedsort(square_file_names)
 param_file_name = "param_inputs_clean.txt"
@@ -47,7 +45,6 @@ all_sim_data = lapply(1:length(square_files), function(x)
 }
 )
 
-# Create data table with simulation output data
 all_sim_data = rbindlist(all_sim_data)
 
 # ----------------------------------------------------------------------------------------------------------------
@@ -66,13 +63,12 @@ all_sim_data[, Mid_Point_km := as.numeric(Partition)*partition_size - partition_
 # Function for approximating distance where 50% of the population is farmer
 # ----------------------------------------------------------------------------------------------------------------
 
-interpolate = function(km, value){
+interpolate = function(km, ratio){
   
-  if (all(value < 0.5) | all(value > 0.5)) return(NA)
+  if (all(ratio < 0.5) | all(ratio > 0.5)) return(NA)
   
-  # Approximate a distance on the x-axis in km when the ratio of farmers to HGs is 50/50 
-        # or the ancestry is at least 50% farmer (depending on what is passed to the function)
-  interpolation = approx(value, km, xout=0.5, method="linear")
+  # Approximate a distance on the x-axis in km when the ratio of farmers to HGs is 50/50
+  interpolation = approx(ratio, km, xout=0.5, method="linear")
   
   # Pull out the distance from the approximation list
   approximated_x = interpolation[[2]]
@@ -88,43 +84,24 @@ interpolate = function(km, value){
 
 # Add column to data for the distance traveled on the x-axis in km when the ratio of farmers to HGs is 50/50
 all_sim_data[, km_50perc := as.numeric(0)]
-all_sim_data[, km_50perc := interpolate(Mid_Point_km, RatioFarmerToHG_Partition), 
-             .(Year, Replicate, Competition, Learning_Prob, Assortative_Mating)]
+all_sim_data[, km_50perc := interpolate(km = Mid_Point_km, ratio = RatioFarmerToHG_Partition), 
+             .(Year, Learning_Prob, Assortative_Mating)]
 
 # Run a linear model to calculate the speed of wave and add as a column
-all_sim_data[, speedOfWave := lm(km_50perc ~ Year)$coeff[2], .(Replicate, Competition, Learning_Prob, Assortative_Mating)]
-
-# Write to output file
-fwrite(all_sim_data, file = "all_sim_data.csv", append = FALSE, quote = "auto", sep = ",")
-
-# ----------------------------------------------------------------------------------------------------------------
-# Run on all data and create new columns for distance and calculate ancestry cline
-# ----------------------------------------------------------------------------------------------------------------
-
-# Add column to data for the distance traveled on the x-axis in km when the farming ancestry is at least 50 percent
-all_sim_data[, Ancestry_Cline := as.numeric(0)]
-all_sim_data[, Ancestry_Cline := interpolate(Mid_Point_km, Farmer_Ancestry_Partition_All), 
-             .(Year, Replicate, Competition, Learning_Prob, Assortative_Mating)]
-
-# Run a linear model to calculate the speed of wave and add as a column
-all_sim_data[, speedOfAncestry := lm(Ancestry_Cline ~ Year)$coeff[2], .(Replicate, Competition, Learning_Prob, Assortative_Mating)]
-
-# ----------------------------------------------------------------------------------------------------------------
-# Simplify and write outputs
-# ----------------------------------------------------------------------------------------------------------------
+all_sim_data[, speedOfWave := lm(km_50perc ~ Year)$coeff[2], .(Learning_Prob, Assortative_Mating)]
 
 # Write to output file
 fwrite(all_sim_data, file = "all_sim_data.csv", append = FALSE, quote = "auto", sep = ",")
 
 # Simplify to pull out speeds for each param
-sim_data_simple = all_sim_data[, !c("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmerToHG", "Farmer_Ancestry_All", "Farmer_Ancestry_All_Farmers", "Farmer_Ancestry_All_HGs", "Num_Repro_Age_Inds", "NewBirths", "ReproFreq", "Partition", "All_in_Partition", "Farmers_in_Partition", "HGs_in_Partition", "Farmer_Ancestry_Partition_Farmers", "Farmer_Ancestry_Partition_HGs", "Farmer_Ancestry_Partition_All", "Mid_Point_km", "km_50perc", "Ancestry_Cline")]
+sim_data_simple = all_sim_data[, !c("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmerToHG", "Farmer_Ancestry_All", "Farmer_Ancestry_All_Farmers", "Farmer_Ancestry_All_HGs", "Num_Repro_Age_Inds", "NewBirths", "ReproFreq", "Partition", "All_in_Partition", "Farmers_in_Partition", "HGs_in_Partition", "Farmer_Ancestry_Partition_Farmers", "Farmer_Ancestry_Partition_HGs", "Farmer_Ancestry_Partition_All", "Mid_Point_km", "km_50perc")]
 sim_data_simple = unique(sim_data_simple, by = "speedOfWave")
 
 # Write to output file
 fwrite(sim_data_simple, file = "sim_data_simple.csv", append = FALSE, quote = "auto", sep = ",")
 
 # Simplify to pull out speeds for each param
-sim_data_simple = all_sim_data[, !c("PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmerToHG", "Farmer_Ancestry_All", "Farmer_Ancestry_All_Farmers", "Farmer_Ancestry_All_HGs", "Num_Repro_Age_Inds", "NewBirths", "ReproFreq", "Partition", "All_in_Partition", "Farmers_in_Partition", "HGs_in_Partition", "Farmer_Ancestry_Partition_HGs", "Farmer_Ancestry_Partition_All", "km_50perc", "Ancestry_Cline")]
+sim_data_simple = all_sim_data[, !c("PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmerToHG", "Farmer_Ancestry_All", "Farmer_Ancestry_All_Farmers", "Farmer_Ancestry_All_HGs", "Num_Repro_Age_Inds", "NewBirths", "ReproFreq", "Partition", "All_in_Partition", "Farmers_in_Partition", "HGs_in_Partition", "Farmer_Ancestry_Partition_HGs", "Farmer_Ancestry_Partition_All", "km_50perc")]
 
 sim_data_simple_as_numeric = sim_data_simple %>% 
   mutate(Assortative_Mating = replace(Assortative_Mating, Assortative_Mating == "Assortative_Mating = 1.0", 100))
@@ -161,41 +138,11 @@ ancestry =
 
 ggsave("ancestry.png", plot = ancestry, units = "in", width = 11, height = 7, device="png", dpi=700)
 
-ancestry_speed_all_comp = ggplot(sim_data_simple_as_numeric[Competition != "Competition = Group"]) + 
-  geom_point(aes(as.numeric(Assortative_Mating), speedOfAncestry, col=factor(Learning_Prob))) + theme_bw() + 
-  labs(y = "Speed of Wave (km per year)") + labs(x = "Percentage of Assortative Mating (0 = None, 100 = Full)")
-
-ggsave("ancestry_speed_all_comp.png", plot = ancestry_speed_all_comp, units = "in", width = 8, height = 6, device="png", dpi=700)
-
-ancestry_speed_group_comp = ggplot(sim_data_simple_as_numeric[Competition != "Competition = All"]) + 
-  geom_point(aes(as.numeric(Assortative_Mating), speedOfAncestry, col=factor(Learning_Prob))) + theme_bw() + 
-  labs(y = "Speed of Wave (km per year)") + labs(x = "Percentage of Assortative Mating (0 = None, 100 = Full)")
-
-ggsave("ancestry_speed_group_comp.png", plot = ancestry_speed_group_comp, units = "in", width = 8, height = 6, device="png", dpi=700)
-
 speed = ggplot(sim_data_simple_as_numeric) + 
   geom_point(aes(as.numeric(Assortative_Mating), speedOfWave, col=factor(Learning_Prob))) + theme_bw() + 
   labs(y = "Speed of Wave (km per year)") + labs(x = "Percentage of Assortative Mating (0 = None, 100 = Full)")
 
 ggsave("speed.png", plot = speed, units = "in", width = 8, height = 6, device="png", dpi=700)
-
-speed_comp = ggplot(sim_data_simple_as_numeric) + 
-  geom_point(aes(as.numeric(Assortative_Mating), speedOfWave, col=Competition)) + theme_bw() + 
-  labs(y = "Speed of Wave (km per year)") + labs(x = "Percentage of Assortative Mating (0 = None, 100 = Full)")
-
-ggsave("speed_comp.png", plot = speed_comp, units = "in", width = 8, height = 6, device="png", dpi=700)
-
-speed_reps_group = ggplot(sim_data_simple_as_numeric[Competition != "Competition = All" & Assortative_Mating == 99.999 & Learning_Prob != 0.001]) + 
-  geom_point(aes(as.numeric(Learning_Prob), speedOfWave, col=Replicate)) + theme_bw() + 
-  labs(y = "Speed of Wave (km per year)") + labs(x = "Learning Probability")
-
-ggsave("speed_reps_group.png", plot = speed_reps_group, units = "in", width = 8, height = 6, device="png", dpi=700)
-
-speed_reps_all = ggplot(sim_data_simple_as_numeric[Competition != "Competition = Group" & Assortative_Mating == 99.999 & Learning_Prob != 0.001]) + 
-  geom_point(aes(as.numeric(Learning_Prob), speedOfWave, col=Replicate)) + theme_bw() + 
-  labs(y = "Speed of Wave (km per year)") + labs(x = "Learning Probability")
-
-ggsave("speed_reps_all.png", plot = speed_reps_all, units = "in", width = 8, height = 6, device="png", dpi=700)
 
 wave = ggplot(sim_data_simple_as_numeric[Year %% 200 == 0]) + 
   geom_line(aes(Mid_Point_km, RatioFarmerToHG_Partition, col = Year, group = factor(Year))) + 
