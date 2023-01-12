@@ -2,13 +2,14 @@
 library(data.table)
 library(ggplot2)
 library(gtools)
+library(dplyr)
 
 # ----------------------------------------------------------------------------------------------------------------
 # Set inputs and read in files to be used for analysis
 # ----------------------------------------------------------------------------------------------------------------
 
 # Set input params
-setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/200gb")
+setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/collab_runs/updated_assortative_mating")
 map_size_km = 3700
 
 square_file_names = list.files(".", pattern="sim_sq*", full.names = TRUE)
@@ -109,6 +110,20 @@ sim_data_simple_as_numeric = sim_data_simple_as_numeric %>%
   mutate(Assortative_Mating = replace(Assortative_Mating, Assortative_Mating == "Assortative_Mating = 0.99999", 99.999))
 sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
   mutate(Assortative_Mating = replace(Assortative_Mating, Assortative_Mating == "Assortative_Mating = 0.999999", 99.9999))
+sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
+  mutate(Assortative_Mating = replace(Assortative_Mating, Assortative_Mating == "Assortative_Mating = 0.0", 0.0))
+sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
+  mutate(Assortative_Mating = replace(Assortative_Mating, Assortative_Mating == "Assortative_Mating = 0.8", 80))
+sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
+  mutate(Assortative_Mating = replace(Assortative_Mating, Assortative_Mating == "Assortative_Mating = 0.9", 90))
+sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
+  mutate(Assortative_Mating = replace(Assortative_Mating, Assortative_Mating == "Assortative_Mating = 0.95", 95))
+sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
+  mutate(Assortative_Mating = replace(Assortative_Mating, Assortative_Mating == "Assortative_Mating = 0.99", 99))
+sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
+  mutate(Assortative_Mating = replace(Assortative_Mating, Assortative_Mating == "Assortative_Mating = 0.999", 99.9))
+sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
+  mutate(Assortative_Mating = replace(Assortative_Mating, Assortative_Mating == "Assortative_Mating = 0.9999", 99.99))
 
 sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
   mutate(Learning_Prob = replace(Learning_Prob, Learning_Prob == "Learning_Prob = 0.0", 0.0))
@@ -120,6 +135,20 @@ sim_data_simple_as_numeric = sim_data_simple_as_numeric %>%
   mutate(Learning_Prob = replace(Learning_Prob, Learning_Prob == "Learning_Prob = 0.0001", 0.0001))
 sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
   mutate(Learning_Prob = replace(Learning_Prob, Learning_Prob == "Learning_Prob = 0.001", 0.001))
+sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
+  mutate(Learning_Prob = replace(Learning_Prob, Learning_Prob == "Learning_Prob = 0.00075", 0.00075))
+sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
+  mutate(Learning_Prob = replace(Learning_Prob, Learning_Prob == "Learning_Prob = 0.0009", 0.0009))
+sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
+  mutate(Learning_Prob = replace(Learning_Prob, Learning_Prob == "Learning_Prob = 0.00075", 0.00075))
+sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
+  mutate(Learning_Prob = replace(Learning_Prob, Learning_Prob == "Learning_Prob = 0.0001", 0.0001))
+sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
+  mutate(Learning_Prob = replace(Learning_Prob, Learning_Prob == "Learning_Prob = 0.00005", 0.00005))
+sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
+  mutate(Learning_Prob = replace(Learning_Prob, Learning_Prob == "Learning_Prob = 0.0015", 0.0015))
+sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
+  mutate(Learning_Prob = replace(Learning_Prob, Learning_Prob == "Learning_Prob = 0.0025", 0.0025))
 
 # Write to output file
 fwrite(sim_data_simple, file = "sim_data_simple.csv", append = FALSE, quote = "auto", sep = ",")
