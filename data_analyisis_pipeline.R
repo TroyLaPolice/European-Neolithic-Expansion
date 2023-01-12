@@ -193,7 +193,7 @@ ancestry_speed_all_comp = ggplot(sim_data_simple_as_numeric[Competition != "Comp
   geom_point(aes(as.numeric(Assortative_Mating), speedOfAncestry, col=factor(Learning_Prob))) + theme_bw() + 
   labs(y = "Speed of Ancestry Expansion (km per year)") + labs(x = "Percentage of Assortative Mating (0 = None, 100 = Full)")
 
-ggsave("ancestry_speed_all_comp.png", plot = ancestry_speed_all_comp, units = "in", width = 8, height = 6, device="png", dpi=700)
+ggsave("ancestry_speed.png", plot = ancestry_speed_all_comp, units = "in", width = 8, height = 6, device="png", dpi=700)
 
 # ancestry_speed_group_comp = ggplot(sim_data_simple_as_numeric[Competition != "Competition = All"]) + 
 #   geom_point(aes(as.numeric(Assortative_Mating), speedOfAncestry, col=factor(Learning_Prob))) + theme_bw() + 
