@@ -247,8 +247,24 @@ wave = ggplot(sim_data_simple_as_numeric[Year %% 200 == 0]) +
 ggsave("wave.png", plot = wave, units = "in", width = 10, height = 8, device="png", dpi=700)
 
 remaining_ancestry = ggplot(sim_data_simple_as_numeric[TotalHGs == 0]) + 
-  geom_point(aes(as.numeric(Assortative_Mating), Farmer_Ancestry_All, col = factor(Learning_Prob), group = factor(Learning_Prob))) + 
+  geom_point(aes(as.numeric(Assortative_Mating), Farmer_Ancestry_All_Farmers, col = factor(Learning_Prob), group = factor(Learning_Prob))) + 
   theme_bw() + geom_line(aes(as.numeric(Assortative_Mating), Farmer_Ancestry_All_Farmers, col = factor(Learning_Prob), group = factor(Learning_Prob))) + labs(x = "Percentage of Assortative Mating (0 = None, 100 = Full)") + 
   labs(y = "Remaining Farming Ancestry")
 
 ggsave("remaining_ancestry.png", plot = remaining_ancestry, units = "in", width = 5, height = 4, device="png", dpi=700)
+
+overall_ancestry_farmers = ggplot(sim_data_simple_as_numeric) + 
+  geom_line(aes(as.numeric(Year), Farmer_Ancestry_All_Farmers, col = factor(Learning_Prob), group = factor(Learning_Prob))) + 
+  theme_bw() + facet_grid(as.numeric(Assortative_Mating) ~ .) + labs(x = "Year") + 
+  labs(y = "Farming Ancestry")
+
+ggsave("overall_ancestry_farmers.png", plot = overall_ancestry_farmers, units = "in", width = 9, height = 6, device="png", dpi=700)
+
+overall_ancestry_all = ggplot(sim_data_simple_as_numeric) + 
+  geom_line(aes(as.numeric(Year), Farmer_Ancestry_All, col = factor(Learning_Prob), group = factor(Learning_Prob))) + 
+  theme_bw() + facet_grid(as.numeric(Assortative_Mating) ~ .) + labs(x = "Year") + 
+  labs(y = "Farming Ancestry")
+
+ggsave("overall_ancestry_all.png", plot = overall_ancestry_all, units = "in", width = 9, height = 6, device="png", dpi=700)
+
+
