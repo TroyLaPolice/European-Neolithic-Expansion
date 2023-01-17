@@ -9,7 +9,7 @@ library(dplyr)
 # ----------------------------------------------------------------------------------------------------------------
 
 # Set input params
-setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/collab_runs/updated_assortative_mating")
+setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/collab_runs/equation_model_param_match")
 map_size_km = 3700
 
 # Specify and select files
@@ -107,7 +107,7 @@ all_sim_data[, Ancestry_Cline := interpolate(Mid_Point_km, Farmer_Ancestry_Parti
              .(Year, Replicate, Competition, Learning_Prob, Assortative_Mating)]
 
 # Run a linear model to calculate the speed of wave and add as a column
-all_sim_data[, speedOfAncestry := lm(Ancestry_Cline ~ Year)$coeff[2], .(Replicate, Competition, Learning_Prob, Assortative_Mating)]
+#all_sim_data[, speedOfAncestry := lm(Ancestry_Cline ~ Year)$coeff[2], .(Replicate, Competition, Learning_Prob, Assortative_Mating)]
 
 # ----------------------------------------------------------------------------------------------------------------
 # Simplify and write outputs
@@ -124,7 +124,7 @@ sim_data_simple = unique(sim_data_simple, by = "speedOfWave")
 fwrite(sim_data_simple, file = "sim_data_simple.csv", append = FALSE, quote = "auto", sep = ",")
 
 # Simplify to pull out speeds for each param
-sim_data_simple = all_sim_data[, !c("PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmerToHG", "Farmer_Ancestry_All", "Farmer_Ancestry_All_HGs", "Num_Repro_Age_Inds", "NewBirths", "ReproFreq", "Partition", "All_in_Partition", "Farmers_in_Partition", "HGs_in_Partition", "Farmer_Ancestry_Partition_HGs", "Farmer_Ancestry_Partition_All", "km_50perc", "Ancestry_Cline")]
+sim_data_simple = all_sim_data[, !c("PopulationSize", "TotalFarmers", "RatioFarmerToHG", "Farmer_Ancestry_All_HGs", "Num_Repro_Age_Inds", "NewBirths", "ReproFreq", "Partition", "All_in_Partition", "Farmers_in_Partition", "HGs_in_Partition", "Farmer_Ancestry_Partition_HGs", "km_50perc", "Ancestry_Cline")]
 
 sim_data_simple_as_numeric = sim_data_simple %>% 
   mutate(Assortative_Mating = replace(Assortative_Mating, Assortative_Mating == "Assortative_Mating = 1.0", 100))
@@ -149,6 +149,12 @@ sim_data_simple_as_numeric = sim_data_simple_as_numeric %>%
 
 sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
   mutate(Learning_Prob = replace(Learning_Prob, Learning_Prob == "Learning_Prob = 0.0", 0.0))
+sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
+  mutate(Learning_Prob = replace(Learning_Prob, Learning_Prob == "Learning_Prob = 0.01", 0.01))
+sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
+  mutate(Learning_Prob = replace(Learning_Prob, Learning_Prob == "Learning_Prob = 0.1", 0.1))
+sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
+  mutate(Learning_Prob = replace(Learning_Prob, Learning_Prob == "Learning_Prob = 1", 1.0))
 sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
   mutate(Learning_Prob = replace(Learning_Prob, Learning_Prob == "Learning_Prob = 0.000001", 0.000001))
 sim_data_simple_as_numeric = sim_data_simple_as_numeric %>% 
@@ -185,15 +191,23 @@ ancestry =
   ggplot(sim_data_simple_as_numeric[Year %% 200 == 0]) + 
   geom_line(aes(Mid_Point_km, Farmer_Ancestry_Partition_Farmers, col = Year, group = factor(Year))) + 
   facet_grid(as.numeric(Assortative_Mating) ~ Learning_Prob) + theme_bw() + labs(x = "Distance From Origin (km)") + 
-  labs(y = "Percent Farming Ancestry")
+  labs(y = "Percent Farming Ancestry in Farmers")
 
 ggsave("ancestry.png", plot = ancestry, units = "in", width = 11, height = 7, device="png", dpi=700)
+
+ancestry_whole_pop = 
+  ggplot(sim_data_simple_as_numeric[Year %% 200 == 0]) + 
+  geom_line(aes(Mid_Point_km, Farmer_Ancestry_Partition_All, col = Year, group = factor(Year))) + 
+  facet_grid(as.numeric(Assortative_Mating) ~ Learning_Prob) + theme_bw() + labs(x = "Distance From Origin (km)") + 
+  labs(y = "Percent Farming Ancestry in Population")
+
+ggsave("ancestry_whole_pop.png", plot = ancestry_whole_pop, units = "in", width = 11, height = 7, device="png", dpi=700)
 
 ancestry_speed_all_comp = ggplot(sim_data_simple_as_numeric[Competition != "Competition = Group"]) + 
   geom_point(aes(as.numeric(Assortative_Mating), speedOfAncestry, col=factor(Learning_Prob))) + theme_bw() + 
   labs(y = "Speed of Ancestry Expansion (km per year)") + labs(x = "Percentage of Assortative Mating (0 = None, 100 = Full)")
 
-ggsave("ancestry_speed.png", plot = ancestry_speed_all_comp, units = "in", width = 8, height = 6, device="png", dpi=700)
+#ggsave("ancestry_speed.png", plot = ancestry_speed_all_comp, units = "in", width = 8, height = 6, device="png", dpi=700)
 
 # ancestry_speed_group_comp = ggplot(sim_data_simple_as_numeric[Competition != "Competition = All"]) + 
 #   geom_point(aes(as.numeric(Assortative_Mating), speedOfAncestry, col=factor(Learning_Prob))) + theme_bw() + 
@@ -232,9 +246,9 @@ wave = ggplot(sim_data_simple_as_numeric[Year %% 200 == 0]) +
 
 ggsave("wave.png", plot = wave, units = "in", width = 10, height = 8, device="png", dpi=700)
 
-remaining_ancestry = ggplot(sim_data_simple_as_numeric[Year == 6000 & Assortative_Mating != 0.0]) + 
-  geom_point(aes(as.numeric(Assortative_Mating), Farmer_Ancestry_All_Farmers, col = factor(Learning_Prob), group = factor(Learning_Prob))) + 
+remaining_ancestry = ggplot(sim_data_simple_as_numeric[TotalHGs == 0]) + 
+  geom_point(aes(as.numeric(Assortative_Mating), Farmer_Ancestry_All, col = factor(Learning_Prob), group = factor(Learning_Prob))) + 
   theme_bw() + geom_line(aes(as.numeric(Assortative_Mating), Farmer_Ancestry_All_Farmers, col = factor(Learning_Prob), group = factor(Learning_Prob))) + labs(x = "Percentage of Assortative Mating (0 = None, 100 = Full)") + 
   labs(y = "Remaining Farming Ancestry")
 
-ggsave("remaining_ancestry.png", plot = remaining_ancestry, units = "in", width = 10, height = 8, device="png", dpi=700)
+ggsave("remaining_ancestry.png", plot = remaining_ancestry, units = "in", width = 5, height = 4, device="png", dpi=700)
