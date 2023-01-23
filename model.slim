@@ -495,13 +495,27 @@ early()
 	output_runtime_file_name = ("/sim_runtime_params_" + output_name + ".txt");
 	writeFile(wd + output_runtime_file_name, param_heading, append=T);
 	writeFile(wd + output_runtime_file_name, param_string, append=T);
+	
+	// Ancestry Distribution Stats - write to file
+	
+	output_ancestry_dist_header = paste("Year", "Max_Farming_Ancestry", "Min_Farming_Ancestry", "SD_Farming_Ancestry", "Mean_Farming_Ancestry", sep=",");
+	output_ancestry_dist_file_name = ("/sim_ancestry_distribution_" + output_name + ".csv");
+	writeFile(wd + output_ancestry_dist_file_name, output_ancestry_dist_header, append=T);
+	
+	// Ancestry Sample Stats - write to file
+	
+	output_ancestry_sample_header = paste("Year", "Individual", "Farming_Ancestry", sep=",");
+	output_ancestry_sample_file_name = ("/sim_ancestry_sample_" + output_name + ".csv");
+	writeFile(wd + output_ancestry_sample_file_name, output_ancestry_sample_header, append=T);
+			
 	if (map_style != 5) // Prints Standard Output if not square map
 	{
 		// Population stats headers - write to file
 		stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmertoHG", "Farmer_Ancestry_All", "Farmer_Ancestry_Farmers", "Farmer_Ancestry_HGs", "Num_Repro_Age_Inds", "ReproFreq", "New_Births", "Density", "expected_deaths", sep=",");
-		output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
+		output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".csv");
 		writeFile(wd + output_stats_file_name, stats_header_string, append=T);
 	}
+		
 	if (map_style == 5)
 	{
 		for (part in 1:num_partitions)
@@ -535,7 +549,7 @@ early()
 		
 		// Wave stats headers - write to file
 		wave_stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmerToHG", loop_output, "Farmer_Ancestry_All", "Farmer_Ancestry_All_Farmers", "Farmer_Ancestry_All_HGs", "Num_Repro_Age_Inds", "NewBirths", "ReproFreq", sep=",");
-		output_wave_stats_file_name = ("/sim_square_wave_stats_per_year_" + output_name + ".txt");
+		output_wave_stats_file_name = ("/sim_square_wave_stats_per_year_" + output_name + ".csv");
 		writeFile(wd + output_wave_stats_file_name, wave_stats_header_string, append=T);
 	}
 }
@@ -690,15 +704,46 @@ late()
 		output_string = paste(sim.cycle, pop_size, num_farmers, num_HGs, ratio, loop_output, farmer_ancestry_all, farmer_ancestry_farmers, farmer_ancestry_HGs, repro_age_inds, new_births, repro_freq, sep=",");
 		
 		// output to file
-		output_stats_file_name = ("/sim_square_wave_stats_per_year_" + output_name + ".txt");
+		output_stats_file_name = ("/sim_square_wave_stats_per_year_" + output_name + ".csv");
 		writeFile(wd + output_stats_file_name, output_string, append=T);
 	}
+}
+
+late()
+{
+	// ------------------------------------------------------------
+	//  OUTPUT3 --> Sample individuals to get ancestry distribution
+	// ------------------------------------------------------------
+	
+	if (sim.cycle % 200 == 0) // Runs every 200 Years
+	{
+	
+		selected_inds = sample(p1.individuals, 100); // Select 100 inds from pop to sample ancestry
+		
+		for (ind in selected_inds)
+		{
+			output_ancestry_sample_string = paste(sim.cycle, ind, (ind.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2)), sep=",");
+			output_ancestry_sample_file_name = ("/sim_ancestry_sample_" + output_name + ".csv");
+			writeFile(wd + output_ancestry_sample_file_name, output_ancestry_sample_string, append=T);
+		}
+	}
+}
+
+late()
+{
+	// --------------------------------------------------------------------
+	//  OUTPUT4 --> Overall ancestry distribution - Summary Stats Each Year
+	// --------------------------------------------------------------------
+	
+	output_ancestry_dist_string = paste(sim.cycle, max(p1.individuals.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2)), min(p1.individuals.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2)), sd(p1.individuals.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2)),  mean(p1.individuals.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2)), sep=",");
+	output_ancestry_dist_file_name = ("/sim_ancestry_distribution_" + output_name + ".csv");
+	writeFile(wd + output_ancestry_dist_file_name, output_ancestry_dist_string, append=T);
 }
 
 1:6000 late()
 {
 	// -----------------------------------------------------------
-	//  OUTPUT3/RUN --> Run the model and print standard outputs
+	//  OUTPUT5/RUN --> Run the model and print standard outputs
 	// -----------------------------------------------------------
 	// provide feedback on progress for command line users
 	year_counter = paste("Simulation Year: ", sim.cycle);
@@ -739,7 +784,7 @@ late()
 		
 		// write outputs
 		output_string = paste(sim.cycle, pop_size, num_farmers, num_HGs, ratio, farmer_ancestry_all, farmer_ancestry_farmers, farmer_ancestry_HGs, repro_age_inds, repro_freq, new_births, density, expected_deaths, sep=",");
-		output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".txt");
+		output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".csv");
 		writeFile(wd + output_stats_file_name, output_string, append=T);
 	}
 }
