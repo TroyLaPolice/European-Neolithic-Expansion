@@ -504,7 +504,7 @@ early()
 	
 	// Ancestry Sample Stats - write to file
 	
-	output_ancestry_sample_header = paste("Year", "Individual", "Farming_Ancestry", sep=",");
+	output_ancestry_sample_header = paste("Year", "Individual", "Farming_Ancestry", "Individual_X", "Individual_Y", "Individual_Z", sep=",");
 	output_ancestry_sample_file_name = ("/sim_ancestry_sample_" + output_name + ".csv");
 	writeFile(wd + output_ancestry_sample_file_name, output_ancestry_sample_header, append=T);
 			
@@ -722,7 +722,7 @@ late()
 		
 		for (ind in selected_inds)
 		{
-			output_ancestry_sample_string = paste(sim.cycle, ind, (ind.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2)), sep=",");
+			output_ancestry_sample_string = paste(sim.cycle, ind, (ind.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2)), ind.x, ind.y, ind.z, sep=",");
 			output_ancestry_sample_file_name = ("/sim_ancestry_sample_" + output_name + ".csv");
 			writeFile(wd + output_ancestry_sample_file_name, output_ancestry_sample_string, append=T);
 		}
