@@ -17,7 +17,7 @@ initialize()
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
 	if (!exists("DS"))
-		defineConstant("DS", 1); // Down scale the simulation ( Must be >= 1)
+		defineConstant("DS", 30); // Down scale the simulation ( Must be >= 1)
 	if (!exists("SN"))
 		defineConstant("SN", integerDiv(876160, DS)); // Starting number of individuals
 	if (!exists("HGK"))
@@ -718,7 +718,7 @@ late()
 	if (sim.cycle % 200 == 0) // Runs every 200 Years
 	{
 	
-		selected_inds = sample(p1.individuals, 100); // Select 100 inds from pop to sample ancestry
+		selected_inds = sample(p1.individuals, 1000); // Select 1000 inds from pop to sample ancestry
 		
 		for (ind in selected_inds)
 		{
