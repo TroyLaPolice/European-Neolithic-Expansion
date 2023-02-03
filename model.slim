@@ -2,7 +2,7 @@ initialize()
 {
 	initializeSLiMModelType("nonWF");
 	initializeSLiMOptions(dimensionality="xy", periodicity="");
-	
+
 	// ---------------------------------------------------
 	//  PARAMETERS --> Initialize Constant Params
 	// ---------------------------------------------------
@@ -13,7 +13,7 @@ initialize()
 		defineConstant("custom_map_filename", 0); // Parameter = file name of map (as string) if user wants to use their own map and override the built in maps, else == 0
 	if (!exists("output_name"))
 		defineConstant("output_name", "out"); // To run default names make an empty string
-	
+
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
 	if (!exists("DS"))
@@ -21,10 +21,10 @@ initialize()
 	if (!exists("SN"))
 		defineConstant("SN", integerDiv(876160, DS)); // Starting number of individuals
 	if (!exists("HGK"))
-		defineConstant("HGK", 0.064 / DS); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
+		defineConstant("HGK", 0.064 / DS); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	if (!exists("FK"))
 		defineConstant("FK", 0.128 / DS); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
-	
+
 	// Movement and interaction and competition:
 	// ***********************************
 	if (!exists("S"))
@@ -32,14 +32,14 @@ initialize()
 	if (!exists("C"))
 		defineConstant("C", 1); // If C = 1 that means there will be competition between individuals of different phenotypes (ie HGs compete with Farmers for space) If C = 0 then competition only happens within their like groups
 	if (!exists("F_SDX"))
-		defineConstant("F_SDX", 5); // Farmer Movement standard diviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
+		defineConstant("F_SDX", 5); // Farmer Movement standard deviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
 	if (!exists("F_SDY"))
-		defineConstant("F_SDY", 5); // Farmer Movement standard diviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
+		defineConstant("F_SDY", 5); // Farmer Movement standard deviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
 	if (!exists("HG_SDX"))
-		defineConstant("HG_SDX", 5); // HG Movement standard diviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
+		defineConstant("HG_SDX", 5); // HG Movement standard deviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
 	if (!exists("HG_SDY"))
-		defineConstant("HG_SDY", 5); // HG Movement standard diviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
-	
+		defineConstant("HG_SDY", 5); // HG Movement standard deviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
+
 	// Learning, death and mating rate params:
 	// ***********************************
 	if (!exists("L"))
@@ -49,28 +49,28 @@ initialize()
 	if (!exists("LD"))
 		defineConstant("LD", 10); // Learning distance (ENTER IN KILOMETERS)
 	if (!exists("MD"))
-		defineConstant("MD", 10); // Mating distance (ENTER IN KILOMETERS)	
+		defineConstant("MD", 10); // Mating distance (ENTER IN KILOMETERS)
 	if (!exists("MP"))
 		defineConstant("MP", 0.5); // Level of assortative mating. Probability that mates will choose behaviorally similar mates. 1 = full assortative, 0.5 = no assortative, 0 = individuals only mate with individuals of opposite phenotypes
 	if (!exists("min_repro_age"))
 		defineConstant("min_repro_age", 11); // Individuals MUST be OLDER than this age to reproduce
-	
+
 	// Age related mortality table
 	defineConstant("age_scale", c(0.046335604111134, 0.046335604111134, 0.046335604111134, 0.046335604111134, 0.046335604111134, 0.056408593819562, 0.056408593819562, 0.056408593819562, 0.056408593819562, 0.056408593819562, 0.021999528676968, 0.021999528676968, 0.021999528676968, 0.021999528676968, 0.021999528676968, 0.035354184793731, 0.035354184793731, 0.035354184793731, 0.035354184793731, 0.035354184793731, 0.056800625283728, 0.056800625283728, 0.056800625283728, 0.056800625283728, 0.056800625283728, 0.069352594596266, 0.069352594596266, 0.069352594596266, 0.069352594596266, 0.069352594596266, 0.090704121931891, 0.090704121931891, 0.090704121931891, 0.090704121931891, 0.090704121931891, 0.12200775084549, 0.12200775084549, 0.12200775084549, 0.12200775084549, 0.12200775084549, 0.160621672514612, 0.160621672514612, 0.160621672514612, 0.160621672514612, 0.160621672514612, 0.167446792598127, 0.167446792598127, 0.167446792598127, 0.167446792598127, 0.167446792598127, 1));
 	if (!exists("scal_fac"))
 		defineConstant("scal_fac", 1); // mortality scaling factor
-	
+
 	// ---------------------------------------------------
 	// RUN TIME PREFERENCE PARAMETERS
 	// ---------------------------------------------------
 	// Determine Coloring Schemes:
-	// ***********************************	
+	// ***********************************
 	defineConstant("Color_scheme", 1); // Parameter of 0 = Genomic Coloring, 1 = Behavioral Coloring
 	defineConstant("Color_option1", 1); // Parameter of 0 = No special color for 1st generation 'hybrid' offspring, 1 = Coloring for 1st generation 'hybrid' offspring
 	defineConstant("Color_option2", 0); // Parameter of 0 = No special color for 1st generation HG individuals who have learned, 1 = Coloring for 1st generation HG individuals who have learned
-	
-	// Map Prefs: 
-	// ***********************************	
+
+	// Map Prefs:
+	// ***********************************
 	if (!exists("map_style"))
 		defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
 	if (!exists("num_partitions"))
@@ -88,13 +88,13 @@ initialize()
 	defineConstant("mapfile_topo_heavy", wd + "/EEA_map_topo_heavy" + file_extention); // File Path to Map Image
 	defineConstant("square", wd + "/square.png"); // File Path to Map Image
 	defineConstant("custom_map", wd + custom_map_filename); // File Path to Map Image
-	
+
 	// If using provided EEA maps, length and width for map style images should be kept at a 1 to 1 aspect ratio (square) to avoid distortion
 	if (!exists("map_size_length"))
 		defineConstant("map_size_length", 3700);
 	if (!exists("map_size_width"))
 		defineConstant("map_size_width", 3700);
-	
+
 	// Map citation: https://www.eea.europa.eu/data-and-maps/figures/elevation-map-of-europe
 	// ----------------------------------------------------
 	//  GENETIC COMPONENT --> Initialize Genomic Elements
@@ -107,16 +107,16 @@ initialize()
 	rates = c(0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01);
 	ends = c(247, 248, 491, 492, 692, 693, 884, 885, 1066, 1067, 1238, 1239, 1398, 1399, 1545, 1546, 1686, 1687, 1822, 1823, 1957, 1958, 2090, 2091, 2205, 2206, 2312, 2313, 2413, 2414, 2503, 2504, 2583, 2584, 2660, 2661, 2724, 2725, 2787, 2788, 2835, 2836, 2886);
 	initializeRecombinationRate(rates, ends);
-	
+
 	// ---------------------------------------------------
 	//  INTERACTIONS --> Interaction Initialization
 	// ---------------------------------------------------
 	// spatial competition
 	initializeInteractionType(1, "xy", reciprocal=T, maxDistance=S);
-	
+
 	// spatial mate choice
 	initializeInteractionType(2, "xy", reciprocal=T, maxDistance=MD);
-	
+
 	// spatial mate choice
 	initializeInteractionType(3, "xy", reciprocal=T, maxDistance=LD);
 }
@@ -152,11 +152,11 @@ initialize()
 		mapImage = Image(square); //square
 	else if (map_style == 6)
 		mapImage = Image(custom_map); //custom
-	
+
 	// Set up map
 	p1.setSpatialBounds(c(0.0, 0.0, map_size_width, map_size_length));
 	p1.defineSpatialMap("map_object", "xy", 1.0 - mapImage.floatK, valueRange=c(0.0, 1.0), colors=c("#ffffff", "#000000"));
-	
+
 	// place individuals on the map
 	for (ind in p1.individuals)
 	{
@@ -166,7 +166,7 @@ initialize()
 		ind.setSpatialPosition(newPos);
 		ind.z = 0;
 	}
-	
+
 	// Set ages of created individuals (inital age dist)
 	prob_of_surv_until = cumProduct(1 - age_scale); // Prob of survival until a certain age
 	eq_age_distr = prob_of_surv_until / sum(prob_of_surv_until); // Equilibrium age distribution
@@ -174,21 +174,21 @@ initialize()
 	eq_ages_for_sample = sample(x=0:(length(prob_of_surv_until) - 1), size=num_of_inds, replace=T, weights=eq_age_distr); // samples from pop to get ages
 	p1.individuals.age = eq_ages_for_sample; // sets population ages
 	rate_dying = sum(prob_of_surv_until / sum(prob_of_surv_until) * age_scale); // Prob of dying of random individual, assuming equilibrium age distr
-	eq_offspring_rate = rate_dying * sum(prob_of_surv_until) / sum(prob_of_surv_until[(min_repro_age):(length(prob_of_surv_until) - 1)]); // calculates how often individuals of repro age need to have a child at equilibrium	
+	eq_offspring_rate = rate_dying * sum(prob_of_surv_until) / sum(prob_of_surv_until[(min_repro_age):(length(prob_of_surv_until) - 1)]); // calculates how often individuals of repro age need to have a child at equilibrium
 	defineConstant("M", eq_offspring_rate); // Define this value for use later
-	
+
 	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
 	// Make individuals near anatolia and greece farmers or near the edge if using the square
 	if (map_style == 5)
 		p1.individuals[p1.individuals.x < (0.02 * map_size_width)].z = 1;
 	else
 		p1.individuals[p1.individuals.x > (0.72 * map_size_width) & p1.individuals.y < (0.09 * map_size_length)].z = 1;
-	
+
 	// Tag genomic ancestry of farmers with marker mutations (m1)
 	// Each marker mutation represents 1Mb
 	indFarmers = p1.individuals[p1.individuals.z == 1];
 	indFarmers.genomes.addNewMutation(m1, 0.0, 0:2886);
-	
+
 	// Add color to represent phenotype
 	for (i in p1.individuals)
 	{
@@ -244,7 +244,7 @@ reproduction()
 				else
 					mate = NULL; // If no mates possible, NULL
 			}
-			
+
 			// Frequency of the interaction is based on the calculated reproduction value given by the mortality curve (below)
 			for (i in seqLen(rpois(1, M)))
 			{
@@ -253,16 +253,16 @@ reproduction()
 				{
 					// Generates an offspring
 					offspring = subpop.addCrossed(individual, mate);
-					
+
 					// -----------------------
 					// Color Based on Genotype
 					// -----------------------
 					value = offspring.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2);
 					offspring.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
-					
+
 					// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
 					offspring.z = 0;
-					
+
 					// If both parents are farmers the child is a farmer
 					if (individual.z == 1 & mate.z == 1)
 						offspring.z = 1;
@@ -277,7 +277,7 @@ reproduction()
 						else
 							offspring.color = "blue";
 					}
-					
+
 					// If the one parent is a farmer and one parent is a HG,
 					// offspring becomes a farmer
 					if (individual.z != mate.z)
@@ -289,7 +289,7 @@ reproduction()
 								offspring.color = "yellow"; // Color Based on Behavior
 						}
 					}
-					
+
 					// Next we set the position of the offspring at the parent's location
 					pos = individual.spatialPosition;
 					offspring.setSpatialPosition(pos);
@@ -310,17 +310,17 @@ late()
 		// Skip if the individual is a farmer and therefore doesn't learn farming as it is already practicing the behavior.
 		if (individual.z == 1)
 			next;
-		
-		// Get a vector the nearest neighbors within the learning distance (D) 
+
+		// Get a vector the nearest neighbors within the learning distance (D)
 		neighbors = i3.nearestNeighbors(individual, p1.individuals.length());
-		
+
 		// Determine z for neighbors of the individual
 		farmer_neighbors = sum(neighbors.z);
 		HG_neighbors = (length(neighbors) - farmer_neighbors);
-		
+
 		// Calculate the probability that the individual will learn farming based on the behavorial characteristics of its neighbors and its teacher preference.
 		LP = L * (farmer_neighbors) / (farmer_neighbors + gamma * HG_neighbors);
-		
+
 		// Only ruyn if the probability of learning is greater than zero
 		if ((isNAN(LP) == F) & LP != 0.0)
 		{
@@ -351,14 +351,14 @@ late()
 	//  COMPETITON AND MORTALITY --> Age and Density Dependent Mortality
 	// -----------------------------------------------------------------
 	i1.evaluate(p1);
-	
+
 	// define vector of farmers and vector of HGs
 	farmers = p1.individuals[p1.individuals.z == 1];
 	HGs = p1.individuals[p1.individuals.z == 0];
-	
+
 	// Life table based individual mortality, get vector of individual ages
 	farmer_ages = farmers.age;
-	
+
 	// Do the same for HGs if there are still HGs left
 	if (length(HGs) != 0)
 		HG_ages = HGs.age;
@@ -366,7 +366,7 @@ late()
 	{
 		// Count number of neighbors within S for farmers
 		farmers_num_in_s = sapply(farmers, "sum(i1.nearestNeighbors(applyValue, count = farmers.length()).z==1.0);");
-		
+
 		// Do the same for HGs if there are still HGs left
 		if (length(HGs) != 0)
 			HG_num_in_s = sapply(HGs, "sum(i1.nearestNeighbors(applyValue, count = HGs.length()).z==0.0);");
@@ -376,45 +376,45 @@ late()
 	{
 		// Count number of neighbors within S for everyone
 		farmers_num_in_s = i1.interactingNeighborCount(farmers);
-		
+
 		// Do the same if there are still HGs left
 		if (length(HGs) != 0)
 			HG_num_in_s = i1.interactingNeighborCount(HGs);
 	}
-	
+
 	// Modify mortality curve to account for population density around the indiviudal
 	dens_scal_farmer = (farmers_num_in_s + 1) / (PI * (S^2) * FK + 1); // Density of farmers in the given area
 	dens = mean(dens_scal_farmer);
 	defineGlobal("density", dens);
-	
+
 	// Do the same if there are still HGs left
 	if (length(HGs) != 0)
 		dens_scal_HG = (HG_num_in_s + 1) / (PI * (S^2) * HGK + 1); // Density of HGs in the given area
 	scaled_mortality_farmer = ((dens_scal_farmer - 1) * scal_fac + 1) * age_scale[farmer_ages]; // Scale by a growth factor if desired. If scaling factor = 0 there isn't any scaling, population grows unrestricted based on the other parameters that govern equalibrium.
 	if (length(HGs) != 0)
 		scaled_mortality_HG = ((dens_scal_HG - 1) * scal_fac + 1) * age_scale[HG_ages]; // Scale by a growth factor if desired. If scaling factor = 0 there isn't any scaling, population grows unrestricted based on the other parameters that govern equalibrium.
-	
+
 	// Set a maximum age and make sure there are no negative fittnesses
 	scaled_mortality_farmer[farmer_ages == length(age_scale) - 1] = 1;
 	scaled_mortality_farmer[scaled_mortality_farmer > 1] = 1;
-	
+
 	// Do the same for HGs if there are still HGs left
 	if (length(HGs) != 0)
 	{
 		scaled_mortality_HG[HG_ages == length(age_scale) - 1] = 1;
 		scaled_mortality_HG[scaled_mortality_HG > 1] = 1;
 	}
-	
+
 	// Calculate chance of survival by refering to the mortality table by age and subtracting the chance of mortality from one
 	farmer_survival = 1 - scaled_mortality_farmer;
-	
+
 	// Do the same if there are still HGs left
 	if (length(HGs) != 0)
 		HG_survival = 1 - scaled_mortality_HG;
-	
+
 	// Scale the fitnesses of the individual, density-dependent and factoring in individual age based mortality
 	farmers.fitnessScaling = farmer_survival;
-	
+
 	// Do the same if there are still HGs left
 	if (length(HGs) != 0)
 		HGs.fitnessScaling = HG_survival;
@@ -438,7 +438,7 @@ late()
 		{
 			coordinate_matrix = rmvnorm(1, c(0, 0), matrix(c(F_SDX^2, 0, 0, F_SDY^2), nrow=2));
 			coordinates = c(coordinate_matrix[0], coordinate_matrix[1]);
-			
+
 			// Next we can reset the position
 			newPos = farmer.spatialPosition + coordinates;
 		}
@@ -453,7 +453,7 @@ late()
 		{
 			coordinate_matrix = rmvnorm(1, c(0, 0), matrix(c(HG_SDX^2, 0, 0, HG_SDY^2), nrow=2));
 			coordinates = c(coordinate_matrix[0], coordinate_matrix[1]);
-			
+
 			// Next we can reset the position
 			newPos = HG.spatialPosition + coordinates;
 		}
@@ -469,10 +469,10 @@ early()
 	// -----------------------------------------------------------------------------------
 	// calculate the number of new births this year
 	new_births = sum(p1.individuals.age == 0);
-	
+
 	// calculate the number of reproductively aged individuals
 	repro_age_inds = (sum(p1.individuals.age > min_repro_age));
-	
+
 	// calculate reproduction frequency per reproductive age individual
 	repro_freq = (new_births / repro_age_inds);
 	defineGlobal("new_births", new_births);
@@ -487,27 +487,27 @@ early()
 	// ----------------------------------------
 	// log runtime params
 	param_string = paste(SN, HGK, FK, S, C, F_SDX, F_SDY, HG_SDX, HG_SDY, L, gamma, LD, MD, MP, min_repro_age, scal_fac, map_style, num_partitions, water_crossings, map_size_length, map_size_width, "[", age_scale, "]");
-	
+
 	// File headings
 	param_heading = paste("SN HGK FK S C F_SDX F_SDY HG_SDX HG_SDY L gamma LD MD MP min_repro_age scal_fac map_style num_partitions water_crossings map_size_length map_size_width [ age_scale ]");
-	
+
 	// Runtime params - write to file
 	output_runtime_file_name = ("/sim_runtime_params_" + output_name + ".txt");
 	writeFile(wd + output_runtime_file_name, param_heading, append=T);
 	writeFile(wd + output_runtime_file_name, param_string, append=T);
-	
+
 	// Ancestry Distribution Stats - write to file
-	
+
 	output_ancestry_dist_header = paste("Year", "Max_Farming_Ancestry", "Min_Farming_Ancestry", "SD_Farming_Ancestry", "Mean_Farming_Ancestry", sep=",");
 	output_ancestry_dist_file_name = ("/sim_ancestry_distribution_" + output_name + ".csv");
 	writeFile(wd + output_ancestry_dist_file_name, output_ancestry_dist_header, append=T);
-	
+
 	// Ancestry Sample Stats - write to file
-	
+
 	output_ancestry_sample_header = paste("Year", "Individual", "Farming_Ancestry", "Individual_X", "Individual_Y", "Individual_Z", sep=",");
 	output_ancestry_sample_file_name = ("/sim_ancestry_sample_" + output_name + ".csv");
 	writeFile(wd + output_ancestry_sample_file_name, output_ancestry_sample_header, append=T);
-			
+
 	if (map_style != 5) // Prints Standard Output if not square map
 	{
 		// Population stats headers - write to file
@@ -515,7 +515,7 @@ early()
 		output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".csv");
 		writeFile(wd + output_stats_file_name, stats_header_string, append=T);
 	}
-		
+
 	if (map_style == 5)
 	{
 		for (part in 1:num_partitions)
@@ -543,10 +543,10 @@ early()
 				ratio_per_part = paste(ratio_per_part, ",", "RatioFarmerToHG_Partition", part, sep="");
 			}
 		}
-		
+
 		// Final Loop Output
 		loop_output = paste(all_per_part, farmers_per_part, HGs_per_part, ratio_per_part, farmer_ancestry_farmers, farmer_ancestry_HGs, farmer_ancestry_all, sep=",");
-		
+
 		// Wave stats headers - write to file
 		wave_stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmerToHG", loop_output, "Farmer_Ancestry_All", "Farmer_Ancestry_All_Farmers", "Farmer_Ancestry_All_HGs", "Num_Repro_Age_Inds", "NewBirths", "ReproFreq", sep=",");
 		output_wave_stats_file_name = ("/sim_square_wave_stats_per_year_" + output_name + ".csv");
@@ -565,7 +565,7 @@ late()
 		farmers = p1.individuals[p1.individuals.z == 1];
 		HGs = p1.individuals[p1.individuals.z == 0];
 		all_inds = p1.individuals;
-		
+
 		// Split width into equal parts
 		partition_widths = map_size_width / num_partitions;
 		for (part in 1:num_partitions)
@@ -577,14 +577,14 @@ late()
 				farmers_partition = farmers[farmers.x <= 2 * partition_widths & farmers.x > partition_widths];
 			else
 				farmers_partition = farmers[farmers.x <= part * partition_widths & farmers.x > (part - 1) * partition_widths];
-			
+
 			// Count farmers in partition
 			num_farmers_partition = size(farmers_partition);
 			if (length(farmers_partition) != 0)
 				farmer_ancestry_partition_farmer = mean(farmers_partition.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
 			else
 				farmer_ancestry_partition_farmer = 0.0;
-			
+
 			// Do the same thing for HGs
 			// *************************
 			// Collect vector of HG individuals in particular partition
@@ -594,14 +594,14 @@ late()
 				HGs_partition = HGs[HGs.x <= 2 * partition_widths & HGs.x > partition_widths];
 			else
 				HGs_partition = HGs[HGs.x <= part * partition_widths & HGs.x > (part - 1) * partition_widths];
-			
+
 			// Count HGs in partition
 			num_HGs_partition = size(HGs_partition);
 			if (length(HGs_partition) != 0)
 				farmer_ancestry_partition_HG = mean(HGs_partition.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
 			else
 				farmer_ancestry_partition_HG = 0.0;
-			
+
 			// Do the same thing for all individuals
 			// *************************
 			// Collect vector of HG individuals in particular partition
@@ -611,18 +611,18 @@ late()
 				all_inds_partition = all_inds[all_inds.x <= 2 * partition_widths & all_inds.x > partition_widths];
 			else
 				all_inds_partition = all_inds[all_inds.x <= part * partition_widths & all_inds.x > (part - 1) * partition_widths];
-			
+
 			// Count all_inds in partition
 			num_all_inds_partition = size(all_inds_partition);
 			if (length(all_inds_partition) != 0)
 				farmer_ancestry_partition_all = mean(all_inds_partition.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
 			else
 				farmer_ancestry_partition_all = 0.0;
-			
+
 			// calculate the ratio of farmers to HGs each partition
 			// *************************
 			ratio_part = (num_farmers_partition / num_all_inds_partition);
-			
+
 			// Outputs for partitions
 			// *************************
 			// Num individuals in each partition
@@ -638,22 +638,22 @@ late()
 				HGs_per_part = paste(HGs_per_part, num_HGs_partition, sep=",");
 				all_per_part = paste(all_per_part, num_all_inds_partition, sep=",");
 			}
-			
+
 			// Ratio F:HGs in each partition
 			if (part == 1)
 				ratio_per_part = paste(ratio_part);
 			else
 				ratio_per_part = paste(ratio_per_part, ratio_part, sep=",");
-			
+
 			// Farmer ancestry:
 			if (part == 1)
 			{
 				// In Farmers
 				farmer_ancestry_farmers = paste(farmer_ancestry_partition_farmer);
-				
+
 				// In HGs
 				farmer_ancestry_HGs = paste(farmer_ancestry_partition_HG);
-				
+
 				// In All
 				farmer_ancestry_all = paste(farmer_ancestry_partition_all);
 			}
@@ -661,48 +661,48 @@ late()
 			{
 				// In Farmers
 				farmer_ancestry_farmers = paste(farmer_ancestry_farmers, farmer_ancestry_partition_farmer, sep=",");
-				
+
 				// In HGs
 				farmer_ancestry_HGs = paste(farmer_ancestry_HGs, farmer_ancestry_partition_HG, sep=",");
-				
+
 				// In All
 				farmer_ancestry_all = paste(farmer_ancestry_all, farmer_ancestry_partition_all, sep=",");
 			}
 		}
-		
+
 		// Final Loop Output
 		loop_output = paste(all_per_part, farmers_per_part, HGs_per_part, ratio_per_part, farmer_ancestry_farmers, farmer_ancestry_HGs, farmer_ancestry_all, sep=",");
-		
+
 		// calculate total num farmers
 		num_farmers = sum(p1.individuals.z);
-		
+
 		// calculate total num HGs
 		num_HGs = (p1.individuals.length() - sum(p1.individuals.z));
-		
+
 		// calculate population size statistics
 		pop_size = p1.individuals.length();
-		
+
 		// calculate the ratio of farmers in the total population to file
 		ratio = (sum(p1.individuals.z) / p1.individuals.length());
-		
+
 		// calculate the overall farming ancestry
 		farmer_ancestry_all = mean(all_inds.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
-		
+
 		/// calculate the farming ancestry in all farmers
 		if (length(farmers) != 0)
 			farmer_ancestry_farmers = mean(farmers.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
 		else
 			farmer_ancestry_farmers = 0.0;
-		
+
 		// calculate the farming ancestry in all HGs
 		if (length(HGs) != 0)
 			farmer_ancestry_HGs = mean(HGs.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
 		else
 			farmer_ancestry_HGs = 0.0;
-		
+
 		// write outputs
 		output_string = paste(sim.cycle, pop_size, num_farmers, num_HGs, ratio, loop_output, farmer_ancestry_all, farmer_ancestry_farmers, farmer_ancestry_HGs, repro_age_inds, new_births, repro_freq, sep=",");
-		
+
 		// output to file
 		output_stats_file_name = ("/sim_square_wave_stats_per_year_" + output_name + ".csv");
 		writeFile(wd + output_stats_file_name, output_string, append=T);
@@ -714,12 +714,12 @@ late()
 	// ------------------------------------------------------------
 	//  OUTPUT3 --> Sample individuals to get ancestry distribution
 	// ------------------------------------------------------------
-	
+
 	if (sim.cycle % 200 == 0) // Runs every 200 Years
 	{
-	
+
 		selected_inds = sample(p1.individuals, 1000); // Select 1000 inds from pop to sample ancestry
-		
+
 		for (ind in selected_inds)
 		{
 			output_ancestry_sample_string = paste(sim.cycle, ind, (ind.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2)), ind.x, ind.y, ind.z, sep=",");
@@ -734,7 +734,7 @@ late()
 	// --------------------------------------------------------------------
 	//  OUTPUT4 --> Overall ancestry distribution - Summary Stats Each Year
 	// --------------------------------------------------------------------
-	
+
 	output_ancestry_dist_string = paste(sim.cycle, max(p1.individuals.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2)), min(p1.individuals.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2)), sd(p1.individuals.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2)),  mean(p1.individuals.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2)), sep=",");
 	output_ancestry_dist_file_name = ("/sim_ancestry_distribution_" + output_name + ".csv");
 	writeFile(wd + output_ancestry_dist_file_name, output_ancestry_dist_string, append=T);
@@ -754,34 +754,34 @@ late()
 		farmers = p1.individuals[p1.individuals.z == 1];
 		HGs = p1.individuals[p1.individuals.z == 0];
 		all_inds = p1.individuals;
-		
+
 		// calculate num farmers
 		num_farmers = sum(p1.individuals.z);
-		
+
 		//calculate num HGs
 		num_HGs = (p1.individuals.length() - sum(p1.individuals.z));
-		
+
 		// calculate the ratio of farmers in the total population to file
 		ratio = (sum(p1.individuals.z) / p1.individuals.length());
-		
+
 		// calculate population size statistics
 		pop_size = p1.individuals.length();
-		
+
 		// calculate the overall farming ancestry
 		farmer_ancestry_all = mean(all_inds.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
-		
+
 		// calculate the farming ancestry in all farmers
 		if (length(farmers) != 0)
 			farmer_ancestry_farmers = mean(farmers.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
 		else
 			farmer_ancestry_farmers = 0.0;
-		
+
 		// calculate the farming ancestry in all HGs
 		if (length(HGs) != 0)
 			farmer_ancestry_HGs = mean(HGs.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
 		else
 			farmer_ancestry_HGs = 0.0;
-		
+
 		// write outputs
 		output_string = paste(sim.cycle, pop_size, num_farmers, num_HGs, ratio, farmer_ancestry_all, farmer_ancestry_farmers, farmer_ancestry_HGs, repro_age_inds, repro_freq, new_births, density, expected_deaths, sep=",");
 		output_stats_file_name = ("/sim_pop_stats_per_year_" + output_name + ".csv");
