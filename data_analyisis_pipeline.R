@@ -9,7 +9,7 @@ library(dplyr)
 # ----------------------------------------------------------------------------------------------------------------
 
 # Set input params
-setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/collab_runs/updated_assortative_mating_ancestry_dist")
+setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/collab_runs/ancestry_dist_more_inds_5km")
 map_size_km = 3700
 
 # Specify and select files
@@ -240,5 +240,5 @@ assort_ancestry_2d = ggplot(ancestry_sample_data[Assortative_Mating_n == 1]) + g
 ggsave("assort_ancestry_2d.png", plot = assort_ancestry_2d, units = "in", width = 17, height = 10, device="png", dpi=700)
 
 learning_ancestry_2d = ggplot(ancestry_sample_data[Learning_Prob_n == 0]) + geom_point(aes(Individual_X, Individual_Y, col = Farming_Ancestry, pch=factor(Individual_Z))) + 
-  facet_grid(cut(Year, seq(0,6000,1000))~Learning_Prob_n)
+  facet_grid(cut(Year, seq(0,6000,1000))~Assortative_Mating_n)
 ggsave("learning_ancestry_2d.png", plot = learning_ancestry_2d, units = "in", width = 17, height = 10, device="png", dpi=700)
