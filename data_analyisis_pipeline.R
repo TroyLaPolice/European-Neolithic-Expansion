@@ -9,7 +9,7 @@ library(dplyr)
 # ----------------------------------------------------------------------------------------------------------------
 
 # Set input params
-setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/collab_runs/ancestry_dist_more_inds_allkm")
+setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/collab_runs/ancestry_dist_more_inds_5km")
 map_size_km = 3700
 
 # Specify and select files
@@ -176,70 +176,77 @@ fwrite(all_sim_data, file = "all_sim_data.csv", append = FALSE, quote = "auto", 
 
 speed = ggplot(all_sim_data[Learning_Prob_n != 1 & Learning_Prob_n != 0.01 & Learning_Prob_n != 0.1]) + 
   geom_point(aes(as.numeric(Assortative_Mating_n), speedOfWave, col=factor(Learning_Prob_n), pch=factor(Movement_n))) + theme_bw() + 
-  labs(y = "Speed of Wave (km per year)") + labs(x = "Percentage of Assortative Mating (0 = None, 100 = Full)")
+  labs(y = "Speed of Wave (km per year)") + labs(x = "Percentage of Assortative Mating (0 = None, 1 = Full)") +
+  ggtitle("Speed of Wave (km per year)")
 ggsave("speed.png", plot = speed, units = "in", width = 8, height = 6, device="png", dpi=700)
 
 ancestry_speed = ggplot(all_sim_data) + 
   geom_point(aes(as.numeric(Assortative_Mating_n), speedOfAncestry, col=factor(Learning_Prob_n), pch=factor(Movement_n))) + theme_bw() + 
-  labs(y = "Speed of Ancestry Expansion (km per year)") + labs(x = "Percentage of Assortative Mating (0 = None, 100 = Full)")
+  labs(y = "Speed of Ancestry Expansion (km per year)") + labs(x = "Percentage of Assortative Mating (0 = None, 1 = Full)") + 
+  ggtitle("Speed of Ancestry Expansion (km per year)")
 ggsave("ancestry_speed.png", plot = ancestry_speed, units = "in", width = 8, height = 6, device="png", dpi=700)
 
 ancestry = 
   ggplot(all_sim_data[Year %% 200 == 0]) + 
   geom_line(aes(Mid_Point_km, Farmer_Ancestry_Partition_Farmers, col = Year, group = factor(Year))) + 
   facet_grid(as.numeric(Assortative_Mating_n) ~ Learning_Prob_n) + theme_bw() + labs(x = "Distance From Origin (km)") + 
-  labs(y = "Percent Farming Ancestry in Farmers")
-ggsave("ancestry.png", plot = ancestry, units = "in", width = 11, height = 7, device="png", dpi=700)
+  labs(y = "Percent Farming Ancestry in Farmers") + ggtitle("Farming Ancestry x Distance from Origin Point (Just Farming Population)", 
+                                                            subtitle = "Faceted by Learning Probability ~ Assortative Mating Preference")
+ggsave("farming_ancestry_in_farmers.png", plot = ancestry, units = "in", width = 14, height = 7, device="png", dpi=700)
 
 ancestry_whole_pop = 
   ggplot(all_sim_data[Year %% 200 == 0]) + 
   geom_line(aes(Mid_Point_km, Farmer_Ancestry_Partition_All, col = Year, group = factor(Year))) + 
   facet_grid(as.numeric(Assortative_Mating_n) ~ Learning_Prob_n) + theme_bw() + labs(x = "Distance From Origin (km)") + 
-  labs(y = "Percent Farming Ancestry in Population")
-ggsave("ancestry_whole_pop.png", plot = ancestry_whole_pop, units = "in", width = 11, height = 7, device="png", dpi=700)
+  labs(y = "Percent Farming Ancestry in Population") + ggtitle("Farming Ancestry x Distance from Origin Point (Whole Population)", 
+                                                               subtitle = "Faceted by Learning Probability ~ Assortative Mating Preference")
+ggsave("farming_ancestry_in_whole_pop.png", plot = ancestry_whole_pop, units = "in", width = 14, height = 7, device="png", dpi=700)
 
 wave = ggplot(all_sim_data[Year %% 200 == 0]) + 
   geom_line(aes(Mid_Point_km, RatioFarmerToHG_Partition, col = Year, group = factor(Year))) + 
   facet_grid(Assortative_Mating_n ~ Learning_Prob_n) + theme_bw() + labs(x = "Distance From Origin (km)") + 
-  labs(y = "Percent Farmers")
-ggsave("wave.png", plot = wave, units = "in", width = 10, height = 8, device="png", dpi=700)
+  labs(y = "Percent Farmers") + ggtitle("Percent Farmers (Behaviorally) x Distance from Origin Point", 
+                                        subtitle = "Faceted by Learning Probability ~ Assortative Mating Preference")
+ggsave("wave.png", plot = wave, units = "in", width = 14, height = 8, device="png", dpi=700)
 
 remaining_ancestry = ggplot(all_sim_data[TotalHGs == 0]) + 
   geom_point(aes(as.numeric(Assortative_Mating_n), Farmer_Ancestry_All_Farmers, col = factor(Learning_Prob_n), group = factor(Learning_Prob_n))) + 
-  theme_bw() + geom_line(aes(as.numeric(Assortative_Mating_n), Farmer_Ancestry_All_Farmers, col = factor(Learning_Prob_n), group = factor(Learning_Prob_n))) + labs(x = "Percentage of Assortative Mating (0 = None, 100 = Full)") + 
-  labs(y = "Remaining Farming Ancestry")
-ggsave("remaining_ancestry.png", plot = remaining_ancestry, units = "in", width = 5, height = 4, device="png", dpi=700)
+  theme_bw() + geom_line(aes(as.numeric(Assortative_Mating_n), Farmer_Ancestry_All_Farmers, col = factor(Learning_Prob_n), 
+                             group = factor(Learning_Prob_n))) + labs(x = "Percentage of Assortative Mating (0 = None, 100 = Full)") + 
+  labs(y = "Remaining Farming Ancestry") + ggtitle("Remaining Farmer Ancestry", 
+                                                  subtitle = "(When Zero Hunter Gatherers Remain)")
+ggsave("remaining_ancestry.png", plot = remaining_ancestry, units = "in", width = 10, height = 8, device="png", dpi=700)
 
 overall_ancestry_farmers = ggplot(all_sim_data) + 
   geom_line(aes(as.numeric(Year), Farmer_Ancestry_All_Farmers, col = factor(Learning_Prob_n), group = factor(Learning_Prob_n))) + 
   theme_bw() + facet_grid(as.numeric(Assortative_Mating_n) ~ .) + labs(x = "Year") + 
-  labs(y = "Farming Ancestry")
-ggsave("overall_ancestry_farmers.png", plot = overall_ancestry_farmers, units = "in", width = 9, height = 6, device="png", dpi=700)
+  labs(y = "Farming Ancestry") + ggtitle("Farming Ancestry x Time (Just Farming Population)", 
+                                         subtitle = "Faceted by Assortative Mating Preference")
+ggsave("overall_ancestry_farmers.png", plot = overall_ancestry_farmers, units = "in", width = 10, height = 11, device="png", dpi=700)
 
 overall_ancestry_all = ggplot(all_sim_data) + 
   geom_line(aes(as.numeric(Year), Farmer_Ancestry_All, col = factor(Learning_Prob_n), group = factor(Learning_Prob_n))) + 
   theme_bw() + facet_grid(as.numeric(Assortative_Mating_n) ~ .) + labs(x = "Year") + 
-  labs(y = "Farming Ancestry")
-ggsave("overall_ancestry_all.png", plot = overall_ancestry_all, units = "in", width = 9, height = 6, device="png", dpi=700)
-
-overall_ancestry_all2 = ggplot(all_sim_data[Learning_Prob_n == 0.0]) + 
-  geom_line(aes(as.numeric(Year), Farmer_Ancestry_All, col = factor(as.numeric(Assortative_Mating_n)), group = factor(as.numeric(Assortative_Mating_n)))) + 
-  theme_bw() + labs(x = "Year") + 
-  labs(y = "Farming Ancestry")
-ggsave("overall_ancestry_all2.png", plot = overall_ancestry_all2, units = "in", width = 9, height = 6, device="png", dpi=700)
+  labs(y = "Farming Ancestry") + ggtitle("Farming Ancestry x Time (Whole Population)", 
+                                         subtitle = "Faceted by Assortative Mating Preference")
+ggsave("overall_ancestry_all.png", plot = overall_ancestry_all, units = "in", width = 10, height = 11, device="png", dpi=700)
 
 assort_ancestry_by_x = ggplot(ancestry_sample_data[Learning_Prob_n == 0]) + geom_point(aes(Individual_X, Farming_Ancestry, col=Individual_Z)) + 
-  facet_grid(cut(Year, seq(0,6000,1000))~Assortative_Mating)
-ggsave("assort_ancestry_by_x.png", plot = assort_ancestry_by_x, units = "in", width = 21, height = 11, device="png", dpi=700)
+  facet_grid(cut(Year, seq(0,6000,1000))~Assortative_Mating)+ ggtitle("Farming Ancestry by X Coordinate", 
+                                                                      subtitle = "Faceted by Assortative Mating ~ Time Bins (Learning Prob == 0)")
+ggsave("assort_ancestry_by_x.png", plot = assort_ancestry_by_x, units = "in", width = 20, height = 14, device="png", dpi=700)
 
 learning_ancestry_by_x = ggplot(ancestry_sample_data[Assortative_Mating_n == 1]) + geom_point(aes(Individual_X, Farming_Ancestry, col=Individual_Z)) + 
-  facet_grid(cut(Year, seq(0,6000,1000))~Learning_Prob_n)
-ggsave("learning_ancestry_by_x.png", plot = learning_ancestry_by_x, units = "in", width = 21, height = 11, device="png", dpi=700)
+  facet_grid(cut(Year, seq(0,6000,1000))~Learning_Prob_n) + ggtitle("Farming Ancestry by X Coordinate", 
+                                                                    subtitle = "Faceted by Learning Probability ~ Time Bins (Assortative Mating == Full)")
+ggsave("learning_ancestry_by_x.png", plot = learning_ancestry_by_x, units = "in", width = 20, height = 14, device="png", dpi=700)
 
-assort_ancestry_2d = ggplot(ancestry_sample_data[Assortative_Mating_n == 1]) + geom_point(aes(Individual_X, Individual_Y, col = Farming_Ancestry, pch=factor(Individual_Z))) + 
-  facet_grid(cut(Year, seq(0,6000,1000))~Learning_Prob_n)
-ggsave("assort_ancestry_2d.png", plot = assort_ancestry_2d, units = "in", width = 21, height = 11, device="png", dpi=700)
+assort_ancestry_2d = ggplot(ancestry_sample_data[Learning_Prob_n == 0]) + geom_point(aes(Individual_X, Individual_Y, col = Farming_Ancestry, pch=factor(Individual_Z))) + 
+  facet_grid(cut(Year, seq(0,6000,1000))~Assortative_Mating_n) + ggtitle("Farming Ancestry by X & Y Coordinate (Visualization of Ancestry Distribution on Landscape)", 
+                                                                    subtitle = "Faceted by Assortative Mating ~ Time Bins (Learning Prob == 0)")
+ggsave("assort_ancestry_2d.png", plot = assort_ancestry_2d, units = "in", width = 20, height = 14, device="png", dpi=700)
 
-learning_ancestry_2d = ggplot(ancestry_sample_data[Learning_Prob_n == 0]) + geom_point(aes(Individual_X, Individual_Y, col = Farming_Ancestry, pch=factor(Individual_Z))) + 
-  facet_grid(cut(Year, seq(0,6000,1000))~Assortative_Mating_n)
-ggsave("learning_ancestry_2d.png", plot = learning_ancestry_2d, units = "in", width = 21, height = 11, device="png", dpi=700)
+learning_ancestry_2d = ggplot(ancestry_sample_data[Assortative_Mating_n == 1]) + geom_point(aes(Individual_X, Individual_Y, col = Farming_Ancestry, pch=factor(Individual_Z))) + 
+  facet_grid(cut(Year, seq(0,6000,1000))~Learning_Prob_n) + ggtitle("Farming Ancestry by X & Y Coordinate (Visualization of Ancestry Distribution on Landscape)", 
+                                                                          subtitle = "Faceted by Learning Probability ~ Time Bins (Assortative Mating == Full)")
+ggsave("learning_ancestry_2d.png", plot = learning_ancestry_2d, units = "in", width = 20, height = 14, device="png", dpi=700)
