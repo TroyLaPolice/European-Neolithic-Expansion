@@ -72,7 +72,7 @@ initialize()
 	// Map Prefs:
 	// ***********************************
 	if (!exists("map_style"))
-		defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
+		defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topography, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
 	if (!exists("num_partitions"))
 		defineConstant("num_partitions", 20); // Number of partitions if using the square
 	if (!exists("water_crossings"))
@@ -213,37 +213,33 @@ initialize()
 
 reproduction()
 {
-	// ---------------------------------------------------
-	//  MATING --> Individuals mate with those close by
-	// ---------------------------------------------------
-	// choose nearest neighbor as a mate, within the max distance
-	if (individual.age > min_repro_age) // Reproductive age of the individual must be reached before mating
+// ---------------------------------------------------
+//  MATING --> Individuals mate with those close by
+// ---------------------------------------------------
+// choose nearest neighbor as a mate, within the max distance
+if (individual.age > min_repro_age) // Reproductive age of the individual must be reached before mating
+{
+	mates = i2.nearestInteractingNeighbors(individual, p1.individuals.length()); // Get vector of neighbors within mating range
+	mates_ra = mates[mates.age > min_repro_age]; // Narrows down to those of reproductive age (ra)
+	if (mates_ra.size()) // Runs if there are possible mates near by
 	{
-		mates = i2.nearestInteractingNeighbors(individual, p1.individuals.length()); // Get vector of neighbors within mating range
-		mates_ra = mates[mates.age > min_repro_age]; // Narrows down to those of reproductive age (ra)
-		if (mates_ra.size()) // Runs if there are possible mates near by
+			assort_prob = c(MP, (1 - MP)); // Probability of assortatively mating
+			choice = c(0, 1); // Vector of choices, will the individual mate assortatively (0) or not (1)
+			assort_pref = sample(choice, 1, weights=assort_prob); // Select a mate
+
+		if (assort_pref == 1) // This individual has the possibility of mating with unlike individuals
 		{
-			if (MP != 0.5) // Runs if there is any level of assortative mating
-			{
-				assort_prob = c(MP, (1 - MP)); // Proabaility of assortatively mating
-				choice = c(0, 1); // Vector of choices, will the individual mate assortatively (0) or not (1)
-				assort_pref = sample(choice, 1, weights=assort_prob); // Select a mate
-			}
+			// Samples an individual to mate with from the whole population
+			mate = sample(mates_ra, 1);
+		}
+		else // This individual only mates assortatively
+		{
+			possible_mates = mates_ra[mates_ra.z == individual.z]; // Select only like individuals
+			if (possible_mates.size()) // Runs if there are possible mates near by
+				mate = sample(possible_mates, 1); // Select a mate
 			else
-				assort_pref = 1; // If no assortative mating assortative mating preference is always 1 for every individual
-			if (assort_pref == 1) // This individual has the possibility of mating with unlike individuals
-			{
-				// Samples an individual to mate with from the whole population
-				mate = sample(mates_ra, 1);
-			}
-			else // This individual only mates assortatively
-			{
-				possible_mates = mates_ra[mates_ra.z == individual.z]; // Select only like individuals
-				if (possible_mates.size()) // Runs if there are possible mates near by
-					mate = sample(possible_mates, 1); // Select a mate
-				else
-					mate = NULL; // If no mates possible, NULL
-			}
+				mate = NULL; // If no mates possible, NULL
+		}
 
 			// Frequency of the interaction is based on the calculated reproduction value given by the mortality curve (below)
 			for (i in seqLen(rpois(1, M)))
@@ -318,7 +314,7 @@ late()
 		farmer_neighbors = sum(neighbors.z);
 		HG_neighbors = (length(neighbors) - farmer_neighbors);
 
-		// Calculate the probability that the individual will learn farming based on the behavorial characteristics of its neighbors and its teacher preference.
+		// Calculate the probability that the individual will learn farming based on the behavioral characteristics of its neighbors and its teacher preference.
 		LP = L * (farmer_neighbors) / (farmer_neighbors + gamma * HG_neighbors);
 
 		// Only ruyn if the probability of learning is greater than zero
@@ -348,7 +344,7 @@ late()
 late()
 {
 	// -----------------------------------------------------------------
-	//  COMPETITON AND MORTALITY --> Age and Density Dependent Mortality
+	//  COMPETITION AND MORTALITY --> Age and Density Dependent Mortality
 	// -----------------------------------------------------------------
 	i1.evaluate(p1);
 
@@ -382,7 +378,7 @@ late()
 			HG_num_in_s = i1.interactingNeighborCount(HGs);
 	}
 
-	// Modify mortality curve to account for population density around the indiviudal
+	// Modify mortality curve to account for population density around the individual
 	dens_scal_farmer = (farmers_num_in_s + 1) / (PI * (S^2) * FK + 1); // Density of farmers in the given area
 	dens = mean(dens_scal_farmer);
 	defineGlobal("density", dens);
@@ -557,7 +553,7 @@ early()
 late()
 {
 	// -----------------------------------------------------------
-	//  OUTPUT2 --> Output function when using the simplfied model
+	//  OUTPUT2 --> Output function when using the simplified model
 	// -----------------------------------------------------------
 	if (map_style == 5)
 	{
