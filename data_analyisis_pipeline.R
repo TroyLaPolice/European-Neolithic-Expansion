@@ -9,107 +9,136 @@ library(dplyr)
 # ----------------------------------------------------------------------------------------------------------------
 
 # Set input params
-setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/collab_runs/ancestry_dist_more_inds_5km")
+setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/collab_runs/ancestry_dist_more_inds_allkm")
 map_size_km = 3700
 
 # Specify and select files
 square_file_names = list.files(".", pattern="sim_sq*", full.names = TRUE)
-square_file_names = mixedsort(square_file_names)
 
+if (length(square_file_names != 0))
+{
+  # Sort Files
+  square_file_names = mixedsort(square_file_names)
+  # Read in File
+  square_files = lapply(square_file_names, read.csv)
+}
+
+# Specify and select files
 ancestry_dist_files_names = list.files(".", pattern="sim_ancestry_distribution*", full.names = TRUE)
-ancestry_dist_files_names = mixedsort(ancestry_dist_files_names)
+
+if (length(ancestry_dist_files_names != 0))
+{
+  # Sort Files
+  ancestry_dist_files_names = mixedsort(ancestry_dist_files_names)
+  # Read in File
+  ancestry_dist_files = lapply(ancestry_dist_files_names, read.csv)
+}
 
 ancestry_sample_names = list.files(".", pattern="sim_ancestry_sample*", full.names = TRUE)
-ancestry_sample_names = mixedsort(ancestry_sample_names)
 
+if (length(ancestry_sample_names != 0))
+{
+  # Sort Files
+  ancestry_sample_names = mixedsort(ancestry_sample_names)
+  # Read in File
+  ancestry_sample_files = lapply(ancestry_sample_names, read.csv)
+}
+
+# Read in Param File
 param_file_name = "param_inputs_clean.txt"
-
-# Read in Files
-square_files = lapply(square_file_names, read.csv)
-ancestry_dist_files = lapply(ancestry_dist_files_names, read.csv)
-ancestry_sample_files = lapply(ancestry_sample_names, read.csv)
 param_file = lapply(param_file_name, read.csv)
 
 # ----------------------------------------------------------------------------------------------------------------
 # Transforming data to "long" format and combining different parameter combinations for the large data table
 # ----------------------------------------------------------------------------------------------------------------
 
-all_sim_data = lapply(1:length(square_files), function(x) 
+if (length(square_file_names != 0))
 {
-  params = strsplit(as.character(param_file[[1]][x,]), split = "   ")[[1]]
-  params = matrix(params, nrow = 1)
-  colnames(params) = gsub(sapply(strsplit(params, split = " = "), function(x) x[1]), pattern = " ", replacement = "_")
-  data = square_files[[x]]
+  all_sim_data = lapply(1:length(square_files), function(x) 
+  {
+    params = strsplit(as.character(param_file[[1]][x,]), split = "   ")[[1]]
+    params = matrix(params, nrow = 1)
+    colnames(params) = gsub(sapply(strsplit(params, split = " = "), function(x) x[1]), pattern = " ", replacement = "_")
+    data = square_files[[x]]
+    
+    partitionedVariablesID = grepl("\\d", names(data))
+    partitionedVariables = names(data)[partitionedVariablesID]
+    partitionedVariablesUnique = unique(gsub(names(data)[partitionedVariablesID], pattern = "\\d+", replacement = ""))
+    partitionNumber = as.numeric(gsub(names(data)[partitionedVariablesID], pattern = "[a-zA-Z_]", replacement = ""))
+    numberOfPartitions = max(partitionNumber)
+    
+    separate_partitions_ID = rep(1:length(partitionedVariablesUnique), each = numberOfPartitions)
+    separate_partitions_list = lapply(1:length(partitionedVariablesUnique), function(x) partitionedVariables[separate_partitions_ID == x])
+    
+    data_melted = data.table::melt(data = data.table(data), measure = separate_partitions_list, value.name = partitionedVariablesUnique, variable.name = "Partition")
+    
+    cbind(params, data_melted)
+  }
+  )
   
-  partitionedVariablesID = grepl("\\d", names(data))
-  partitionedVariables = names(data)[partitionedVariablesID]
-  partitionedVariablesUnique = unique(gsub(names(data)[partitionedVariablesID], pattern = "\\d+", replacement = ""))
-  partitionNumber = as.numeric(gsub(names(data)[partitionedVariablesID], pattern = "[a-zA-Z_]", replacement = ""))
-  numberOfPartitions = max(partitionNumber)
+  # Create data table with simulation output data
+  all_sim_data = rbindlist(all_sim_data)
   
-  separate_partitions_ID = rep(1:length(partitionedVariablesUnique), each = numberOfPartitions)
-  separate_partitions_list = lapply(1:length(partitionedVariablesUnique), function(x) partitionedVariables[separate_partitions_ID == x])
-  
-  data_melted = data.table::melt(data = data.table(data), measure = separate_partitions_list, value.name = partitionedVariablesUnique, variable.name = "Partition")
-  
-  cbind(params, data_melted)
+  # Add columns that remove extra strings in parameter set
+  all_sim_data[, Downscale_n := as.numeric(gsub(Downscale, pattern = ".*\\s(.+)", replacement = "\\1"))]
+  all_sim_data[, Learning_Prob_n := as.numeric(gsub(Learning_Prob, pattern = ".*\\s(.+)", replacement = "\\1"))]
+  all_sim_data[, Assortative_Mating_n := as.numeric(gsub(Assortative_Mating, pattern = ".*\\s(.+)", replacement = "\\1"))]
+  all_sim_data[, Movement_n := as.numeric(gsub(Movement, pattern = ".*\\s(.+)", replacement = "\\1"))]
 }
-)
-
-# Create data table with simulation output data
-all_sim_data = rbindlist(all_sim_data)
-
-# Add columns that remove extra strings in parameter set
-all_sim_data[, Downscale_n := as.numeric(gsub(Downscale, pattern = ".*\\s(.+)", replacement = "\\1"))]
-all_sim_data[, Learning_Prob_n := as.numeric(gsub(Learning_Prob, pattern = ".*\\s(.+)", replacement = "\\1"))]
-all_sim_data[, Assortative_Mating_n := as.numeric(gsub(Assortative_Mating, pattern = ".*\\s(.+)", replacement = "\\1"))]
-all_sim_data[, Movement_n := as.numeric(gsub(Movement, pattern = ".*\\s(.+)", replacement = "\\1"))]
 
 # ----------------------------------------------------------------------------------------------------------------
 # Adding parameter combinations to the ancestry distribution table
 # ----------------------------------------------------------------------------------------------------------------
 
-ancestry_dist_data = lapply(1:length(ancestry_dist_files), function(x) 
+if (length(ancestry_dist_files_names != 0))
 {
-  params = strsplit(as.character(param_file[[1]][x,]), split = "   ")[[1]]
-  params = matrix(params, nrow = 1)
-  colnames(params) = gsub(sapply(strsplit(params, split = " = "), function(x) x[1]), pattern = " ", replacement = "_")
-  data = ancestry_dist_files[[x]]
+  ancestry_dist_data = lapply(1:length(ancestry_dist_files), function(x) 
+  {
+    params = strsplit(as.character(param_file[[1]][x,]), split = "   ")[[1]]
+    params = matrix(params, nrow = 1)
+    colnames(params) = gsub(sapply(strsplit(params, split = " = "), function(x) x[1]), pattern = " ", replacement = "_")
+    data = ancestry_dist_files[[x]]
+    
+    cbind(params, data)
+  }
+  )
   
-  cbind(params, data)
+  # Create data table with simulation output data
+  ancestry_dist_data = rbindlist(ancestry_dist_data)
+  
+  # Add columns that remove extra strings in parameter set
+  ancestry_dist_data[, Downscale_n := as.numeric(gsub(Downscale, pattern = ".*\\s(.+)", replacement = "\\1"))]
+  ancestry_dist_data[, Learning_Prob_n := as.numeric(gsub(Learning_Prob, pattern = ".*\\s(.+)", replacement = "\\1"))]
+  ancestry_dist_data[, Assortative_Mating_n := as.numeric(gsub(Assortative_Mating, pattern = ".*\\s(.+)", replacement = "\\1"))]
+  ancestry_dist_data[, Movement_n := as.numeric(gsub(Movement, pattern = ".*\\s(.+)", replacement = "\\1"))]
 }
-)
-
-# Create data table with simulation output data
-ancestry_dist_data = rbindlist(ancestry_dist_data)
-
-# Add columns that remove extra strings in parameter set
-ancestry_dist_data[, Downscale_n := as.numeric(gsub(Downscale, pattern = ".*\\s(.+)", replacement = "\\1"))]
-ancestry_dist_data[, Learning_Prob_n := as.numeric(gsub(Learning_Prob, pattern = ".*\\s(.+)", replacement = "\\1"))]
-ancestry_dist_data[, Assortative_Mating_n := as.numeric(gsub(Assortative_Mating, pattern = ".*\\s(.+)", replacement = "\\1"))]
 
 # ----------------------------------------------------------------------------------------------------------------
 # Adding parameter combinations to the ancestry sample table
 # ----------------------------------------------------------------------------------------------------------------
 
-ancestry_sample_data = lapply(1:length(ancestry_sample_files), function(x) 
+if (length(ancestry_sample_names != 0))
 {
-  params = strsplit(as.character(param_file[[1]][x,]), split = "   ")[[1]]
-  params = matrix(params, nrow = 1)
-  colnames(params) = gsub(sapply(strsplit(params, split = " = "), function(x) x[1]), pattern = " ", replacement = "_")
-  data = ancestry_sample_files[[x]]
+  ancestry_sample_data = lapply(1:length(ancestry_sample_files), function(x) 
+  {
+    params = strsplit(as.character(param_file[[1]][x,]), split = "   ")[[1]]
+    params = matrix(params, nrow = 1)
+    colnames(params) = gsub(sapply(strsplit(params, split = " = "), function(x) x[1]), pattern = " ", replacement = "_")
+    data = ancestry_sample_files[[x]]
+    
+    cbind(params, data)
+  }
+  )
   
-  cbind(params, data)
+  # Create data table with simulation output data
+  ancestry_sample_data = rbindlist(ancestry_sample_data)
+  
+  # Add columns that remove extra strings in parameter set
+  ancestry_sample_data[, Downscale_n := as.numeric(gsub(Downscale, pattern = ".*\\s(.+)", replacement = "\\1"))]
+  ancestry_sample_data[, Learning_Prob_n := as.numeric(gsub(Learning_Prob, pattern = ".*\\s(.+)", replacement = "\\1"))]
+  ancestry_sample_data[, Assortative_Mating_n := as.numeric(gsub(Assortative_Mating, pattern = ".*\\s(.+)", replacement = "\\1"))]
+  ancestry_sample_data[, Movement_n := as.numeric(gsub(Movement, pattern = ".*\\s(.+)", replacement = "\\1"))]
 }
-)
-
-# Create data table with simulation output data
-ancestry_sample_data = rbindlist(ancestry_sample_data)
-
-# Add columns that remove extra strings in parameter set
-ancestry_sample_data[, Downscale_n := as.numeric(gsub(Downscale, pattern = ".*\\s(.+)", replacement = "\\1"))]
-ancestry_sample_data[, Learning_Prob_n := as.numeric(gsub(Learning_Prob, pattern = ".*\\s(.+)", replacement = "\\1"))]
-ancestry_sample_data[, Assortative_Mating_n := as.numeric(gsub(Assortative_Mating, pattern = ".*\\s(.+)", replacement = "\\1"))]
 
 # ----------------------------------------------------------------------------------------------------------------
 # Transforming data to include km values for partitions
@@ -231,22 +260,25 @@ overall_ancestry_all = ggplot(all_sim_data) +
                                          subtitle = "Faceted by Assortative Mating Preference")
 ggsave("overall_ancestry_all.png", plot = overall_ancestry_all, units = "in", width = 10, height = 11, device="png", dpi=700)
 
-assort_ancestry_by_x = ggplot(ancestry_sample_data[Learning_Prob_n == 0]) + geom_point(aes(Individual_X, Farming_Ancestry, col=Individual_Z)) + 
-  facet_grid(cut(Year, seq(0,6000,1000))~Assortative_Mating)+ ggtitle("Farming Ancestry by X Coordinate", 
+if (length(ancestry_sample_names != 0))
+{
+  assort_ancestry_by_x = ggplot(ancestry_sample_data[Learning_Prob_n == 0]) + geom_point(aes(Individual_X, Farming_Ancestry, col=Individual_Z)) + 
+    facet_grid(cut(Year, seq(0,6000,1000))~Assortative_Mating)+ ggtitle("Farming Ancestry by X Coordinate", 
+                                                                        subtitle = "Faceted by Assortative Mating ~ 1,000 Year Time Bins (Learning Prob == 0)")
+  ggsave("assort_ancestry_by_x.png", plot = assort_ancestry_by_x, units = "in", width = 20, height = 14, device="png", dpi=700)
+  
+  learning_ancestry_by_x = ggplot(ancestry_sample_data[Assortative_Mating_n == 1]) + geom_point(aes(Individual_X, Farming_Ancestry, col=Individual_Z)) + 
+    facet_grid(cut(Year, seq(0,6000,1000))~Learning_Prob_n) + ggtitle("Farming Ancestry by X Coordinate", 
+                                                                      subtitle = "Faceted by Learning Probability ~ 1,000 Year Time Bins (Assortative Mating == Full)")
+  ggsave("learning_ancestry_by_x.png", plot = learning_ancestry_by_x, units = "in", width = 20, height = 14, device="png", dpi=700)
+  
+  assort_ancestry_2d = ggplot(ancestry_sample_data[Learning_Prob_n == 0]) + geom_point(aes(Individual_X, Individual_Y, col = Farming_Ancestry, pch=factor(Individual_Z))) + 
+    facet_grid(cut(Year, seq(0,6000,1000))~Assortative_Mating_n) + ggtitle("Farming Ancestry by X & Y Coordinate (Visualization of Ancestry Distribution on Landscape)", 
                                                                       subtitle = "Faceted by Assortative Mating ~ 1,000 Year Time Bins (Learning Prob == 0)")
-ggsave("assort_ancestry_by_x.png", plot = assort_ancestry_by_x, units = "in", width = 20, height = 14, device="png", dpi=700)
-
-learning_ancestry_by_x = ggplot(ancestry_sample_data[Assortative_Mating_n == 1]) + geom_point(aes(Individual_X, Farming_Ancestry, col=Individual_Z)) + 
-  facet_grid(cut(Year, seq(0,6000,1000))~Learning_Prob_n) + ggtitle("Farming Ancestry by X Coordinate", 
-                                                                    subtitle = "Faceted by Learning Probability ~ 1,000 Year Time Bins (Assortative Mating == Full)")
-ggsave("learning_ancestry_by_x.png", plot = learning_ancestry_by_x, units = "in", width = 20, height = 14, device="png", dpi=700)
-
-assort_ancestry_2d = ggplot(ancestry_sample_data[Learning_Prob_n == 0]) + geom_point(aes(Individual_X, Individual_Y, col = Farming_Ancestry, pch=factor(Individual_Z))) + 
-  facet_grid(cut(Year, seq(0,6000,1000))~Assortative_Mating_n) + ggtitle("Farming Ancestry by X & Y Coordinate (Visualization of Ancestry Distribution on Landscape)", 
-                                                                    subtitle = "Faceted by Assortative Mating ~ 1,000 Year Time Bins (Learning Prob == 0)")
-ggsave("assort_ancestry_2d.png", plot = assort_ancestry_2d, units = "in", width = 20, height = 14, device="png", dpi=700)
-
-learning_ancestry_2d = ggplot(ancestry_sample_data[Assortative_Mating_n == 1]) + geom_point(aes(Individual_X, Individual_Y, col = Farming_Ancestry, pch=factor(Individual_Z))) + 
-  facet_grid(cut(Year, seq(0,6000,1000))~Learning_Prob_n) + ggtitle("Farming Ancestry by X & Y Coordinate (Visualization of Ancestry Distribution on Landscape)", 
-                                                                          subtitle = "Faceted by Learning Probability ~ 1,000 Year Time Bins (Assortative Mating == Full)")
-ggsave("learning_ancestry_2d.png", plot = learning_ancestry_2d, units = "in", width = 20, height = 14, device="png", dpi=700)
+  ggsave("assort_ancestry_2d.png", plot = assort_ancestry_2d, units = "in", width = 20, height = 14, device="png", dpi=700)
+  
+  learning_ancestry_2d = ggplot(ancestry_sample_data[Assortative_Mating_n == 1]) + geom_point(aes(Individual_X, Individual_Y, col = Farming_Ancestry, pch=factor(Individual_Z))) + 
+    facet_grid(cut(Year, seq(0,6000,1000))~Learning_Prob_n) + ggtitle("Farming Ancestry by X & Y Coordinate (Visualization of Ancestry Distribution on Landscape)", 
+                                                                            subtitle = "Faceted by Learning Probability ~ 1,000 Year Time Bins (Assortative Mating == Full)")
+  ggsave("learning_ancestry_2d.png", plot = learning_ancestry_2d, units = "in", width = 20, height = 14, device="png", dpi=700)
+}
