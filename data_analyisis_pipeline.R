@@ -212,7 +212,7 @@ ggsave("wave.png", plot = wave, units = "in", width = 14, height = 8, device="pn
 remaining_ancestry = ggplot(all_sim_data[TotalHGs == 0]) + 
   geom_point(aes(as.numeric(Assortative_Mating_n), Farmer_Ancestry_All_Farmers, col = factor(Learning_Prob_n), group = factor(Learning_Prob_n))) + 
   theme_bw() + geom_line(aes(as.numeric(Assortative_Mating_n), Farmer_Ancestry_All_Farmers, col = factor(Learning_Prob_n), 
-                             group = factor(Learning_Prob_n))) + labs(x = "Percentage of Assortative Mating (0 = None, 100 = Full)") + 
+                             group = factor(Learning_Prob_n))) + labs(x = "Percentage of Assortative Mating (0 = None, 1 = Full)") + 
   labs(y = "Remaining Farming Ancestry") + ggtitle("Remaining Farmer Ancestry", 
                                                   subtitle = "(When Zero Hunter Gatherers Remain)")
 ggsave("remaining_ancestry.png", plot = remaining_ancestry, units = "in", width = 10, height = 8, device="png", dpi=700)
