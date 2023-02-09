@@ -233,20 +233,20 @@ ggsave("overall_ancestry_all.png", plot = overall_ancestry_all, units = "in", wi
 
 assort_ancestry_by_x = ggplot(ancestry_sample_data[Learning_Prob_n == 0]) + geom_point(aes(Individual_X, Farming_Ancestry, col=Individual_Z)) + 
   facet_grid(cut(Year, seq(0,6000,1000))~Assortative_Mating)+ ggtitle("Farming Ancestry by X Coordinate", 
-                                                                      subtitle = "Faceted by Assortative Mating ~ Time Bins (Learning Prob == 0)")
+                                                                      subtitle = "Faceted by Assortative Mating ~ 1,000 Year Time Bins (Learning Prob == 0)")
 ggsave("assort_ancestry_by_x.png", plot = assort_ancestry_by_x, units = "in", width = 20, height = 14, device="png", dpi=700)
 
 learning_ancestry_by_x = ggplot(ancestry_sample_data[Assortative_Mating_n == 1]) + geom_point(aes(Individual_X, Farming_Ancestry, col=Individual_Z)) + 
   facet_grid(cut(Year, seq(0,6000,1000))~Learning_Prob_n) + ggtitle("Farming Ancestry by X Coordinate", 
-                                                                    subtitle = "Faceted by Learning Probability ~ Time Bins (Assortative Mating == Full)")
+                                                                    subtitle = "Faceted by Learning Probability ~ 1,000 Year Time Bins (Assortative Mating == Full)")
 ggsave("learning_ancestry_by_x.png", plot = learning_ancestry_by_x, units = "in", width = 20, height = 14, device="png", dpi=700)
 
 assort_ancestry_2d = ggplot(ancestry_sample_data[Learning_Prob_n == 0]) + geom_point(aes(Individual_X, Individual_Y, col = Farming_Ancestry, pch=factor(Individual_Z))) + 
   facet_grid(cut(Year, seq(0,6000,1000))~Assortative_Mating_n) + ggtitle("Farming Ancestry by X & Y Coordinate (Visualization of Ancestry Distribution on Landscape)", 
-                                                                    subtitle = "Faceted by Assortative Mating ~ Time Bins (Learning Prob == 0)")
+                                                                    subtitle = "Faceted by Assortative Mating ~ 1,000 Year Time Bins (Learning Prob == 0)")
 ggsave("assort_ancestry_2d.png", plot = assort_ancestry_2d, units = "in", width = 20, height = 14, device="png", dpi=700)
 
 learning_ancestry_2d = ggplot(ancestry_sample_data[Assortative_Mating_n == 1]) + geom_point(aes(Individual_X, Individual_Y, col = Farming_Ancestry, pch=factor(Individual_Z))) + 
   facet_grid(cut(Year, seq(0,6000,1000))~Learning_Prob_n) + ggtitle("Farming Ancestry by X & Y Coordinate (Visualization of Ancestry Distribution on Landscape)", 
-                                                                          subtitle = "Faceted by Learning Probability ~ Time Bins (Assortative Mating == Full)")
+                                                                          subtitle = "Faceted by Learning Probability ~ 1,000 Year Time Bins (Assortative Mating == Full)")
 ggsave("learning_ancestry_2d.png", plot = learning_ancestry_2d, units = "in", width = 20, height = 14, device="png", dpi=700)
