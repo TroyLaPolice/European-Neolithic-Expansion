@@ -9,7 +9,7 @@ library(dplyr)
 # ----------------------------------------------------------------------------------------------------------------
 
 # Set input params
-setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/collab_runs/ancestry_dist_more_inds_5km")
+setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/collab_runs/map_runs")
 map_size_km = 3700
 
 # Specify and select files
@@ -331,4 +331,9 @@ if (length(ancestry_sample_names) != 0)
     facet_grid(cut(Year, seq(0,6000,1000))~Learning_Prob_n) + ggtitle("Farming Ancestry by X & Y Coordinate (Visualization of Ancestry Distribution on Landscape)", 
                                                                             subtitle = "Faceted by Learning Probability ~ 1,000 Year Time Bins (Assortative Mating == Full)")
   ggsave("learning_ancestry_2d.png", plot = learning_ancestry_2d, units = "in", width = 20, height = 14, device="png", dpi=700)
+  
+  #singlular_ancestry_2d = ggplot(ancestry_sample_data[Learning_Prob_n == 0.0005]) + geom_point(aes(Individual_X, Individual_Y, col = Farming_Ancestry, pch=factor(Individual_Z))) + 
+  #  facet_grid(cut(Year, seq(0,6000,2000)) ~ .) + ggtitle("Ancestry Distribution on Landscape", 
+  #                                                        subtitle = "2,000 Year Time Bins")
+  #ggsave("singlular_ancestry_2d.png", plot = singlular_ancestry_2d, units = "in", width = 6.85, height = 14, device="png", dpi=700)
 }
