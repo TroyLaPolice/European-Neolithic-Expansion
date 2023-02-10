@@ -9,13 +9,13 @@ library(dplyr)
 # ----------------------------------------------------------------------------------------------------------------
 
 # Set input params
-setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/collab_runs/map_runs")
+setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/collab_runs/ancestry_dist_more_inds_5km")
 map_size_km = 3700
 
 # Specify and select files
 square_file_names = list.files(".", pattern="sim_sq*", full.names = TRUE)
 
-if (length(square_file_names != 0))
+if (length(square_file_names) != 0)
 {
   # Sort Files
   square_file_names = mixedsort(square_file_names)
@@ -26,7 +26,7 @@ if (length(square_file_names != 0))
 # Specify and select files
 non_square_file_names = list.files(".", pattern="sim_pop*", full.names = TRUE)
 
-if (length(non_square_file_names != 0))
+if (length(non_square_file_names) != 0)
 {
   # Sort Files
   non_square_file_names = mixedsort(non_square_file_names)
@@ -34,7 +34,7 @@ if (length(non_square_file_names != 0))
   non_square_files = lapply(non_square_file_names, read.csv)
 }
 
-if (length(square_file_names != 0))
+if (length(square_file_names) != 0)
 {
   # Sort Files
   square_file_names = mixedsort(square_file_names)
@@ -45,7 +45,7 @@ if (length(square_file_names != 0))
 # Specify and select files
 ancestry_dist_files_names = list.files(".", pattern="sim_ancestry_distribution*", full.names = TRUE)
 
-if (length(ancestry_dist_files_names != 0))
+if (length(ancestry_dist_files_names) != 0)
 {
   # Sort Files
   ancestry_dist_files_names = mixedsort(ancestry_dist_files_names)
@@ -55,7 +55,7 @@ if (length(ancestry_dist_files_names != 0))
 
 ancestry_sample_names = list.files(".", pattern="sim_ancestry_sample*", full.names = TRUE)
 
-if (length(ancestry_sample_names != 0))
+if (length(ancestry_sample_names) != 0)
 {
   # Sort Files
   ancestry_sample_names = mixedsort(ancestry_sample_names)
@@ -71,9 +71,9 @@ param_file = lapply(param_file_name, read.csv)
 # Transforming data to "long" format and combining different parameter combinations for the large data table
 # ----------------------------------------------------------------------------------------------------------------
 
-if (length(square_file_names != 0)){
+if (length(square_file_names) != 0){
   files = square_files}
-if (length(non_square_file_names != 0)){
+if (length(non_square_file_names) != 0){
   files = non_square_files}
 
 all_sim_data = lapply(1:length(files), function(x) 
@@ -83,7 +83,7 @@ all_sim_data = lapply(1:length(files), function(x)
     colnames(params) = gsub(sapply(strsplit(params, split = " = "), function(x) x[1]), pattern = " ", replacement = "_")
     data = files[[x]]
     
-    if (length(square_file_names != 0))
+    if (length(square_file_names) != 0)
     {
     partitionedVariablesID = grepl("\\d", names(data))
     partitionedVariables = names(data)[partitionedVariablesID]
@@ -95,30 +95,32 @@ all_sim_data = lapply(1:length(files), function(x)
     separate_partitions_list = lapply(1:length(partitionedVariablesUnique), function(x) partitionedVariables[separate_partitions_ID == x])
     
     data_melted = data.table::melt(data = data.table(data), measure = separate_partitions_list, value.name = partitionedVariablesUnique, variable.name = "Partition")
-    cbind(params, data_melted)
     }
     
-    if (length(non_square_file_names != 0)){
-      cbind(params, data)}
+    if (length(non_square_file_names) != 0){
+      data_melted = data}
+    
+    cbind(params, data_melted)
 
   }
   )
   
   # Create data table with simulation output data
   all_sim_data = rbindlist(all_sim_data)
-  colnames(all_sim_data)[colnames(all_sim_data) == "Farmer_Ancestry_Farmers"] = "Farmer_Ancestry_All_Farmers"
-  
+
   # Add columns that remove extra strings in parameter set
   all_sim_data[, Downscale_n := as.numeric(gsub(Downscale, pattern = ".*\\s(.+)", replacement = "\\1"))]
   all_sim_data[, Learning_Prob_n := as.numeric(gsub(Learning_Prob, pattern = ".*\\s(.+)", replacement = "\\1"))]
   all_sim_data[, Assortative_Mating_n := as.numeric(gsub(Assortative_Mating, pattern = ".*\\s(.+)", replacement = "\\1"))]
   all_sim_data[, Movement_n := as.numeric(gsub(Movement, pattern = ".*\\s(.+)", replacement = "\\1"))]
+  
+  colnames(all_sim_data)[colnames(all_sim_data) == "Farmer_Ancestry_Farmers"] = "Farmer_Ancestry_All_Farmers"
 
 # ----------------------------------------------------------------------------------------------------------------
 # Adding parameter combinations to the ancestry distribution table
 # ----------------------------------------------------------------------------------------------------------------
 
-if (length(ancestry_dist_files_names != 0))
+if (length(ancestry_dist_files_names) != 0)
 {
   ancestry_dist_data = lapply(1:length(ancestry_dist_files), function(x) 
   {
@@ -145,7 +147,7 @@ if (length(ancestry_dist_files_names != 0))
 # Adding parameter combinations to the ancestry sample table
 # ----------------------------------------------------------------------------------------------------------------
 
-if (length(ancestry_sample_names != 0))
+if (length(ancestry_sample_names) != 0)
 {
   ancestry_sample_data = lapply(1:length(ancestry_sample_files), function(x) 
   {
@@ -172,7 +174,7 @@ if (length(ancestry_sample_names != 0))
 # Transforming data to include km values for partitions
 # ----------------------------------------------------------------------------------------------------------------
 
-if (length(square_file_names != 0))
+if (length(square_file_names) != 0)
 {
   # Calculate the number of partitions used
   num_parts = max(as.integer(all_sim_data$Partition))
@@ -207,7 +209,7 @@ interpolate = function(km, value){
 # Run on all data and create new columns for distance and calculate speed
 # ----------------------------------------------------------------------------------------------------------------
 
-if (length(square_file_names != 0))
+if (length(square_file_names) != 0)
 {
   # Add column to data for the distance traveled on the x-axis in km when the ratio of farmers to HGs is 50/50
   all_sim_data[, km_50perc := as.numeric(0)]
@@ -222,7 +224,7 @@ if (length(square_file_names != 0))
 # Run on all data and create new columns for distance and calculate ancestry cline
 # ----------------------------------------------------------------------------------------------------------------
 
-if (length(square_file_names != 0))
+if (length(square_file_names) != 0)
 {
   # Add column to data for the distance traveled on the x-axis in km when the farming ancestry is at least 50 percent
   all_sim_data[, Ancestry_Cline := as.numeric(0)]
@@ -262,7 +264,7 @@ overall_ancestry_all = ggplot(all_sim_data) +
                                          subtitle = "Faceted by Assortative Mating Preference")
 ggsave("overall_ancestry_all.png", plot = overall_ancestry_all, units = "in", width = 10, height = 11, device="png", dpi=700)
 
-if (length(square_file_names != 0))
+if (length(square_file_names) != 0)
 {
   speed = ggplot(all_sim_data[Learning_Prob_n != 1 & Learning_Prob_n != 0.01 & Learning_Prob_n != 0.1]) + 
     geom_point(aes(as.numeric(Assortative_Mating_n), speedOfWave, col=factor(Learning_Prob_n), pch=factor(Movement_n))) + theme_bw() + 
@@ -299,9 +301,16 @@ if (length(square_file_names != 0))
                                           subtitle = "Faceted by Learning Probability ~ Assortative Mating Preference")
   ggsave("wave.png", plot = wave, units = "in", width = 14, height = 8, device="png", dpi=700)
   
+  wave_ancestry_overlay = ggplot(all_sim_data[Year %% 500 == 0]) + 
+    geom_line(aes(Mid_Point_km, RatioFarmerToHG_Partition, col = "RatioFarmerToHG", group = factor(Year))) + 
+    facet_grid(Assortative_Mating_n ~ Learning_Prob_n) + theme_bw() + labs(x = "Distance From Origin (km)") + 
+    geom_line(aes(Mid_Point_km, Farmer_Ancestry_Partition_All, col = "Farming Ancestry", group = factor(Year))) + 
+    labs(y = "Percent Farmers") + ggtitle("Percent Farmers (Behaviorally) and Farming Ancestry x Distance from Origin Point", 
+                                          subtitle = "Faceted by Learning Probability ~ Assortative Mating Preference")
+  ggsave("wave_ancestry_overlay.png", plot = wave_ancestry_overlay, units = "in", width = 14, height = 8, device="png", dpi=700)
 }
 
-if (length(ancestry_sample_names != 0))
+if (length(ancestry_sample_names) != 0)
 {
   assort_ancestry_by_x = ggplot(ancestry_sample_data[Learning_Prob_n == 0]) + geom_point(aes(Individual_X, Farming_Ancestry, col=Individual_Z)) + 
     facet_grid(cut(Year, seq(0,6000,1000))~Assortative_Mating)+ ggtitle("Farming Ancestry by X Coordinate", 
