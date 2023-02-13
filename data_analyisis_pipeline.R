@@ -9,7 +9,7 @@ library(dplyr)
 # ----------------------------------------------------------------------------------------------------------------
 
 # Set input params
-setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/collab_runs/ancestry_dist_more_inds_5km")
+setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/different_mvmt_ranges_5-10km_different_maps/square_runs")
 map_size_km = 3700
 
 # -------------------------------
@@ -54,7 +54,7 @@ if (length(ancestry_dist_files_names) != 0)
   # Sort Files
   ancestry_dist_files_names = mixedsort(ancestry_dist_files_names)
   # Read in File
-  ancestry_dist_files = lapply(ancestry_dist_files, read.csv)
+  ancestry_dist_files = lapply(ancestry_dist_files_names, read.csv)
 }
 
 # -----------------------------------------
@@ -273,12 +273,6 @@ if (length(square_file_names) != 0)
     labs(y = "Speed of Wave (km per year)") + labs(x = "Percentage of Assortative Mating (0 = None, 1 = Full)") +
     ggtitle("Speed of Wave (km per year)")
   ggsave("speed.png", plot = speed, units = "in", width = 8, height = 6, device="png", dpi=700)
-  
-  ancestry_speed = ggplot(all_sim_data) + 
-    geom_point(aes(as.numeric(Assortative_Mating_n), speedOfAncestry, col=factor(Learning_Prob_n), pch=factor(Movement_n))) + theme_bw() + 
-    labs(y = "Speed of Ancestry Expansion (km per year)") + labs(x = "Percentage of Assortative Mating (0 = None, 1 = Full)") + 
-    ggtitle("Speed of Ancestry Expansion (km per year)")
-  ggsave("ancestry_speed.png", plot = ancestry_speed, units = "in", width = 8, height = 6, device="png", dpi=700)
   
   ancestry = 
     ggplot(all_sim_data[Year %% 200 == 0]) + 
