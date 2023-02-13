@@ -219,21 +219,6 @@ if (length(square_file_names) != 0)
   # Run a linear model to calculate the speed of wave and add as a column
   all_sim_data[, speedOfWave := lm(km_50perc ~ Year)$coeff[2], .(Learning_Prob, Assortative_Mating, Movement)]
 }
-
-# ----------------------------------------------------------------------------------------------------------------
-# Run on all data and create new columns for distance and calculate ancestry cline
-# ----------------------------------------------------------------------------------------------------------------
-
-if (length(square_file_names) != 0)
-{
-  # Add column to data for the distance traveled on the x-axis in km when the farming ancestry is at least 50 percent
-  all_sim_data[, Ancestry_Cline := as.numeric(0)]
-  all_sim_data[, Ancestry_Cline := interpolate(Mid_Point_km, Farmer_Ancestry_Partition_All), 
-               .(Year, Learning_Prob, Assortative_Mating, Movement)]
-  
-  # Run a linear model to calculate the speed of wave and add as a column
-  all_sim_data[, speedOfAncestry := lm(Ancestry_Cline ~ Year)$coeff[2], .(Learning_Prob, Assortative_Mating, Movement)]
-}
   
 # Write to output file
 fwrite(all_sim_data, file = "all_sim_data.csv", append = FALSE, quote = "auto", sep = ",")
