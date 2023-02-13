@@ -152,7 +152,7 @@ The second ("gamma") is the preference of a HG to choose a farmer as a teacher o
  
 Next, is a minimum age required for reproduction:  "min_repro_age". Individuals MUST BE OLDER than the provided age in this parameter for them to be able to reproduce. This prevents infants and small children from being able to reproduce which is unrealistic.
  
-Lastly, the age related mortality table is a life table. This data comes from "age at death" studies. It is implemented similarly to SLiM recipe 16.2 Age structure (a life table model) by Benjamin C. Haller and Philipp W. Messer. It is described in the [manual](http://benhaller.com/slim/SLiM_Manual.pdf) in a succinct and useful way:
+Lastly, the age related mortality table is a life table. This data comes from "age at death" studies. It is implemented similarly to SLiM recipe 16.2 Age structure (a life table model) by Benjamin C. Haller and Philipp W. Messer. It is described in the [SLiM manual](http://benhaller.com/slim/SLiM_Manual.pdf) in a succinct and useful way:
  
 *"the addition of the defined constant [age_scale] ... is our life table. 
 It gives the probability of mortality for each age; newly generated juveniles have a mortality of 0.7 (i.e., 70%), then the mortality drops to zero for several years, and then it ramps gradually upward with increasing age until it reaches 1.0 [at which all individuals of this age] will die. Note that this is only the age-related mortality; density-dependence will also cause mortality, as we will see below, but that will be additional to this age-related mortality, which would occur even in
@@ -181,16 +181,23 @@ The ages of individuals correspond to the indices of the life table.
 ```
 Color_scheme is a binary choice for if you want genomic coloring gradient or phenotypic behavioral coloring
 
-The next two are options that determine if you want special colors for specific conditions like those who have recently learned or first generation "hybrids"
+The next two are options that determine if you want special colors for specific conditions like those who have recently learned or first generation offspring between a HG and a farmer.
 
-*Preferences regarding the map on which the individuals move*
+*Preferences regarding the landscape map on which the individuals move*
 
+"map_style" dictates the landscape type for the simulation. 
+Parameter of 0 = no topography, 1 = super light topography, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
+
+" num_partitions" is a parameter used only when running the sim on map style 5 (square). This parameter divides the landscape into discrete bins and allows for measurement of expansion speed and tracking simulation progress when run in a simple landscape model. This parameter controls the number of bins.
+
+"water_crossings" provides the option that individuals have faux "land bridges" that simulate realistic routes that individuals traveled via waterways. This parameter only applies when run on the landscape map. The binary nature of our landscape model means that water travel may not be possible otherwise depending on moment range. This parameter provides the option to allow incremental movement over water.
+ 
 ```
 	
 	// Map Prefs: 
 	// ***********************************	
 	if (!exists("map_style"))
-		defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topopgraphy, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
+		defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topography, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
 	if (!exists("num_partitions"))
 		defineConstant("num_partitions", 20); // Number of partitions if using the square
 	if (!exists("water_crossings"))
@@ -201,7 +208,7 @@ The next two are options that determine if you want special colors for specific 
 		defineConstant("file_extention", ".png");
 ```
 
-*These parameters do not need to be changed! They handle what map to use. If you want to use a custom map, enter the file name at the begining of the script*
+*The following parameters below **do not need to be changed**! They handle what map to use. If you want to use a custom map, enter the file name at the begining of the script*
 
 ```
 	defineConstant("mapfile_none", wd + "/EEA_map" + file_extention); // File Path to Map Image
@@ -212,11 +219,11 @@ The next two are options that determine if you want special colors for specific 
 	defineConstant("square", wd + "/square.png"); // File Path to Map Image
 	defineConstant("custom_map", wd + custom_map_filename); // File Path to Map Image
 ```
-The maps are available for download in the repo. The path points to where the map is in your system so the name of the map MUST be changed to fit your file structure if you altered the name of the map.
+***The maps are available for download in the repo.** The path points to where the map is in your system. If you altered the name of the map the name of the map MUST be changed to fit your file structure. It is recommended that you DO NOT change the map names. If you do not alter them, setting the WD at the top of the script is sufficient.*
 
-The next parameter is the length and width of the map. This will be used when building the map.
+*The next parameter set is the length and width of the map. This will be used when building the map.*
 
-These parameters handle the map size in km. If using provided EEA maps, length and width for map style images should be kept at a 1 to 1 aspect ratio (square) to avoid distortion. By default they are 3700 x 3700 km square maps
+The follwoing parameters handle the map size in km. If using provided EEA maps from the repo, length and width for map style images should be kept at a 1 to 1 aspect ratio (square) to avoid distortion. By default they are 3700 x 3700 km square maps
 
 ```
 	if (!exists("map_size_length"))
@@ -259,17 +266,17 @@ This introduces a marker mutation for farmers that we can see recombine with HGs
 	initializeInteractionType(3, "xy", reciprocal=T, maxDistance=LD);
 ```
 
-This initializes the interaction types between individuals:
+The code above initializes the interaction types between individuals:
 
-*1) Spatial competition between nearby individuals*
-
-*2) Mating*
-
-*3) Learning*
+    1) Spatial competition between nearby individuals
+    2) Mating
+    3) Learning
 
 These all take place within a certain distance range specified by parameters above.
 
 #### First generation of the simulation- building initial population
+
+The following code initializes the simulation:
 ```
 
 1 early()
@@ -309,7 +316,7 @@ These all take place within a certain distance range specified by parameters abo
 	}
 	
 ```
-The next section is responsible for setting up the age distribution from the initial population. If the age stucture is not defined then there will be a mating depression and a population crash due to the unrealsitic distributuion of ages in the population. We want the population to be representitive from the first generation. There would never be a real life situation where inidividuals all spawned in at zero years old by themselves.
+The next section is responsible for setting up the age distribution from the initial population. If the age structure is not defined then there will be a mating depression and a population crash due to the unrealistic distribution of ages in the population. We want the population to be representative from the first generation. There would never be a real life situation where individuals all spawned in at zero years old by themselves.
 
 ```
 	// Set ages of created individuals (inital age dist)
@@ -322,14 +329,16 @@ The next section is responsible for setting up the age distribution from the ini
 	defineConstant("M", eq_offspring_rate); // Define this value for use later
 ```
 
-This section sets up how the image file of the map works.
+The next section sets up how the image file of the map works. It defines the map and its bounds, as well as locations in which individuals begin the simulation. It starts farmers near Anatolia if using the landscape map or near the left edge if using the square.
 
-It defines the map and its bounds.
+This portion also sets up the z coordinate for individuals and adds the marker mutation. The z coordinate here represents the behavioral phenotype- farming vs HGing.
+
+Lastly, it also sets up how the coloring schemes work. It sets it up both by phenotype (behavioral) coloring and genomic coloring based on user provided preference above.
 
 ```
 	// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
 	// Make individuals near anatolia and greece farmers or near the edge if using the square
-	//
+
 	if (map_style == 5)
 		p1.individuals[p1.individuals.x > (0.98 * map_size_width)].z = 1;
 	else
@@ -362,16 +371,6 @@ It defines the map and its bounds.
 	}
 }
 ```
-
-This portion sets up the z coordinate for individuals and adds the marker mutation.
-
-The z coordinate here represents the behavioral phenotype- farming vs HGing.
-
-Individuals located near Anatolia and Greece on the map begin as farmers and slowly expand throughout Europe.
-
-This portion also sets up how the coloring schemes work. 
-
-It sets it up both by phenotype (behavioral) coloring and genomic coloring based on user provided preference above.
 
 #### Reproduction
 
