@@ -72,15 +72,18 @@ i.e. -d HGK=0.60
 
 ###### Parameters for how the population grows, interacts and moves
 
+The first parameter "DS" is used to downscale the simulations so they require less memory and computational time
 ```
-  	// Carrying Capacities and Pop Sizes:
+	// Carrying Capacities and Pop Sizes:
 	// ***********************************
+	if (!exists("DS"))
+		defineConstant("DS", 1); // Down scale the simulation ( Must be >= 1)
 	if (!exists("SN"))
-		defineConstant("SN", 876160); // Starting number of individuals
+		defineConstant("SN", integerDiv(876160, DS)); // Starting number of individuals
 	if (!exists("HGK"))
-		defineConstant("HGK", 0.064); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling 
+		defineConstant("HGK", 0.064 / DS); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	if (!exists("FK"))
-		defineConstant("FK", 0.128); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
+		defineConstant("FK", 0.128 / DS); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
  ```
 The following parameters below describe the starting number of individuals in the sim for HGs and farmers and the distances they can travel.
