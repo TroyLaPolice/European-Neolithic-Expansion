@@ -12,6 +12,10 @@ library(dplyr)
 setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/collab_runs/ancestry_dist_more_inds_5km")
 map_size_km = 3700
 
+# -------------------------------
+# If landscape is simple square
+# -------------------------------
+
 # Specify and select files
 square_file_names = list.files(".", pattern="sim_sq*", full.names = TRUE)
 
@@ -22,6 +26,10 @@ if (length(square_file_names) != 0)
   # Read in File
   square_files = lapply(square_file_names, read.csv)
 }
+
+# -------------------------------
+# If landscape is complex map
+# -------------------------------
 
 # Specify and select files
 non_square_file_names = list.files(".", pattern="sim_pop*", full.names = TRUE)
@@ -34,13 +42,9 @@ if (length(non_square_file_names) != 0)
   non_square_files = lapply(non_square_file_names, read.csv)
 }
 
-if (length(square_file_names) != 0)
-{
-  # Sort Files
-  square_file_names = mixedsort(square_file_names)
-  # Read in File
-  square_files = lapply(square_file_names, read.csv)
-}
+# -----------------------------------------
+# If there's an ancestry distribution file
+# -----------------------------------------
 
 # Specify and select files
 ancestry_dist_files_names = list.files(".", pattern="sim_ancestry_distribution*", full.names = TRUE)
@@ -50,9 +54,14 @@ if (length(ancestry_dist_files_names) != 0)
   # Sort Files
   ancestry_dist_files_names = mixedsort(ancestry_dist_files_names)
   # Read in File
-  ancestry_dist_files = lapply(ancestry_dist_files_names, read.csv)
+  ancestry_dist_files = lapply(ancestry_dist_files, read.csv)
 }
 
+# -----------------------------------------
+# If there's an ancestry sample file
+# -----------------------------------------
+
+# Specify and select files
 ancestry_sample_names = list.files(".", pattern="sim_ancestry_sample*", full.names = TRUE)
 
 if (length(ancestry_sample_names) != 0)
@@ -62,6 +71,10 @@ if (length(ancestry_sample_names) != 0)
   # Read in File
   ancestry_sample_files = lapply(ancestry_sample_names, read.csv)
 }
+
+# -----------------------------------------
+# Read in parameter file
+# -----------------------------------------
 
 # Read in Param File
 param_file_name = "param_inputs_clean.txt"
@@ -249,6 +262,10 @@ overall_ancestry_all = ggplot(all_sim_data) +
                                          subtitle = "Faceted by Assortative Mating Preference")
 ggsave("overall_ancestry_all.png", plot = overall_ancestry_all, units = "in", width = 10, height = 11, device="png", dpi=700)
 
+# -------------------------------
+# If landscape is simple square
+# -------------------------------
+
 if (length(square_file_names) != 0)
 {
   speed = ggplot(all_sim_data[Learning_Prob_n != 1 & Learning_Prob_n != 0.01 & Learning_Prob_n != 0.1]) + 
@@ -294,6 +311,10 @@ if (length(square_file_names) != 0)
                                           subtitle = "Faceted by Learning Probability ~ Assortative Mating Preference")
   ggsave("wave_ancestry_overlay.png", plot = wave_ancestry_overlay, units = "in", width = 14, height = 8, device="png", dpi=700)
 }
+
+# -----------------------------------------
+# If there's an ancestry sample file
+# -----------------------------------------
 
 if (length(ancestry_sample_names) != 0)
 {
