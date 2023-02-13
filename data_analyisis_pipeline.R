@@ -237,7 +237,7 @@ if (length(square_file_names) != 0)
 fwrite(all_sim_data, file = "all_sim_data.csv", append = FALSE, quote = "auto", sep = ",")
 
 # ----------------------------------------------------------------------------------------------------------------
-# Plot to make visual checks
+# Plot data
 # ----------------------------------------------------------------------------------------------------------------
 
 remaining_ancestry = ggplot(all_sim_data[TotalHGs == 0]) + 
