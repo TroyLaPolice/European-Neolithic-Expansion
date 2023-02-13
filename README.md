@@ -698,7 +698,10 @@ early()
 
 #### Finally, write output to files
 
-This first early function only runs once and generates the headers for the files before the simulation adds the values
+This first early function only runs once and generates the headers for the files before the simulation adds the values.
+
+***Please see in-line comments for additional information on specific outputs.***
+
 ```
 1 early()
 {
@@ -775,6 +778,9 @@ This first early function only runs once and generates the headers for the files
 }
 ```
 The next output function runs when the square simplified landscape is used (map_style==5). This provides more detailed outputs regarding the wave progression. The simplified landscape allows for more complex calculations due to the reduced variable conditions.
+
+***Please see in-line comments for additional information on specific outputs.***
+
 ```
 late()
 {
@@ -937,6 +943,8 @@ The output 3 function runs every 200 years and samples 1000 random individuals' 
 
 Output 4 runs each year and prints simple summary statistics of the population ancestry distribution.
 
+***Please see in-line comments for additional information on specific outputs.***
+
 ```
 late()
 {
@@ -969,7 +977,9 @@ late()
 	writeFile(wd + output_ancestry_dist_file_name, output_ancestry_dist_string, append=T);
 }
 ```
-Finally, output 5 runs the actual simulation and prints out standard statistics if the sim is run on a map landscape (map_style != 5). 
+Finally, output 5 runs the actual simulation and prints out standard statistics if the sim is run on a map landscape (map_style != 5).
+
+***Please see in-line comments for additional information on specific outputs.***
 
 ```
 1:6000 late()
