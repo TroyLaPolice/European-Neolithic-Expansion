@@ -1,3 +1,4 @@
+
 # Modeling Hunter Gatherer/Farmer Interactions
 
 
@@ -7,33 +8,36 @@ This simulation models the interaction between Hunter Gatherers and Farmers in N
 It represents the expansion of farming throughout Europe during this time period.
 It is a Non-WF model featuring spatial competition, reproduction and learning. It is a 2D spatial model that can be displayed on a map.
 
-### About the map:
+#### About the map:
 
 The map is a square approximation of Europe which, by default is 3,700 km^2.
 
-### Color schemes:
+#### Color schemes when run in GUI:
 
-#### Behavioral coloring
-Hunter gatherers (HGs) and farmers can be represented as colors by phenotype: The general defaults are listed below.
-Another color can also be turned on to represent first generation offspring of a farmer and a HG. By default this is off.
+##### Behavioral coloring
+Hunter gatherers (HGs) and farmers can be represented as colors by phenotype:.
+The general defaults are listed below:
+
+Another color can also be turned on to represent first generation offspring of a farmer and a HG. By default this is off. 
 ```
 Red: Hunter Gatherer
 Blue: Farmer
-Green: Hunter Gatherer who became a farmer by learning (Phenotypically now a farmer)
+Green: Hunter Gatherer who became a farmer by learning (Behavorially now a farmer)
+Yellow: First generation offspring of a farmer and a HG (Behavorially a farmer)
 ```
 
-#### Genotypic coloring
+##### Genotypic coloring
 The genotypic coloring scheme shows the proportion of farmer ancestry in the population rather than the phenotype of HG vs farmer.
 The coloring is a spectrum from black to blue. The gradation is as follows:
 ```
-Blue: Farmer
+Blue: 100% Farmer
  to
-Black: HG
+Black: 0% Farmer (HG)
 ```
 
 ## Code:
 
-#### Initialize function
+### Initialize function
 
 ```
 initialize()
@@ -44,11 +48,13 @@ initialize()
 
 This bit of code begins the model and creates the non-WF model and the xy dimensionality of the map.
 
-##### Parameters
+#### Parameters
 
-###### These can be altered via the command line by using the -d flag and then setting the parameter equal to a value
+##### These can be altered via the command line by using the -d flag and then setting the parameter equal to a value
 
-i.e. -d HGK=0.60
+i.e. 
+
+> -d HGK=0.60
 
 ```
   	// ---------------------------------------------------
@@ -56,7 +62,7 @@ i.e. -d HGK=0.60
 	// ---------------------------------------------------
 ```
 
-*First we need to set our working directory and if the user choses a special custom map they will need to provide the file name (otherwise leave this as 0)*
+*First we need to set our working directory and if the user chooses a special custom map they will need to provide the file name (otherwise leave this as 0)*
 
 ```
 	//SET WORKING DIRECTORY AND CUSTOM MAP NAME IF DESIRED
@@ -70,9 +76,8 @@ i.e. -d HGK=0.60
 
 *Next begins the set up where parameters for the model will be set. Some of these will not need to be touched but some should be tuned to your liking.*
 
-###### Parameters for how the population grows, interacts and moves
+##### Parameters for how the population grows, interacts and moves
 
-The first parameter "DS" is used to downscale the simulations so they require less memory and computational time
 ```
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
@@ -86,10 +91,12 @@ The first parameter "DS" is used to downscale the simulations so they require le
 		defineConstant("FK", 0.128 / DS); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
  ```
-The following parameters below describe the starting number of individuals in the sim for HGs and farmers and the distances they can travel.
-These parameters should be adjusted to your liking.
 
-The movement_distances parameter is a series of distances that are sampled from based on the probability that an individual travels that distance. The movement_distance_weights parameter is the vector of corresponding probabilities.
+The first parameter "DS" is used to downscale the simulations so they require less memory and computational time. "SN" represents the starting number of individuals. If a downscale is required, set this value to the number PRE-downscale. The DS param will take care of the scaling. The next two are carrying capacity (k) values. One for hunter gatherers (HGK) and one for farmers (FK)  
+
+*The following parameters below describe competition in the sim for HGs and farmers and the distances they can travel. These parameters should be adjusted to your liking.*
+
+The "S" parameter represents the radius of the area in which the individuals will compete locally (km). "C" dictates who the individuals compete with in the simulation. If C = 1 that means there will be competition between individuals of different phenotypes (ie HGs compete with Farmers for space). If C = 0 then competition only happens within their like groups. The next several parameters represent the sigma for the multivariate normal distributions that dictate movement ranges per year. There are values in the X and Y direction for both HGs and Farmers.
 
 ```
 	// Movement and interaction and competition:
@@ -98,16 +105,20 @@ The movement_distances parameter is a series of distances that are sampled from 
 		defineConstant("S", 30); // spatial competition distance (ENTER IN KILOMETERS)
 	if (!exists("C"))
 		defineConstant("C", 1); // If C = 1 that means there will be competition between individuals of different phenotypes (ie HGs compete with Farmers for space) If C = 0 then competition only happens within their like groups
-	if (!exists("SDX"))
-		defineConstant("SDX", 30); // Movement standard diviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
-	if (!exists("SDY"))
-		defineConstant("SDY", 30); // Movement standard diviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
+	if (!exists("F_SDX"))
+		defineConstant("F_SDX", 5); // Farmer Movement standard deviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
+	if (!exists("F_SDY"))
+		defineConstant("F_SDY", 5); // Farmer Movement standard deviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
+	if (!exists("HG_SDX"))
+		defineConstant("HG_SDX", 5); // HG Movement standard deviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
+	if (!exists("HG_SDY"))
+		defineConstant("HG_SDY", 5); // HG Movement standard deviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
 		
 ```
- This next block contains parameters about rates for mating, learning and death. 
+ *This next block contains parameters about rates for mating, learning and death.* 
  	
 ```
-/ Learning, death and mating rate params:
+// Learning, death and mating rate params:
 	// ***********************************
 	if (!exists("L"))
 		defineConstant("L", 0.1); // Learning rate - product of constant number of teachers times probability of learning per contact
@@ -126,17 +137,22 @@ The movement_distances parameter is a series of distances that are sampled from 
 	defineConstant("age_scale", c(0.211180124, 0.211180124, 0.211180124, 0.211180124, 0.211180124, 0.251968504, 0.251968504, 0.251968504, 0.251968504, 0.251968504, 0.105263158, 0.105263158, 0.105263158, 0.105263158, 0.105263158, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.164705882, 0.253521127, 0.253521127, 0.253521127, 0.253521127, 0.253521127, 0.301886792, 0.301886792, 0.301886792, 0.301886792, 0.301886792, 0.378378378, 0.378378378, 0.378378378, 0.378378378, 0.378378378, 0.47826087, 0.47826087, 0.47826087, 0.47826087, 0.47826087, 0.583333333, 0.583333333, 0.583333333, 0.583333333, 0.583333333, 0.6, 0.6, 0.6, 0.6, 0.6, 1.0));
  ```
  
- The first perameter L refers to likelihood that farmers will teach a HG how to farm is is the product of constant number of teachers times probability of learning per contact.
+The first parameter "L" refers to likelihood that farmers will teach a HG how to farm is is the product of constant number of teachers times probability of learning per contact.
  
- The second (gamma) is the preference of a HG to choose a farmer as a teacher over choosing a HG
- 
+The second ("gamma") is the preference of a HG to choose a farmer as a teacher over choosing a HG
+
+"LD" represents the radius of the area in which the individual HGs can learn from farmers (km) - i.e. if a HG is within LD of a farmer there is a possibility the HG can learn farming. 
+
  The next block of parameters handles reproduction probabilities (i.e., the probability that a pair mates and produces an offspring) 
  
- MP is the amount of assortative mating, i.e., the probability that mates will choose behaviorally similar mates. 1 = full assortative, 0.5 = no assortative, 0 = individuals only mate with individuals of opposite phenotypes
+ "MD" represents the radius of the area in which the individuals will search for mates (km)
  
- Next is a minimum age required for reproduction. Individuals MUST BE OLDER than the provided age in this parameter for them to be able to reproduce. This prevents infants and small children from being able to reproduce which is unrealistic.
+"MP" is the amount of assortative mating, i.e., the probability that mates will choose behaviorally similar mates. 
+1 = full assortative, 0.5 = no assortative, 0 = individuals only mate with individuals of opposite phenotypes
  
- Lastly, the age related mortality table is a life table. This data comes from "age at death" studies. It is implemented similarly to SLiM recipe 16.2 Age structure (a life table model) by Benjamin C. Haller and Philipp W. Messer. It is described in the [manual](http://benhaller.com/slim/SLiM_Manual.pdf) in a succinct and useful way:
+Next, is a minimum age required for reproduction:  "min_repro_age". Individuals MUST BE OLDER than the provided age in this parameter for them to be able to reproduce. This prevents infants and small children from being able to reproduce which is unrealistic.
+ 
+Lastly, the age related mortality table is a life table. This data comes from "age at death" studies. It is implemented similarly to SLiM recipe 16.2 Age structure (a life table model) by Benjamin C. Haller and Philipp W. Messer. It is described in the [manual](http://benhaller.com/slim/SLiM_Manual.pdf) in a succinct and useful way:
  
 *"the addition of the defined constant [age_scale] ... is our life table. 
 It gives the probability of mortality for each age; newly generated juveniles have a mortality of 0.7 (i.e., 70%), then the mortality drops to zero for several years, and then it ramps gradually upward with increasing age until it reaches 1.0 [at which all individuals of this age] will die. Note that this is only the age-related mortality; density-dependence will also cause mortality, as we will see below, but that will be additional to this age-related mortality, which would occur even in
@@ -146,7 +162,7 @@ a population that was not limited by its density." -Benjamin C. Haller and Phili
 The ages of individuals correspond to the indices of the life table.
  
  
-###### Parameters for user preferences on how the model will look and run
+##### Parameters for user preferences on how the model will look and run
 
 ```
 	// ---------------------------------------------------
