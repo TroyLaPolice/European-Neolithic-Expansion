@@ -186,7 +186,7 @@ The next two are options that determine if you want special colors for specific 
 *Preferences regarding the landscape map on which the individuals move*
 
 "map_style" dictates the landscape type for the simulation. 
-Parameter of 0 = no topography, 1 = super light topography, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
+Parameter of 0 = no topography, 1 = super light topography, 2 = light topography, 3 = regular topography, 4 = heavy topography, 5 = square, 6 = custom map
 
 "num_partitions" is a parameter used only when running the sim on map style 5 (square). This parameter divides the landscape into discrete bins and allows for measurement of expansion speed and tracking simulation progress when run in a simple landscape model. This parameter controls the number of bins.
 
