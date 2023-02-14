@@ -333,17 +333,18 @@ if (length(ancestry_sample_names) != 0)
                                                                       subtitle = "Faceted by Assortative Mating ~ 1,000 Year Time Bins (Learning Prob == 0)") + theme_bw() 
   #ggsave("assort_ancestry_2d.png", plot = assort_ancestry_2d, units = "in", width = 20, height = 14, device="png", dpi=700)
   
-  singlular_ancestry_2d = ggplot(ancestry_sample_data[Learning_Prob_n == 0 & Movement_n == 8 & Map_Style_n == 0 & Water_Crossings_n == 1]) + geom_point(aes(Individual_X, Individual_Y, col = Farming_Ancestry, pch=factor(Individual_Z))) + 
-    facet_grid(cut(Year, seq(0,6000,1500)) ~ .) + ggtitle("Ancestry Distribution on Landscape", subtitle = "1,500 Year Time Bins") + theme_bw() 
-  ggsave("singlular_ancestry_2d.png", plot = singlular_ancestry_2d, units = "in", width = 6.85, height = 14, device="png", dpi=700)
+  singlular_ancestry_2d = ggplot(ancestry_sample_data[Learning_Prob_n == 0 & Movement_n == 8 & Map_Style_n == 0 & Water_Crossings_n == 0]) + geom_point(aes(Individual_X, Individual_Y, col = Farming_Ancestry, pch=factor(Individual_Z))) + 
+    facet_grid(cut(Year, seq(0,6000,2000)) ~ .) + ggtitle("Ancestry Distribution on Landscape", subtitle = "2,000 Year Time Bins") + theme_bw() 
+  ggsave("singlular_ancestry_2d_3bins.png", plot = singlular_ancestry_2d, units = "in", width = 6.85, height = 14, device="png", dpi=700)
+  #ggsave("singlular_ancestry_2d_2bins.png", plot = singlular_ancestry_2d, units = "in", width = 8.85, height = 14, device="png", dpi=700)
   
   learning_ancestry_2d = ggplot(ancestry_sample_data[Assortative_Mating_n == 1 & Movement_n == 8 & Map_Style_n == 0 & Water_Crossings_n == 0]) + geom_point(aes(Individual_X, Individual_Y, col = Farming_Ancestry, pch=factor(Individual_Z))) + 
     facet_grid(cut(Year, seq(0,6000,1000))~Learning_Prob_n) + ggtitle("Farming Ancestry by X & Y Coordinate (Visualization of Ancestry Distribution on Landscape)", 
                                                                             subtitle = "Faceted by Learning Probability ~ 1,000 Year Time Bins (Assortative Mating == Full)") + theme_bw() 
   #ggsave("learning_ancestry_2d.png", plot = learning_ancestry_2d, units = "in", width = 20, height = 14, device="png", dpi=700)
   
-  singlular_learning_2d = ggplot(ancestry_sample_data[Assortative_Mating_n == 1 & Movement_n == 8 & Map_Style_n == 0 & Water_Crossings_n == 1]) + geom_point(aes(Individual_X, Individual_Y, col = Farming_Ancestry, pch=factor(Individual_Z))) + 
-    facet_grid(cut(Year, seq(0,6000,2100)) ~ .) + ggtitle("Ancestry Distribution on Landscape", subtitle = "2,100 Year Time Bins") + theme_bw() 
-  ggsave("singlular_learning_2d.png", plot = singlular_learning_2d, units = "in", width = 6.85, height = 14, device="png", dpi=700)
+  singlular_learning_2d = ggplot(ancestry_sample_data[Assortative_Mating_n == 1 & Movement_n == 8 & Map_Style_n == 0 & Water_Crossings_n == 0]) + geom_point(aes(Individual_X, Individual_Y, col = Farming_Ancestry, pch=factor(Individual_Z))) + 
+    facet_grid(cut(Year, seq(0,6000,2000)) ~ .) + ggtitle("Ancestry Distribution on Landscape", subtitle = "2,000 Year Time Bins") + theme_bw() 
+  ggsave("singlular_learning_2d_3bins.png", plot = singlular_learning_2d, units = "in", width = 6.85, height = 14, device="png", dpi=700)
   
 }
