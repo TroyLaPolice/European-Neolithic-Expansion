@@ -143,9 +143,9 @@ The second ("gamma") is the preference of a HG to choose a farmer as a teacher o
 
 "LD" represents the radius of the area in which the individual HGs can learn from farmers (km) - i.e. if a HG is within LD of a farmer there is a possibility the HG can learn farming. 
 
- The next block of parameters handles reproduction probabilities (i.e., the probability that a pair mates and produces an offspring) 
+The next block of parameters handles reproduction probabilities (i.e., the probability that a pair mates and produces an offspring) 
  
- "MD" represents the radius of the area in which the individuals will search for mates (km)
+"MD" represents the radius of the area in which the individuals will search for mates (km)
  
 "MP" is the amount of assortative mating, i.e., the probability that mates will choose behaviorally similar mates. 
 1 = full assortative, 0.5 = no assortative, 0 = individuals only mate with individuals of opposite phenotypes
@@ -179,7 +179,7 @@ The ages of individuals correspond to the indices of the life table.
 	defineConstant("Color_option1", 0); // Parameter of 0 = No special color for 1st generation 'hybrid' offspring, 1 = Coloring for 1st generation 'hybrid' offspring
 	defineConstant("Color_option2", 1); // Parameter of 0 = No special color for 1st generation HG individuals who have learned, 1 = Coloring for 1st generation HG individuals who have learned
 ```
-Color_scheme is a binary choice for if you want genomic coloring gradient or phenotypic behavioral coloring
+"Color_scheme" is a binary choice for if you want genomic coloring gradient or phenotypic behavioral coloring
 
 The next two are options that determine if you want special colors for specific conditions like those who have recently learned or first generation offspring between a HG and a farmer.
 
@@ -188,7 +188,7 @@ The next two are options that determine if you want special colors for specific 
 "map_style" dictates the landscape type for the simulation. 
 Parameter of 0 = no topography, 1 = super light topography, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
 
-" num_partitions" is a parameter used only when running the sim on map style 5 (square). This parameter divides the landscape into discrete bins and allows for measurement of expansion speed and tracking simulation progress when run in a simple landscape model. This parameter controls the number of bins.
+"num_partitions" is a parameter used only when running the sim on map style 5 (square). This parameter divides the landscape into discrete bins and allows for measurement of expansion speed and tracking simulation progress when run in a simple landscape model. This parameter controls the number of bins.
 
 "water_crossings" provides the option that individuals have faux "land bridges" that simulate realistic routes that individuals traveled via waterways. This parameter only applies when run on the landscape map. The binary nature of our landscape model means that water travel may not be possible otherwise depending on moment range. This parameter provides the option to allow incremental movement over water.
  
