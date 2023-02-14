@@ -118,7 +118,7 @@ The "S" parameter represents the radius of the area in which the individuals wil
  *This next block contains parameters about rates for mating, learning and death.* 
  	
 ```
-// Learning, death and mating rate params:
+	// Learning, death and mating rate params:
 	// ***********************************
 	if (!exists("L"))
 		defineConstant("L", 0.1); // Learning rate - product of constant number of teachers times probability of learning per contact
