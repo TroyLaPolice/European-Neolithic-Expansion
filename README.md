@@ -1,6 +1,6 @@
 
 # Modeling Hunter Gatherer/Farmer Interactions
-*The following document will outline how the simulation code works. Text blocks will explain how the different pieces of the code work. Aside from the text blocks, **please also note comments in the code blocks** (denoted by //) as these **will** oftentimes **provide additional information in-line.***
+*The following document will outline how the simulation code works. Text blocks will explain how the different pieces of the code work. Aside from the text blocks, **please also note comments in the code blocks** (denoted by //) as these **will provide additional information in-line.***
 
 ## About the simulation
 
