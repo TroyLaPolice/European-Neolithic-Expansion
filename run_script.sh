@@ -7,7 +7,7 @@
 model="model"
 
 # Job name attached to output files
-output_name="test"
+output_name="run"
 
 # Run the slim model and collect statistics on time run and memory usage, log to files
     # final_statistics.log is file generated which collects errors, memory and time statistics and end of job message
