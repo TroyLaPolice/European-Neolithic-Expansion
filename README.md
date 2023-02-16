@@ -262,7 +262,7 @@ This introduces a marker mutation for farmers that we can see recombine with HGs
 	// spatial mate choice
 	initializeInteractionType(2, "xy", reciprocal=T, maxDistance=MD);
 	
-	// spatial mate choice
+	// spatial learning
 	initializeInteractionType(3, "xy", reciprocal=T, maxDistance=LD);
 ```
 
