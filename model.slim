@@ -17,7 +17,7 @@ initialize()
 	// Carrying Capacities and Pop Sizes:
 	// ***********************************
 	if (!exists("DS"))
-		defineConstant("DS", 30); // Down scale the simulation ( Must be >= 1)
+		defineConstant("DS", 1); // Down scale the simulation ( Must be >= 1)
 	if (!exists("SN"))
 		defineConstant("SN", integerDiv(876160, DS)); // Starting number of individuals
 	if (!exists("HGK"))
@@ -117,7 +117,7 @@ initialize()
 	// spatial mate choice
 	initializeInteractionType(2, "xy", reciprocal=T, maxDistance=MD);
 
-	// spatial mate choice
+	// spatial learning
 	initializeInteractionType(3, "xy", reciprocal=T, maxDistance=LD);
 }
 
