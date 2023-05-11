@@ -23,7 +23,7 @@ initialize()
 	if (!exists("HGK"))
 		defineConstant("HGK", 0.064 / DS); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	if (!exists("FK"))
-		defineConstant("FK", 0.128 / DS); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
+		defineConstant("FK", 1.28 / DS); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 
 	// Movement and interaction and competition:
 	// ***********************************
@@ -32,13 +32,13 @@ initialize()
 	if (!exists("C"))
 		defineConstant("C", 1); // If C = 1 that means there will be competition between individuals of different phenotypes (ie HGs compete with Farmers for space) If C = 0 then competition only happens within their like groups
 	if (!exists("F_SDX"))
-		defineConstant("F_SDX", 5); // Farmer Movement standard deviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
+		defineConstant("F_SDX", 8); // Farmer Movement standard deviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
 	if (!exists("F_SDY"))
-		defineConstant("F_SDY", 5); // Farmer Movement standard deviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
+		defineConstant("F_SDY", 8); // Farmer Movement standard deviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
 	if (!exists("HG_SDX"))
-		defineConstant("HG_SDX", 5); // HG Movement standard deviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
+		defineConstant("HG_SDX", 8); // HG Movement standard deviation (sigma) for distribution of distances sampled from in the x direction (ENTER IN KILOMETERS)
 	if (!exists("HG_SDY"))
-		defineConstant("HG_SDY", 5); // HG Movement standard deviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
+		defineConstant("HG_SDY", 8); // HG Movement standard deviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
 
 	// Learning, death and mating rate params:
 	// ***********************************
@@ -102,10 +102,10 @@ initialize()
 	initializeMutationType("m1", 0.5, "f", 0.0); // Tag farmer ancestry
 	m1.convertToSubstitution = F;
 	initializeGenomicElementType("g1", m1, 1.0);
-	initializeGenomicElement(g1, 0, 2886);
+	initializeGenomicElement(g1, 0, 247);
 	initializeMutationRate(0.0);
-	rates = c(0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01, 0.5, 0.01);
-	ends = c(247, 248, 491, 492, 692, 693, 884, 885, 1066, 1067, 1238, 1239, 1398, 1399, 1545, 1546, 1686, 1687, 1822, 1823, 1957, 1958, 2090, 2091, 2205, 2206, 2312, 2313, 2413, 2414, 2503, 2504, 2583, 2584, 2660, 2661, 2724, 2725, 2787, 2788, 2835, 2836, 2886);
+	rates = c(0.01);
+	ends = c(247);
 	initializeRecombinationRate(rates, ends);
 
 	// ---------------------------------------------------
@@ -187,7 +187,7 @@ initialize()
 	// Tag genomic ancestry of farmers with marker mutations (m1)
 	// Each marker mutation represents 1Mb
 	indFarmers = p1.individuals[p1.individuals.z == 1];
-	indFarmers.genomes.addNewMutation(m1, 0.0, 0:2886);
+	indFarmers.genomes.addNewMutation(m1, 0.0, 0:247);
 
 	// Add color to represent phenotype
 	for (i in p1.individuals)
