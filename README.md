@@ -88,7 +88,7 @@ i.e.
 	if (!exists("HGK"))
 		defineConstant("HGK", 0.064 / DS); // carrying capacity for HGs (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	if (!exists("FK"))
-		defineConstant("FK", 0.128 / DS); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
+		defineConstant("FK", 1.28 / DS); // carrying capacity for farmers (ENTER IN INDIVIDUALS PER KM2) for density dependent scaling
 	
  ```
 
