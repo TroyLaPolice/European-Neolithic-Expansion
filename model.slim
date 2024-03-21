@@ -72,7 +72,7 @@ initialize()
 	// Map Prefs:
 	// ***********************************
 	if (!exists("map_style"))
-		defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topography, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
+		defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topography, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = no islands 7 = custom map
 	if (!exists("num_partitions"))
 		defineConstant("num_partitions", 20); // Number of partitions if using the square
 	if (!exists("water_crossings"))
@@ -87,6 +87,7 @@ initialize()
 	defineConstant("mapfile_topo_regular", wd + "/EEA_map_topo_regular" + file_extention); // File Path to Map Image
 	defineConstant("mapfile_topo_heavy", wd + "/EEA_map_topo_heavy" + file_extention); // File Path to Map Image
 	defineConstant("square", wd + "/square.png"); // File Path to Map Image
+	defineConstant("mapfile_island_removed", wd + "/EEA_map_island_removed" + file_extention); // File Path to Map Image
 	defineConstant("custom_map", wd + custom_map_filename); // File Path to Map Image
 
 	// If using provided EEA maps, length and width for map style images should be kept at a 1 to 1 aspect ratio (square) to avoid distortion
@@ -124,6 +125,9 @@ initialize()
 1 early()
 {
 	sim.addSubpop("p1", SN);
+	
+	// Set a variable that will output sample data only in the first year after all HGs are gone
+	defineGlobal("output_on_off", 1);
 }
 
 2: first()
@@ -151,6 +155,8 @@ initialize()
 	else if (map_style == 5)
 		mapImage = Image(square); //square
 	else if (map_style == 6)
+		mapImage = Image(mapfile_island_removed); //no islands
+	else if (map_style == 7)
 		mapImage = Image(custom_map); //custom
 
 	// Set up map
@@ -711,10 +717,12 @@ late()
 	//  OUTPUT3 --> Sample individuals to get ancestry distribution
 	// ------------------------------------------------------------
 
-	if (sim.cycle % 200 == 0) // Runs every 200 Years
+	HGs = p1.individuals[p1.individuals.z == 0];
+
+	if (length(HGs) == 0 & output_on_off == 1) // Runs once everyone is a Farmer
 	{
 
-		selected_inds = sample(p1.individuals, 1000); // Select 1000 inds from pop to sample ancestry
+		selected_inds = sample(p1.individuals, 100000); // Select 1000 inds from pop to sample ancestry
 
 		for (ind in selected_inds)
 		{
@@ -722,6 +730,9 @@ late()
 			output_ancestry_sample_file_name = ("/sim_ancestry_sample_" + output_name + ".csv");
 			writeFile(wd + output_ancestry_sample_file_name, output_ancestry_sample_string, append=T);
 		}
+		
+	defineGlobal("output_on_off", 0);
+	
 	}
 }
 
@@ -736,7 +747,7 @@ late()
 	writeFile(wd + output_ancestry_dist_file_name, output_ancestry_dist_string, append=T);
 }
 
-1:6000 late()
+1:11000 late()
 {
 	// -----------------------------------------------------------
 	//  OUTPUT5/RUN --> Run the model and print standard outputs
