@@ -1,4 +1,5 @@
 
+
 # The European Neolithic Expansion: A Model Revealing Intense Assortative Mating and Restricted Cultural Spread  
 *The following document will outline how the simulation code works. Text blocks will explain how the different pieces of the code work. Aside from the text blocks, **please also note comments in the code blocks** (denoted by //) as these **will provide additional information in-line.***
 
@@ -46,15 +47,15 @@ initialize()
 	initializeSLiMOptions(dimensionality="xy", periodicity="");
 ```
 
-This bit of code begins the model and creates the non-WF model and the xy dimensionality of the map.
+This bit of code begins the model and creates the non-Wright Fisher model and the XY dimensionality of the map.
 
 #### Parameters
 
-##### These can be altered via the command line by using the -d flag and then setting the parameter equal to a value
+##### When run from the command line, these can be altered via the command line by using the -d flag and then setting the parameter equal to a value
 
 i.e. 
 
-> -d HGK=0.60
+> -d HGK=0.064
 
 ```
   	// ---------------------------------------------------
@@ -96,8 +97,6 @@ The first parameter "DS" is used to downscale the simulations so they require le
 
 *The following parameters below describe competition in the sim for HGs and farmers and the distances they can travel. These parameters should be adjusted to your liking.*
 
-The "S" parameter represents the radius of the area in which the individuals will compete locally (km). "C" dictates who the individuals compete with in the simulation. If C = 1 that means there will be competition between individuals of different phenotypes (ie HGs compete with Farmers for space). If C = 0 then competition only happens within their like groups. The next several parameters represent the sigma for the multivariate normal distributions that dictate movement ranges per year. There are values in the X and Y direction for both HGs and Farmers.
-
 ```
 	// Movement and interaction and competition:
 	// ***********************************
@@ -115,6 +114,9 @@ The "S" parameter represents the radius of the area in which the individuals wil
 		defineConstant("HG_SDY", 5); // HG Movement standard deviation (sigma) for distribution of distances sampled from in the y direction (ENTER IN KILOMETERS)
 		
 ```
+
+The "S" parameter represents the radius of the area in which the individuals will compete locally (km). "C" dictates who the individuals compete with in the simulation. If C = 1 that means there will be competition between individuals of different phenotypes (i.e., HGs compete with Farmers for space). If C = 0 then competition only happens within their like groups. The next several parameters represent the sigma for the multivariate normal distributions that dictate movement ranges per year. There are values in the X and Y direction for both HGs and Farmers.
+
  *This next block contains parameters about rates for mating, learning and death.* 
  	
 ```
@@ -154,12 +156,11 @@ Next, is a minimum age required for reproduction:  "min_repro_age". Individuals 
  
 Lastly, the age related mortality table is a life table. This data comes from "age at death" studies. It is implemented similarly to SLiM recipe 16.2 Age structure (a life table model) by Benjamin C. Haller and Philipp W. Messer. It is described in the [SLiM manual](http://benhaller.com/slim/SLiM_Manual.pdf) in a succinct and useful way:
  
-*"the addition of the defined constant [age_scale] ... is our life table. 
-It gives the probability of mortality for each age; newly generated juveniles have a mortality of 0.7 (i.e., 70%), then the mortality drops to zero for several years, and then it ramps gradually upward with increasing age until it reaches 1.0 [at which all individuals of this age] will die. Note that this is only the age-related mortality; density-dependence will also cause mortality, as we will see below, but that will be additional to this age-related mortality, which would occur even in
-a population that was not limited by its density." -Benjamin C. Haller and Philipp W. Messer (SLiM Manual)*
+*"the addition of the defined constant [age_scale] ... is our life table. It gives the probability of mortality for each age; newly generated juveniles have a mortality of 0.7 (i.e., 70%), then the mortality drops to zero for several years, and then it ramps gradually upward with increasing age until it reaches 1.0 [at which all individuals of this age] will die. Note that this is only the age-related mortality; density-dependence will also cause mortality, as we will see below, but that will be additional to this age-related mortality, which would occur even in a population that was not limited by its density." 
+-Benjamin C. Haller and Philipp W. Messer ([SLiM manual](http://benhaller.com/slim/SLiM_Manual.pdf))*
 
 
-The ages of individuals correspond to the indices of the life table.
+The ages of individuals correspond to the indices of the life table. (age_scale)
  
  
 ##### Parameters for user preferences on how the model will look and run
@@ -185,13 +186,6 @@ The next two are options that determine if you want special colors for specific 
 
 *Preferences regarding the landscape map on which the individuals move*
 
-"map_style" dictates the landscape type for the simulation. 
-Parameter of 0 = no topography, 1 = super light topography, 2 = light topography, 3 = regular topography, 4 = heavy topography, 5 = square, 6 = custom map
-
-"num_partitions" is a parameter used only when running the sim on map style 5 (square). This parameter divides the landscape into discrete bins and allows for measurement of expansion speed and tracking simulation progress when run in a simple landscape model. This parameter controls the number of bins.
-
-"water_crossings" provides the option that individuals have faux "land bridges" that simulate realistic routes that individuals traveled via waterways. This parameter only applies when run on the landscape map. The binary nature of our landscape model means that water travel may not be possible otherwise depending on moment range. This parameter provides the option to allow incremental movement over water.
- 
 ```
 	
 	// Map Prefs: 
@@ -208,7 +202,15 @@ Parameter of 0 = no topography, 1 = super light topography, 2 = light topography
 		defineConstant("file_extention", ".png");
 ```
 
-*The following parameters below **do not need to be changed**! They handle what map to use. If you want to use a custom map, enter the file name at the begining of the script*
+"map_style" dictates the landscape type for the simulation. 
+Parameter of 0 = no topography, 1 = super light topography, 2 = light topography, 3 = regular topography, 4 = heavy topography, 5 = square, 6 = custom map
+
+"num_partitions" is a parameter used only when running the sim on map style 5 (square). This parameter divides the landscape into discrete bins and allows for measurement of expansion speed and tracking simulation progress when run in a simple landscape model. This parameter controls the number of bins.
+
+"water_crossings" provides the option that individuals have faux "land bridges" that simulate realistic routes that individuals traveled via waterways. This parameter only applies when run on the landscape map. The binary nature of our landscape model means that water travel may not be possible otherwise depending on moment range. This parameter provides the option to allow incremental movement over water.
+ 
+
+*The following parameters below **do not need to be changed**! They handle what map to use. If you want to use a custom map, enter the file name at the beginning of the script*
 
 ```
 	defineConstant("mapfile_none", wd + "/EEA_map" + file_extention); // File Path to Map Image
@@ -217,13 +219,14 @@ Parameter of 0 = no topography, 1 = super light topography, 2 = light topography
 	defineConstant("mapfile_topo_regular", wd + "/EEA_map_topo_regular" + file_extention); // File Path to Map Image
 	defineConstant("mapfile_topo_heavy", wd + "/EEA_map_topo_heavy" + file_extention); // File Path to Map Image
 	defineConstant("square", wd + "/square.png"); // File Path to Map Image
+	defineConstant("mapfile_island_removed", wd + "/EEA_map_island_removed" + file_extention); // File Path to Map Image
 	defineConstant("custom_map", wd + custom_map_filename); // File Path to Map Image
 ```
 ***The maps are available for download in the repo.** The path points to where the map is in your system. If you altered the name of the map the name of the map MUST be changed to fit your file structure. It is recommended that you DO NOT change the map names. If you do not alter them, setting the WD at the top of the script is sufficient.*
 
 *The next parameter set is the length and width of the map. This will be used when building the map.*
 
-The follwoing parameters handle the map size in km. If using provided EEA maps from the repo, length and width for map style images should be kept at a 1 to 1 aspect ratio (square) to avoid distortion. By default they are 3700 x 3700 km square maps
+The following parameters handle the map size in km. If using provided EEA maps from the repo, length and width for map style images should be kept at a 1 to 1 aspect ratio (square) to avoid distortion. By default they are 3700 x 3700 km square maps
 
 ```
 	if (!exists("map_size_length"))
@@ -316,7 +319,7 @@ The following code initializes the simulation:
 	}
 	
 ```
-The next section is responsible for setting up the age distribution from the initial population. If the age structure is not defined then there will be a mating depression and a population crash due to the unrealistic distribution of ages in the population. We want the population to be representative from the first generation. There would never be a real life situation where individuals all spawned in at zero years old by themselves.
+The next section is responsible for setting up the age distribution from the initial population. If the age structure is not defined then there will be a mating depression and a population crash due to the unrealistic distribution of ages in the population. We want the population to be representative from the first generation. There would never be a real life situation where individuals all spawned in at zero years old by themselves. This also sets the mating rate when the population is at equilibrium "M"
 
 ```
 	// Set ages of created individuals (inital age dist)
@@ -589,14 +592,13 @@ First, we count the number nearby competing individuals within "S" (competition 
 	}
 	
 	// Modify mortality curve to account for population density around the indiviudal
-		dens_scal_farmer = (farmers_num_in_s + 1) / (PI * (S^2) * FK + 1); // Density of farmers in the given area
+		dens_scal_farmer = (farmers_num_in_s + 1) / (PI * (S^2) * FK + 1); // Amount of unocupied space under the farmer carrying capactiy in the given area
 		dens = mean(dens_scal_farmer);
 		defineGlobal("density", dens);
 		
 		// Do the same if there are still HGs left
 		if (length(HGs) != 0)
-			dens_scal_HG = (HG_num_in_s + 1) / (PI * (S^2) * HGK + 1); // Density of HGs in the given area
-```
+			dens_scal_HG = (HG_num_in_s + 1) / (PI * (S^2) * HGK + 1); // Amount of unocupied space under the HG carrying capactiy in the given area ```
 
 This next part keeps individuals from living beyond realistic limits. Without this individuals in the sim can live hundreds of years because death it not dependent on age, only population density. (See life table above)
 
@@ -639,10 +641,9 @@ Finally we scale the individuals' fitness by the calculated value.
 				
 	expected_deaths = sum(scaled_mortality_farmer);
 	defineGlobal("expected_deaths", expected_deaths);
-}
+	}
 ```
-
-
+```
 #### Movement of individuals
 
 The individuals cannot move to locations outside of the bounds of the map. They can potentially jump across the water (simulating water travel) to other land masses, assuming it is not beyond their movement range, but they cannot stay in the ocean. The "water_crossing" parameter works around this, as described above. Of course if you chose to run the simulation with the simple black square the individuals can move anywhere within the given map size.
