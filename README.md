@@ -234,7 +234,7 @@ The following parameters handle the map size in km. If using provided EEA maps f
 	if (!exists("map_size_width"))
 		defineConstant("map_size_width", 3700);;
 	
-	// Map citation: [https://www.eea.europa.eu/data-and-maps/figures/elevation-map-of-europe](https://www.eea.europa.eu/ds_resolveuid/558D91E1-3DB0-4639-9F70-2012CC4453A5)
+	// Map citation: https://www.eea.europa.eu/ds_resolveuid/558D91E1-3DB0-4639-9F70-2012CC4453A5
 ```
 
 
