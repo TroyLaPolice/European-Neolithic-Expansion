@@ -5,7 +5,7 @@
 	// Map Prefs: 
 	// ***********************************	
 	if (!exists("map_style"))
-		defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topography, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
+		defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topography, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = no islands 7 = custom map
 	if (!exists("num_bins"))
 		defineConstant("num_bins", 20); // Number of bins if using the square
 	if (!exists("water_crossings"))
@@ -17,7 +17,7 @@
 ```
 
 "map_style" dictates the landscape type for the simulation. 
-Parameter of 0 = no topography, 1 = super light topography, 2 = light topography, 3 = regular topography, 4 = heavy topography, 5 = square, 6 = custom map
+Parameter of 0 = no topography, 1 = super light topography, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = no islands 7 = custom map
 
 "num_bins" is a parameter used only when running the sim on map style 5 (square). This parameter divides the landscape into discrete bins and allows for measurement of expansion speed and tracking simulation progress when run in a simple landscape model. This parameter controls the number of bins.
 
