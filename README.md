@@ -799,7 +799,7 @@ late()
 		bin_widths = map_size_width / num_bins;
 		for (bin in 1:num_bins)
 		{
-			// Collect vector of farming individuals in binicular bin
+			// Collect vector of farming individuals in particular bin
 			if (bin == 1)
 				farmers_bin = farmers[farmers.x <= bin_widths];
 			else if (bin == 2)
@@ -816,7 +816,7 @@ late()
 
 			// Do the same thing for HGs
 			// *************************
-			// Collect vector of HG individuals in binicular bin
+			// Collect vector of HG individuals in particular bin
 			if (bin == 1)
 				HGs_bin = HGs[HGs.x <= bin_widths];
 			else if (bin == 2)
@@ -833,7 +833,7 @@ late()
 
 			// Do the same thing for all individuals
 			// *************************
-			// Collect vector of HG individuals in binicular bin
+			// Collect vector of HG individuals in particular bin
 			if (bin == 1)
 				all_inds_bin = all_inds[all_inds.x <= bin_widths];
 			else if (bin == 2)
