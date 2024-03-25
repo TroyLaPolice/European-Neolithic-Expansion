@@ -15,7 +15,7 @@ The map is a square approximation of Europe which, by default is 3,700 km^2.
 #### Color schemes when run in GUI:
 
 ##### Behavioral coloring
-Hunter gatherers (HGs) and farmers can be represented as colors by phenotype:.
+Hunter gatherers (HGs) and farmers can be represented as colors by phenotype:
 The general defaults are listed below:
 
 Another color can also be turned on to represent first generation offspring of a farmer and a HG. By default this is off. 
