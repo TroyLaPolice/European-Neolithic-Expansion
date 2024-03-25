@@ -1,5 +1,5 @@
 
-# European Neolithic Shift: A Model Revealing Intense Assortative Mating and Restricted Cultural Spread 
+# The European Neolithic Expansion: A Model Revealing Intense Assortative Mating and Restricted Cultural Spread  
 *The following document will outline how the simulation code works. Text blocks will explain how the different pieces of the code work. Aside from the text blocks, **please also note comments in the code blocks** (denoted by //) as these **will provide additional information in-line.***
 
 ## About the simulation
