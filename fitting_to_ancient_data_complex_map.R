@@ -18,8 +18,10 @@ library(Rmpfr)
 # ----------------------------------------------------------------------------------------------------------------
 
 # Set input params
-setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/complex_map")
+wd = ("/path/to/simulation/data")
+setwd(wd)
 map_size_km = 3700
+map = ne_countries(scale = "medium", returnclass = "sf")
 
 # -------------------------------
 # If landscape is complex map
@@ -49,7 +51,7 @@ if (length(ancestry_sample_names) != 0)
   ancestry_sample_names = mixedsort(ancestry_sample_names)
   # Read in File
   ancestry_sample_files = lapply(ancestry_sample_names, function(x) {
-    head(read.csv(x, header = T), 10000)
+    head(read.csv(x, header = T), 100000)
   })
 }
 
@@ -117,20 +119,29 @@ ancestry_sample_data = ancestry_sample_data %>% mutate(Distance_from_Origin = sq
 #Max Distance From Origin Sampled 
 max_dist = max(ancestry_sample_data$Distance_from_Origin)
 
-# Bin based on distance from origin
-ancestry_sample_data = ancestry_sample_data %>% mutate(Distance_Bin = ntile(Distance_from_Origin, n=num_parts))
+possible_cut_bins = c(0,262,524,786,1048,1310,1572,1834,2096,2358,2620,2882,3144,3406,3668,3930,4192,4454,4716,4978,5240)
 
-# Calculate where the first partition midpoint point is
-partition_size = (max_dist / num_parts)
+# Bin based on distance from origin
+ancestry_sample_data = ancestry_sample_data %>% 
+  mutate(Distance_Bin = cut(Distance_from_Origin, breaks=possible_cut_bins, labels=c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20)))
+
+# Calculate where the first bin midpoint point is
+bin_size = (max_dist / num_parts)
 
 # Create column with mid point of each bin
-ancestry_sample_data = ancestry_sample_data %>% mutate(Mid_Point_km = (Distance_Bin*partition_size - partition_size/2))
+ancestry_sample_data = ancestry_sample_data %>% mutate(Mid_Point_km = (as.numeric(Distance_Bin)*bin_size - bin_size/2))
 
 # Group by param combination and calculate mean ancestry in each bin for each param combo
 ancestry_sample_data = ancestry_sample_data %>% group_by(Learning_Prob_n, Distance_Bin) %>%
   mutate(Bin_Mean_Ancestry = mean(Farming_Ancestry))
 
+# Get variance of sampling in each bin
+ancestry_sample_data = ancestry_sample_data %>% group_by(Learning_Prob_n, Distance_Bin) %>%
+  mutate(Bin_Ancestry_Variance = var(Farming_Ancestry))
+
+# Convert to DT
 ancestry_sample_data_dt = setDT(ancestry_sample_data)
+
 
 # ----------------------------------------------------------------------------------------------------------------
 # Set inputs and read in files to be used for analysis
@@ -138,7 +149,7 @@ ancestry_sample_data_dt = setDT(ancestry_sample_data)
 
 map = ne_countries(scale = "medium", returnclass = "sf")
 
-setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/empirical_data")
+setwd("/path/to/empirical/data")
 
 ancient_data = data.table(read.table("qpAdm_Fixed__EuroHG_AnatoliaN.txt", header = T))
 
@@ -157,6 +168,12 @@ ancient_data_filtered[, distFromAnkara := distm(c(GroupMeanLong, GroupMeanLat), 
 ancient_data_filtered[, distFromAnkara_km := distFromAnkara*0.001]
 
 ancient_data_filtered[, time_slice := cut(GroupMeanBP/1000, breaks = seq(12,1,-0.5))]
+
+ancient_data_filtered_df = ancient_data_filtered %>% 
+  mutate(Distance_Bin = cut(distFromAnkara_km, breaks=possible_cut_bins, labels=c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20)))
+
+# Convert back to DT
+ancient_data_filtered = setDT(ancient_data_filtered_df)
 
 # Read in Param File
 param_file = data.table(read.table("param_inputs_clean_filtered.txt", header = T, sep=","))
@@ -181,9 +198,12 @@ interpolate = function(ancient_x_dist, sim_x_dist, sim_farming_ancestry){
 
 main_ancestry_dt = headers
 
-for (param in param_file$Learning_Prob_n)
+for (learning_param in param_file$Learning_Prob_n)
 {
-  individual_param_run = ancestry_sample_data_dt[Learning_Prob_n == param]
+  # Convert back to DT
+  ancient_data_filtered = setDT(ancient_data_filtered)
+  
+  individual_param_run = ancestry_sample_data_dt[Learning_Prob_n == learning_param]
   
   sim_farming_ancestry = (individual_param_run$Bin_Mean_Ancestry)
   sim_x_dist = individual_param_run$Mid_Point_km
@@ -203,10 +223,20 @@ for (param in param_file$Learning_Prob_n)
   ancient_data_filtered[, mean_distance_from_sim_squared := as.numeric(0)]
   ancient_data_filtered[, mean_distance_from_sim_squared := mean(distance_from_sim_squared)]
   
-  #total_varience = sqrt((ancient_data_filtered$se.p1)^2 * nrow(ancient_data_filtered) + (var(ancestry_sample_data_dt$Bin_Mean_Ancestry)))
-    
+  # Convert back to DT
+  ancient_data_filtered = setDT(ancient_data_filtered)
+  
+  ancient_data_filtered = merge(ancient_data_filtered, unique(ancestry_sample_data_dt[Learning_Prob_n == learning_param, .(Distance_Bin, Bin_Ancestry_Variance)], by="Distance_Bin"), by = "Distance_Bin")
+  
+  ancient_data_filtered = subset(ancient_data_filtered, select = -c(Bin_Ancestry_Variance.x))
+  colnames(ancient_data_filtered)[colnames(ancient_data_filtered) == "Bin_Ancestry_Variance.y"] <- "Bin_Ancestry_Variance"
+  
+  ancient_data_filtered[, total_sd := as.numeric(0)]
+  #ancient_data_filtered[, total_sd := sqrt((ancient_data_filtered$se.p1^2) + ancient_data_filtered$Bin_Ancestry_Variance)]
+  ancient_data_filtered[, total_sd := ancient_data_filtered$se.p1]
+                        
   ancient_data_filtered[, log_likelihood := as.numeric(0)]
-  ancient_data_filtered[, log_likelihood := (dnorm(scaled_weight_Anatolia_N, approximated_ancestry, se.p1, log = T))]
+  ancient_data_filtered[, log_likelihood := (dnorm(scaled_weight_Anatolia_N, approximated_ancestry, total_sd, log = T))]
   
   ancient_data_filtered[, sum_log_likelihood := as.numeric(0)]
   ancient_data_filtered[, sum_log_likelihood := sum(log_likelihood)]
@@ -215,7 +245,7 @@ for (param in param_file$Learning_Prob_n)
   ancient_data_filtered[, exponential_sum_log_likelihood := (exp(sum_log_likelihood))]
   
   ancient_data_filtered[, Learning_Prob_n := as.numeric(0)]
-  ancient_data_filtered[, Learning_Prob_n := param]
+  ancient_data_filtered[, Learning_Prob_n := learning_param]
   
   main_ancestry_dt = rbind(main_ancestry_dt, ancient_data_filtered)
   
@@ -223,7 +253,7 @@ for (param in param_file$Learning_Prob_n)
 
 ggplot(main_ancestry_dt) + geom_point(aes(Learning_Prob_n, sum_log_likelihood))
 
-main_ancestry_dt_best_fit_quad = main_ancestry_dt[sum_log_likelihood > -20000]
+main_ancestry_dt_best_fit_quad = main_ancestry_dt[Learning_Prob_n < 0.0025]
 
 quadraticModel = lm(sum_log_likelihood ~ Learning_Prob_n + I(Learning_Prob_n^2), data=main_ancestry_dt_best_fit_quad)
 
@@ -235,33 +265,20 @@ LearningValues = seq(0, 0.006, 0.0001)
 
 sum_log_likelihoodPredict = predict(quadraticModel,list(Learning_Prob_n=LearningValues, Learning_Prob_n2=LearningValues^2))
 
-prediction = LearningValues[match(max(sum_log_likelihoodPredict), sum_log_likelihoodPredict)]
+# This just gets an approximate best fitting value- which of your tested params fits the best:
+#           approximate_prediction = LearningValues[match(max(sum_log_likelihoodPredict), sum_log_likelihoodPredict)]
 
-setwd("/home/tml5905/Documents/HunterGatherFarmerInteractions/cluster_runs/complex_map")
+# To get the actual best fitting prediction put this in the console:
+#           quadraticModel["coefficients"]
+
+# Then the prediction will equal this equation. Get the Learning_Probs from the coefficients
+# prediction = ((-Learning_Prob_n) / (2*[I(Learning_Prob_n^2)]))
+
+setwd(wd)
 
 #create scatterplot of original data values
-plot(main_ancestry_dt_best_fit_quad$Learning_Prob_n, main_ancestry_dt_best_fit_quad$sum_log_likelihood, pch=16)
+pdf(file="sum_log_likelihoodPredict.pdf")
+plot(main_ancestry_dt_best_fit_quad$Learning_Prob_n, main_ancestry_dt_best_fit_quad$sum_log_likelihood, pch=16, xlab="Learning Rate", ylab="Sum Log Likelihood")
 #add predicted lines based on quadratic regression model
 lines(LearningValues, sum_log_likelihoodPredict, col='blue')
-
-# ----------------------------------------------------------------------------------------------------------------
-# Plot data
-# ----------------------------------------------------------------------------------------------------------------
-
-remaining_ancestry_distance = ggplot(ancestry_sample_data) + 
-  geom_line(aes(Mid_Point_km, Bin_Mean_Ancestry, col = factor(Learning_Prob_n), group=(Learning_Prob_n))) + 
-  theme_bw() + labs(x = "Distance From Origin (km)") + labs(y = "Remaining Farming Ancestry") + ggtitle("Remaining Farmer Ancestry", 
-                                                                                                        subtitle = "(When Zero Hunter Gatherers Remain)")
-ggsave("remaining_ancestry_distance.png", plot = remaining_ancestry_distance, units = "in", width = 14, height = 8, device="png", dpi=700)
-
-plot_ancestry_map = ggplot(ancestry_sample_data) + geom_point(aes(Individual_X, Individual_Y, col = Farming_Ancestry, pch=factor(Individual_Z))) + 
-  facet_grid(Learning_Prob_n ~ .) + ggtitle("Farming Ancestry by X & Y Coordinate (Visualization of Ancestry Distribution on Landscape)") + theme_bw() 
-ggsave("plot_ancestry_map.png", plot = plot_ancestry_map, units = "in", width = 20, height = 14, device="png", dpi=700)
-
-learning_empirical_overlay = ggplot() +
-  geom_line(data = ancestry_sample_data, aes(Mid_Point_km, Bin_Mean_Ancestry, col = factor(Learning_Prob_n)), linewidth = 1.25) +
-  geom_point(data = main_ancestry_dt, aes(distFromAnkara/1000, scaled_weight_Anatolia_N)) + 
-  geom_smooth(n=1000, span=10) + coord_cartesian(ylim=c(0,1)) + theme_bw() + labs(col = "Learning Probability") +
-  labs(y = "Remaining Farming Ancestry") + labs(x = "Distance From Origin (km)")
-
-ggsave("learning_empirical_overlay.png", plot = learning_empirical_overlay, units = "in", width = 14, height = 8, device="png", dpi=700)
+dev.off()
