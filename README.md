@@ -192,8 +192,8 @@ The next two are options that determine if you want special colors for specific 
 	// ***********************************	
 	if (!exists("map_style"))
 		defineConstant("map_style", 5); // Parameter of 0 = no topography, 1 = super light topography, 2 = light topography, 3 = regular topography, 4 heavy topography, 5 = square, 6 = custom map
-	if (!exists("num_partitions"))
-		defineConstant("num_partitions", 20); // Number of partitions if using the square
+	if (!exists("num_bins"))
+		defineConstant("num_bins", 20); // Number of bins if using the square
 	if (!exists("water_crossings"))
 		defineConstant("water_crossings", 1); //Parameter of 0 = no water crossing paths, 1 = water crossing paths
 	if (water_crossings == 1)
@@ -205,7 +205,7 @@ The next two are options that determine if you want special colors for specific 
 "map_style" dictates the landscape type for the simulation. 
 Parameter of 0 = no topography, 1 = super light topography, 2 = light topography, 3 = regular topography, 4 = heavy topography, 5 = square, 6 = custom map
 
-"num_partitions" is a parameter used only when running the sim on map style 5 (square). This parameter divides the landscape into discrete bins and allows for measurement of expansion speed and tracking simulation progress when run in a simple landscape model. This parameter controls the number of bins.
+"num_bins" is a parameter used only when running the sim on map style 5 (square). This parameter divides the landscape into discrete bins and allows for measurement of expansion speed and tracking simulation progress when run in a simple landscape model. This parameter controls the number of bins.
 
 "water_crossings" provides the option that individuals have faux "land bridges" that simulate realistic routes that individuals traveled via waterways. This parameter only applies when run on the landscape map. The binary nature of our landscape model means that water travel may not be possible otherwise depending on moment range. This parameter provides the option to allow incremental movement over water.
  
@@ -710,10 +710,10 @@ This first early function only runs once and generates the headers for the files
 	//  OUTPUT1 --> Initialize output files
 	// ----------------------------------------
 	// log runtime params
-	param_string = paste(SN, HGK, FK, S, C, F_SDX, F_SDY, HG_SDX, HG_SDY, L, gamma, LD, MD, MP, min_repro_age, scal_fac, map_style, num_partitions, water_crossings, map_size_length, map_size_width, "[", age_scale, "]");
+	param_string = paste(SN, HGK, FK, S, C, F_SDX, F_SDY, HG_SDX, HG_SDY, L, gamma, LD, MD, MP, min_repro_age, scal_fac, map_style, num_bins, water_crossings, map_size_length, map_size_width, "[", age_scale, "]");
 
 	// File headings
-	param_heading = paste("SN HGK FK S C F_SDX F_SDY HG_SDX HG_SDY L gamma LD MD MP min_repro_age scal_fac map_style num_partitions water_crossings map_size_length map_size_width [ age_scale ]");
+	param_heading = paste("SN HGK FK S C F_SDX F_SDY HG_SDX HG_SDY L gamma LD MD MP min_repro_age scal_fac map_style num_bins water_crossings map_size_length map_size_width [ age_scale ]");
 
 	// Runtime params - write to file
 	output_runtime_file_name = ("/sim_runtime_params_" + output_name + ".txt");
@@ -742,34 +742,34 @@ This first early function only runs once and generates the headers for the files
 
 	if (map_style == 5)
 	{
-		for (part in 1:num_partitions)
+		for (bin in 1:num_bins)
 		{
-			// Outputs for partition headers
+			// Outputs for bin headers
 			// *************************
-			if (part == 1)
+			if (bin == 1)
 			{
-				farmers_per_part = "Farmers_in_Partition1";
-				HGs_per_part = "HGs_in_Partition1";
-				all_per_part = "All_in_Partition1";
-				farmer_ancestry_farmers = "Farmer_Ancestry_Partition1_Farmers";
-				farmer_ancestry_HGs = "Farmer_Ancestry_Partition1_HGs";
-				farmer_ancestry_all = "Farmer_Ancestry_Partition1_All";
-				ratio_per_part = "RatioFarmerToHG_Partition1";
+				farmers_per_bin = "Farmers_in_bin1";
+				HGs_per_bin = "HGs_in_bin1";
+				all_per_bin = "All_in_bin1";
+				farmer_ancestry_farmers = "Farmer_Ancestry_bin1_Farmers";
+				farmer_ancestry_HGs = "Farmer_Ancestry_bin1_HGs";
+				farmer_ancestry_all = "Farmer_Ancestry_bin1_All";
+				ratio_per_bin = "RatioFarmerToHG_bin1";
 			}
 			else
 			{
-				farmers_per_part = paste(farmers_per_part, ",", "Farmers_in_Partition", part, sep="");
-				HGs_per_part = paste(HGs_per_part, ",", "HGs_in_Partition", part, sep="");
-				all_per_part = paste(all_per_part, ",", "All_in_Partition", part, sep="");
-				farmer_ancestry_farmers = paste(farmer_ancestry_farmers, ",", "Farmer_Ancestry_Partition", part, "_Farmers", sep="");
-				farmer_ancestry_HGs = paste(farmer_ancestry_HGs, ",", "Farmer_Ancestry_Partition", part, "_HGs", sep="");
-				farmer_ancestry_all = paste(farmer_ancestry_all, ",", "Farmer_Ancestry_Partition", part, "_All", sep="");
-				ratio_per_part = paste(ratio_per_part, ",", "RatioFarmerToHG_Partition", part, sep="");
+				farmers_per_bin = paste(farmers_per_bin, ",", "Farmers_in_bin", bin, sep="");
+				HGs_per_bin = paste(HGs_per_bin, ",", "HGs_in_bin", bin, sep="");
+				all_per_bin = paste(all_per_bin, ",", "All_in_bin", bin, sep="");
+				farmer_ancestry_farmers = paste(farmer_ancestry_farmers, ",", "Farmer_Ancestry_bin", bin, "_Farmers", sep="");
+				farmer_ancestry_HGs = paste(farmer_ancestry_HGs, ",", "Farmer_Ancestry_bin", bin, "_HGs", sep="");
+				farmer_ancestry_all = paste(farmer_ancestry_all, ",", "Farmer_Ancestry_bin", bin, "_All", sep="");
+				ratio_per_bin = paste(ratio_per_bin, ",", "RatioFarmerToHG_bin", bin, sep="");
 			}
 		}
 
 		// Final Loop Output
-		loop_output = paste(all_per_part, farmers_per_part, HGs_per_part, ratio_per_part, farmer_ancestry_farmers, farmer_ancestry_HGs, farmer_ancestry_all, sep=",");
+		loop_output = paste(all_per_bin, farmers_per_bin, HGs_per_bin, ratio_per_bin, farmer_ancestry_farmers, farmer_ancestry_HGs, farmer_ancestry_all, sep=",");
 
 		// Wave stats headers - write to file
 		wave_stats_header_string = paste("Year", "PopulationSize", "TotalFarmers", "TotalHGs", "RatioFarmerToHG", loop_output, "Farmer_Ancestry_All", "Farmer_Ancestry_All_Farmers", "Farmer_Ancestry_All_HGs", "Num_Repro_Age_Inds", "NewBirths", "ReproFreq", sep=",");
@@ -795,112 +795,112 @@ late()
 		HGs = p1.individuals[p1.individuals.z == 0];
 		all_inds = p1.individuals;
 
-		// Split width into equal parts
-		partition_widths = map_size_width / num_partitions;
-		for (part in 1:num_partitions)
+		// Split width into equal bins
+		bin_widths = map_size_width / num_bins;
+		for (bin in 1:num_bins)
 		{
-			// Collect vector of farming individuals in particular partition
-			if (part == 1)
-				farmers_partition = farmers[farmers.x <= partition_widths];
-			else if (part == 2)
-				farmers_partition = farmers[farmers.x <= 2 * partition_widths & farmers.x > partition_widths];
+			// Collect vector of farming individuals in binicular bin
+			if (bin == 1)
+				farmers_bin = farmers[farmers.x <= bin_widths];
+			else if (bin == 2)
+				farmers_bin = farmers[farmers.x <= 2 * bin_widths & farmers.x > bin_widths];
 			else
-				farmers_partition = farmers[farmers.x <= part * partition_widths & farmers.x > (part - 1) * partition_widths];
+				farmers_bin = farmers[farmers.x <= bin * bin_widths & farmers.x > (bin - 1) * bin_widths];
 
-			// Count farmers in partition
-			num_farmers_partition = size(farmers_partition);
-			if (length(farmers_partition) != 0)
-				farmer_ancestry_partition_farmer = mean(farmers_partition.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+			// Count farmers in bin
+			num_farmers_bin = size(farmers_bin);
+			if (length(farmers_bin) != 0)
+				farmer_ancestry_bin_farmer = mean(farmers_bin.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
 			else
-				farmer_ancestry_partition_farmer = 0.0;
+				farmer_ancestry_bin_farmer = 0.0;
 
 			// Do the same thing for HGs
 			// *************************
-			// Collect vector of HG individuals in particular partition
-			if (part == 1)
-				HGs_partition = HGs[HGs.x <= partition_widths];
-			else if (part == 2)
-				HGs_partition = HGs[HGs.x <= 2 * partition_widths & HGs.x > partition_widths];
+			// Collect vector of HG individuals in binicular bin
+			if (bin == 1)
+				HGs_bin = HGs[HGs.x <= bin_widths];
+			else if (bin == 2)
+				HGs_bin = HGs[HGs.x <= 2 * bin_widths & HGs.x > bin_widths];
 			else
-				HGs_partition = HGs[HGs.x <= part * partition_widths & HGs.x > (part - 1) * partition_widths];
+				HGs_bin = HGs[HGs.x <= bin * bin_widths & HGs.x > (bin - 1) * bin_widths];
 
-			// Count HGs in partition
-			num_HGs_partition = size(HGs_partition);
-			if (length(HGs_partition) != 0)
-				farmer_ancestry_partition_HG = mean(HGs_partition.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+			// Count HGs in bin
+			num_HGs_bin = size(HGs_bin);
+			if (length(HGs_bin) != 0)
+				farmer_ancestry_bin_HG = mean(HGs_bin.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
 			else
-				farmer_ancestry_partition_HG = 0.0;
+				farmer_ancestry_bin_HG = 0.0;
 
 			// Do the same thing for all individuals
 			// *************************
-			// Collect vector of HG individuals in particular partition
-			if (part == 1)
-				all_inds_partition = all_inds[all_inds.x <= partition_widths];
-			else if (part == 2)
-				all_inds_partition = all_inds[all_inds.x <= 2 * partition_widths & all_inds.x > partition_widths];
+			// Collect vector of HG individuals in binicular bin
+			if (bin == 1)
+				all_inds_bin = all_inds[all_inds.x <= bin_widths];
+			else if (bin == 2)
+				all_inds_bin = all_inds[all_inds.x <= 2 * bin_widths & all_inds.x > bin_widths];
 			else
-				all_inds_partition = all_inds[all_inds.x <= part * partition_widths & all_inds.x > (part - 1) * partition_widths];
+				all_inds_bin = all_inds[all_inds.x <= bin * bin_widths & all_inds.x > (bin - 1) * bin_widths];
 
-			// Count all_inds in partition
-			num_all_inds_partition = size(all_inds_partition);
-			if (length(all_inds_partition) != 0)
-				farmer_ancestry_partition_all = mean(all_inds_partition.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+			// Count all_inds in bin
+			num_all_inds_bin = size(all_inds_bin);
+			if (length(all_inds_bin) != 0)
+				farmer_ancestry_bin_all = mean(all_inds_bin.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
 			else
-				farmer_ancestry_partition_all = 0.0;
+				farmer_ancestry_bin_all = 0.0;
 
-			// calculate the ratio of farmers to HGs each partition
+			// calculate the ratio of farmers to HGs each bin
 			// *************************
-			ratio_part = (num_farmers_partition / num_all_inds_partition);
+			ratio_bin = (num_farmers_bin / num_all_inds_bin);
 
-			// Outputs for partitions
+			// Outputs for bins
 			// *************************
-			// Num individuals in each partition
-			if (part == 1)
+			// Num individuals in each bin
+			if (bin == 1)
 			{
-				farmers_per_part = paste(num_farmers_partition);
-				HGs_per_part = paste(num_HGs_partition);
-				all_per_part = paste(num_all_inds_partition);
+				farmers_per_bin = paste(num_farmers_bin);
+				HGs_per_bin = paste(num_HGs_bin);
+				all_per_bin = paste(num_all_inds_bin);
 			}
 			else
 			{
-				farmers_per_part = paste(farmers_per_part, num_farmers_partition, sep=",");
-				HGs_per_part = paste(HGs_per_part, num_HGs_partition, sep=",");
-				all_per_part = paste(all_per_part, num_all_inds_partition, sep=",");
+				farmers_per_bin = paste(farmers_per_bin, num_farmers_bin, sep=",");
+				HGs_per_bin = paste(HGs_per_bin, num_HGs_bin, sep=",");
+				all_per_bin = paste(all_per_bin, num_all_inds_bin, sep=",");
 			}
 
-			// Ratio F:HGs in each partition
-			if (part == 1)
-				ratio_per_part = paste(ratio_part);
+			// Ratio F:HGs in each bin
+			if (bin == 1)
+				ratio_per_bin = paste(ratio_bin);
 			else
-				ratio_per_part = paste(ratio_per_part, ratio_part, sep=",");
+				ratio_per_bin = paste(ratio_per_bin, ratio_bin, sep=",");
 
 			// Farmer ancestry:
-			if (part == 1)
+			if (bin == 1)
 			{
 				// In Farmers
-				farmer_ancestry_farmers = paste(farmer_ancestry_partition_farmer);
+				farmer_ancestry_farmers = paste(farmer_ancestry_bin_farmer);
 
 				// In HGs
-				farmer_ancestry_HGs = paste(farmer_ancestry_partition_HG);
+				farmer_ancestry_HGs = paste(farmer_ancestry_bin_HG);
 
 				// In All
-				farmer_ancestry_all = paste(farmer_ancestry_partition_all);
+				farmer_ancestry_all = paste(farmer_ancestry_bin_all);
 			}
 			else
 			{
 				// In Farmers
-				farmer_ancestry_farmers = paste(farmer_ancestry_farmers, farmer_ancestry_partition_farmer, sep=",");
+				farmer_ancestry_farmers = paste(farmer_ancestry_farmers, farmer_ancestry_bin_farmer, sep=",");
 
 				// In HGs
-				farmer_ancestry_HGs = paste(farmer_ancestry_HGs, farmer_ancestry_partition_HG, sep=",");
+				farmer_ancestry_HGs = paste(farmer_ancestry_HGs, farmer_ancestry_bin_HG, sep=",");
 
 				// In All
-				farmer_ancestry_all = paste(farmer_ancestry_all, farmer_ancestry_partition_all, sep=",");
+				farmer_ancestry_all = paste(farmer_ancestry_all, farmer_ancestry_bin_all, sep=",");
 			}
 		}
 
 		// Final Loop Output
-		loop_output = paste(all_per_part, farmers_per_part, HGs_per_part, ratio_per_part, farmer_ancestry_farmers, farmer_ancestry_HGs, farmer_ancestry_all, sep=",");
+		loop_output = paste(all_per_bin, farmers_per_bin, HGs_per_bin, ratio_per_bin, farmer_ancestry_farmers, farmer_ancestry_HGs, farmer_ancestry_all, sep=",");
 
 		// calculate total num farmers
 		num_farmers = sum(p1.individuals.z);
