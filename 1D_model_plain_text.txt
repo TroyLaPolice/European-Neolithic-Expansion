@@ -1,1 +1,26 @@
-
+ClearAll["Global`*"]
+ (*Variables*)
+(*Time is in units of generations*)
+aF = 0.03*30;  (*Growth rate Farmer*)
+aHG =  0.03*30;  (*Growth rate HG*)
+f = 0.01;  (*Probability that HG learns farming when surrounded by farmers*)
+γ = 1;  (*Preference of HG to learn from Farmers instead of other HGs. γ=1: no preference*)
+KF = 17523200/3000;  (*Carrying capacity Farmer per km*)
+KHG = 876160/3000;  (*Carrying capacity HG per km*)
+DF =322;  (*Diffusion coefficient Farmer*)
+DHG = 322;  (*Diffusion coefficent HG*)
+c = 1; (*Competition between HG and Farmer. c=0: no competition; c=1: full competition*)
+eqn = {D[u[x, t], t]==DF D[u[x,t], {x, 2}]+u[x,t]aF(1-(c w[x,t]+u[x,t]+v[x,t])/KF),
+   D[v[x, t], t]==DF D[v[x,t], {x, 2}]+v[x,t]aF (1-(c w[x,t]+u[x,t]+v[x,t])/KF)+f (u[x,t]+v[x,t]) w[x,t]/((u[x,t]+v[x,t])+γ w[x,t]),
+   D[w[x, t], t]==DHG D[w[x,t], {x, 2}]+w[x,t]aHG (1-(w[x,t]+c(u[x,t]+v[x,t]))/KHG)-f (u[x,t]+v[x,t]) w[x,t]/((u[x,t]+v[x,t])+γ w[x,t])
+   };
+bc={Derivative[1,0][u][0,t]==0, Derivative[1,0][u][3000,t]==0,
+   Derivative[1,0][v][0,t]==0, Derivative[1,0][v][3000,t]==0,
+   Derivative[1,0][w][0,t]==0, Derivative[1,0][w][3000,t]==0};  (*Boundary conditions*)
+ic={u[x,0]==KF/(1+E-0.05(-x+200)),v[x,0]==0x, w[x,0]==KHG/(1+E-0.05(x-200))}; (*Initial conditions*)
+ 
+ Monitor[sol = NDSolve[{eqn, bc, ic}, {u[x, t], v[x,t], w[x,t]}, {t, 0,150}, {x, 0, 3000},MaxStepSize -> 10,EvaluationMonitor:>(monitor=Row[{"t=",t}])], monitor];   (*Numerically solves the PDE over 150 generations*)
+ 
+ Plot3D[Evaluate[u[x, t]+v[x,t]/.sol],{x,0,3000}, {t, 0, 150},PlotRange->All]   (*Plot of farming expansion over space and time*)
+ 
+ ListAnimate[Table[Plot[{Evaluate[u[x,t]+v[x,t]/. sol],Evaluate[u[x,t]/. sol],Evaluate[w[x,t]/. sol]},{x,0,3000},PlotRange->{0,KF*1.1},PlotLegends->{"Farming","Anatolian ancestry", "HG"}, Frame->True, FrameLabel->{"km", "people/km"}],{t,0,150,5}]]  (*Animation of farming and Anatolian ancestry expansion over space and time*)
