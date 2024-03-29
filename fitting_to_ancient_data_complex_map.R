@@ -12,6 +12,8 @@ library(geosphere)
 library(scatterpie)
 library(ggmap)
 library(Rmpfr)
+library(robustbase)
+library(MASS)
 
 # ----------------------------------------------------------------------------------------------------------------
 # Set inputs and read in simulation files to be used for analysis
@@ -282,3 +284,13 @@ plot(main_ancestry_dt_best_fit_quad$Learning_Prob_n, main_ancestry_dt_best_fit_q
 #add predicted lines based on quadratic regression model
 lines(LearningValues, sum_log_likelihoodPredict, col='blue')
 dev.off()
+
+# Fit regression to the ancient DNA data:
+
+#Standard lm                            
+empirical_slope_regression = lm(scaled_weight_Anatolia_N ~ I(distFromAnkara/1000), data=ancient_data_filtered)
+#Robust regression package 1  
+empirical_slope_robust_regression = rlm(scaled_weight_Anatolia_N ~ I(distFromAnkara/1000), data=ancient_data_filtered)
+#Robust regression package 2  
+empirical_slope_robust_regression2 = lmrob(scaled_weight_Anatolia_N ~ I(distFromAnkara/1000), data=ancient_data_filtered)
+
