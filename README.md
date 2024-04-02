@@ -5,9 +5,9 @@
 
 **Our agent-based model is written in Edios for the simulation framework SLiM by Haller & Messer. We used version 4.0 of SLiM.**
 
-*Citation for most recent SLiM paper and Edios:*
+*Citation for SLiM 4.0 paper and Edios:*
 
-Haller, B. C. & Messer, P. W. SLiM 3: Forward Genetic Simulations Beyond the Wright–Fisher Model. *Mol. Biol. Evol.* **36**, 632–637 (2019).
+Haller, B. C., & Messer, P. W. (2023). SLiM 4: Multispecies Eco-Evolutionary Modeling. *The American Naturalist*, 201(5), E127–E139. https://doi.org/10.1086/723601
 
 Haller, B.C. (2016). Eidos: A Simple Scripting Language. http://benhaller.com/slim/Eidos_Manual.pdf
 
