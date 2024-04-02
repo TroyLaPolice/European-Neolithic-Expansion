@@ -3,6 +3,10 @@
 # The European Neolithic Expansion: A Model Revealing Intense Assortative Mating and Restricted Cultural Transmission  
 *The following document will outline how the **agent-based** simulation code works. Text blocks will explain how the different pieces of the code work. Aside from the text blocks, **please also note comments in the code blocks** (denoted by //) as these **will provide additional information in-line.***
 
+Our agent-based model is written in Edios for the simulation framework SLiM by Haller & Messer. We used version 4.0 of SLiM.
+
+Haller, B. C. & Messer, P. W. SLiM 3: Forward Genetic Simulations Beyond the Wright–Fisher Model. *Mol. Biol. Evol.* **36**, 632–637 (2019).
+
 ## About the simulation
 
 This simulation models the interaction between Hunter Gatherers and Farmers in Neolithic Europe.
