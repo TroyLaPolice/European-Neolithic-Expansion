@@ -6,6 +6,7 @@
 *Our agent-based model is written in Edios for the simulation framework SLiM by Haller & Messer. We used version 4.0 of SLiM.*
 
 *Citation for most recent SLiM paper:*
+
 Haller, B. C. & Messer, P. W. SLiM 3: Forward Genetic Simulations Beyond the Wright–Fisher Model. *Mol. Biol. Evol.* **36**, 632–637 (2019).
 
 ## About the simulation
