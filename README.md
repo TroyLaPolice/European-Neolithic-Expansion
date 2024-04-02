@@ -8,6 +8,7 @@
 *Citation for most recent SLiM paper and Edios:*
 
 Haller, B. C. & Messer, P. W. SLiM 3: Forward Genetic Simulations Beyond the Wright–Fisher Model. *Mol. Biol. Evol.* **36**, 632–637 (2019).
+
 Haller, B.C. (2016). Eidos: A Simple Scripting Language. http://benhaller.com/slim/Eidos_Manual.pdf
 
 ## About the simulation
