@@ -276,6 +276,9 @@ sum_log_likelihoodPredict = predict(quadraticModel,list(Learning_Prob_n=Learning
 # Then the prediction will equal this equation. Get the Learning_Probs from the coefficients
 # prediction = ((-Learning_Prob_n) / (2*[I(Learning_Prob_n^2)]))
 
+#confidence_interval_floor = prediction-confidence_interval
+#confidence_interval_ceiling = prediction+confidence_interval
+                            
 setwd(wd)
 
 #create scatterplot of original data values
