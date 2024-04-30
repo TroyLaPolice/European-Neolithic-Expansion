@@ -6,12 +6,15 @@
 ### Notes Accompanying the Manuscript
 
 **1) System Requirements**
+
 Dependencies/versions- Simulation run on version 4.0 of SLiM simulation framework, no non-standard hardware required
 
 **2) Installation**
+
 Instructions- Once SLiM framework is installed the code from LaPolice et al., (provided in this repositiory) can be downloaded and imediately run standalone in the GUI or on a computing cluster. Installation instuctions for SLiM can be found on its respective website (see citation below).
 
 **3) Demonstation**
+
 Instructions- See the rest of the readme below and the comments on the code. 
 
 Expected output- (1) A file containing the parameters with which the simulation was initalized (2) A file containing ancestry distribution summary stats for the population each year. (3) A file taken upon the conclusion of the simualtion (when farming is ubiquitous) that samples individuals ancestry and location on the landscape. (4) The main output data file with yearly entries about population ancestry. *Please see the rest of the readme below and the comments on the code for more detail on each.*
@@ -20,6 +23,7 @@ Expected Runtime- Variable, depending on level of downscaling. Assuming 5x downs
 
 **4) Instructions**
 How to run software/reproducibility- See the rest of the readme below and the comments on the code. 
+
 
 ## About the simulation
 
