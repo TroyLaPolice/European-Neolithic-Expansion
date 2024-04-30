@@ -38,6 +38,8 @@ This simulation models the interaction between Hunter Gatherers and Farmers in N
 It represents the expansion of farming throughout Europe during this time period.
 It is a Non-WF model featuring spatial competition, reproduction and learning. It is a 2D spatial model that can be displayed on a map.
 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 #### About the map:
 
 The map is a square approximation of Europe which, by default is 3,700 km^2.
