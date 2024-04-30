@@ -5,25 +5,26 @@
 
 #### Notes Accompanying the Manuscript:
 
-&nbsp;**1) System Requirements**
+``
+**1) System Requirements**
 
-&nbsp;Dependencies/versions- Simulation run on version 4.0 of SLiM simulation framework, no non-standard hardware required
+Dependencies/versions- Simulation run on version 4.0 of SLiM simulation framework, no non-standard hardware required
 
-&nbsp;**2) Installation**
+**2) Installation**
 
-&nbsp;Instructions- Once SLiM framework is installed following SLiM instructions, the code from LaPolice et al., (provided in this repositiory) can be downloaded and imediately run standalone in the GUI or on a computing cluster. Installation instuctions for SLiM can be found on its respective website (see citation below).
+Instructions- Once SLiM framework is installed following SLiM instructions, the code from LaPolice et al., (provided in this repositiory) can be downloaded and imediately run standalone in the GUI or on a computing cluster. Installation instuctions for SLiM can be found on its respective website (see citation below).
 
-&nbsp;**3) Demonstation**
+**3) Demonstation**
 
-&nbsp;Instructions- See the rest of the readme below and the comments on the code. 
+Instructions- See the rest of the readme below and the comments on the code. 
 
-&nbsp;Expected output- (1) A file containing the parameters with which the simulation was initalized (2) A file containing ancestry distribution summary stats for the population each year. (3) A file taken upon the conclusion of the simualtion (when farming is ubiquitous) that samples individuals ancestry and location on the landscape. (4) The main output data file with yearly entries about population ancestry. *Please see the rest of the readme below and the comments on the code for more detail on each.*
+Expected output- (1) A file containing the parameters with which the simulation was initalized (2) A file containing ancestry distribution summary stats for the population each year. (3) A file taken upon the conclusion of the simualtion (when farming is ubiquitous) that samples individuals ancestry and location on the landscape. (4) The main output data file with yearly entries about population ancestry. *Please see the rest of the readme below and the comments on the code for more detail on each.*
 
-&nbsp;Expected Runtime- Variable, depending on level of downscaling. Assuming 5x downscaling of population size and 30Gb of RAM run will take approximately 4-5 days. This number is variable depending on hardware and parameter combinations.
+Expected Runtime- Variable, depending on level of downscaling. Assuming 5x downscaling of population size and 30Gb of RAM run will take approximately 4-5 days. This number is variable depending on hardware and parameter combinations.
 
-&nbsp;**4) Instructions**
-&nbsp;How to run software/reproducibility- See the rest of the readme below and the comments on the code. 
-
+**4) Instructions**
+How to run software/reproducibility- See the rest of the readme below and the comments on the code. 
+``
 
 ## About the simulation
 
