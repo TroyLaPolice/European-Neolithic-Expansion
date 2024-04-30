@@ -6,15 +6,15 @@
 #### Notes Accompanying the Manuscript:
 
 ```
-**1) System Requirements**
+1) System Requirements
 
 Dependencies/versions- Simulation run on version 4.0 of SLiM simulation framework, no non-standard hardware required
 
-**2) Installation**
+2) Installation
 
 Instructions- Once SLiM framework is installed following SLiM instructions, the code from LaPolice et al., (provided in this repositiory) can be downloaded and imediately run standalone in the GUI or on a computing cluster. Installation instuctions for SLiM can be found on its respective website (see citation below).
 
-**3) Demonstation**
+3) Demonstation
 
 Instructions- See the rest of the readme below and the comments on the code. 
 
@@ -22,8 +22,9 @@ Expected output- (1) A file containing the parameters with which the simulation 
 
 Expected Runtime- Variable, depending on level of downscaling. Assuming 5x downscaling of population size and 30Gb of RAM run will take approximately 4-5 days. This number is variable depending on hardware and parameter combinations.
 
-**4) Instructions**
+4) Instructions
 How to run software/reproducibility- See the rest of the readme below and the comments on the code. 
+
 ```
 
 ## About the simulation
