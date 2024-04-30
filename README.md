@@ -11,7 +11,7 @@ Dependencies/versions- Simulation run on version 4.0 of SLiM simulation framewor
 
 **2) Installation**
 
-Instructions- Once SLiM framework is installed the code from LaPolice et al., (provided in this repositiory) can be downloaded and imediately run standalone in the GUI or on a computing cluster. Installation instuctions for SLiM can be found on its respective website (see citation below).
+Instructions- Once SLiM framework is installed following SLiM instructions, the code from LaPolice et al., (provided in this repositiory) can be downloaded and imediately run standalone in the GUI or on a computing cluster. Installation instuctions for SLiM can be found on its respective website (see citation below).
 
 **3) Demonstation**
 
