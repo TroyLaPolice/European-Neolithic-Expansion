@@ -5,7 +5,7 @@
 
 #### Notes Accompanying the Manuscript:
 
-``
+```
 **1) System Requirements**
 
 Dependencies/versions- Simulation run on version 4.0 of SLiM simulation framework, no non-standard hardware required
@@ -24,7 +24,7 @@ Expected Runtime- Variable, depending on level of downscaling. Assuming 5x downs
 
 **4) Instructions**
 How to run software/reproducibility- See the rest of the readme below and the comments on the code. 
-``
+```
 
 ## About the simulation
 
