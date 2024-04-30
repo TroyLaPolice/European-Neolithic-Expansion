@@ -25,7 +25,7 @@ How to run software/reproducibility- See the rest of the readme below and the co
 
 ```
 
-## About the simulation
+## About the simulation framework
 
 **Our agent-based model is written in Edios for the simulation framework SLiM by Haller & Messer. We used version 4.0 of SLiM.**
 
@@ -35,7 +35,7 @@ Haller, B. C., & Messer, P. W. (2023). SLiM 4: Multispecies Eco-Evolutionary Mod
 
 Haller, B.C. (2016). Eidos: A Simple Scripting Language. http://benhaller.com/slim/Eidos_Manual.pdf
 
-## About the simulation
+## About our Model
 
 This simulation models the interaction between Hunter Gatherers and Farmers in Neolithic Europe.
 It represents the expansion of farming throughout Europe during this time period.
