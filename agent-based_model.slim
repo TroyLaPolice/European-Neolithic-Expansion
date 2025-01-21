@@ -201,7 +201,7 @@ initialize()
 		// -----------------------
 		// Color Based on Phenotype
 		// -----------------------
-		value = i.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2);
+		value = i.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2);
 		i.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
 		if (Color_scheme == 1)
 		{
@@ -259,7 +259,7 @@ if (individual.age > min_repro_age) // Reproductive age of the individual must b
 					// -----------------------
 					// Color Based on Genotype
 					// -----------------------
-					value = offspring.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2);
+					value = offspring.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2);
 					offspring.color = rgb2color(hsv2rgb(c(0.6, 1.0, value)));
 
 					// Define z param in offspring (phenotype, 0 = HG, 1 = Farmer)
@@ -583,7 +583,7 @@ late()
 			// Count farmers in bin
 			num_farmers_bin = size(farmers_bin);
 			if (length(farmers_bin) != 0)
-				farmer_ancestry_bin_farmer = mean(farmers_bin.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+				farmer_ancestry_bin_farmer = mean(farmers_bin.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
 			else
 				farmer_ancestry_bin_farmer = 0.0;
 
@@ -600,7 +600,7 @@ late()
 			// Count HGs in bin
 			num_HGs_bin = size(HGs_bin);
 			if (length(HGs_bin) != 0)
-				farmer_ancestry_bin_HG = mean(HGs_bin.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+				farmer_ancestry_bin_HG = mean(HGs_bin.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
 			else
 				farmer_ancestry_bin_HG = 0.0;
 
@@ -617,7 +617,7 @@ late()
 			// Count all_inds in bin
 			num_all_inds_bin = size(all_inds_bin);
 			if (length(all_inds_bin) != 0)
-				farmer_ancestry_bin_all = mean(all_inds_bin.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+				farmer_ancestry_bin_all = mean(all_inds_bin.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
 			else
 				farmer_ancestry_bin_all = 0.0;
 
@@ -688,17 +688,17 @@ late()
 		ratio = (sum(p1.individuals.z) / p1.individuals.length());
 
 		// calculate the overall farming ancestry
-		farmer_ancestry_all = mean(all_inds.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+		farmer_ancestry_all = mean(all_inds.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
 
 		/// calculate the farming ancestry in all farmers
 		if (length(farmers) != 0)
-			farmer_ancestry_farmers = mean(farmers.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+			farmer_ancestry_farmers = mean(farmers.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
 		else
 			farmer_ancestry_farmers = 0.0;
 
 		// calculate the farming ancestry in all HGs
 		if (length(HGs) != 0)
-			farmer_ancestry_HGs = mean(HGs.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+			farmer_ancestry_HGs = mean(HGs.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
 		else
 			farmer_ancestry_HGs = 0.0;
 
@@ -726,7 +726,7 @@ late()
 
 		for (ind in selected_inds)
 		{
-			output_ancestry_sample_string = paste(sim.cycle, ind, (ind.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2)), ind.x, ind.y, ind.z, sep=",");
+			output_ancestry_sample_string = paste(sim.cycle, ind, (ind.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2)), ind.x, ind.y, ind.z, sep=",");
 			output_ancestry_sample_file_name = ("/sim_ancestry_sample_" + output_name + ".csv");
 			writeFile(wd + output_ancestry_sample_file_name, output_ancestry_sample_string, append=T);
 		}
@@ -742,7 +742,7 @@ late()
 	//  OUTPUT4 --> Overall ancestry distribution - Summary Stats Each Year
 	// --------------------------------------------------------------------
 
-	output_ancestry_dist_string = paste(sim.cycle, max(p1.individuals.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2)), min(p1.individuals.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2)), sd(p1.individuals.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2)),  mean(p1.individuals.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2)), sep=",");
+	output_ancestry_dist_string = paste(sim.cycle, max(p1.individuals.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2)), min(p1.individuals.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2)), sd(p1.individuals.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2)),  mean(p1.individuals.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2)), sep=",");
 	output_ancestry_dist_file_name = ("/sim_ancestry_distribution_" + output_name + ".csv");
 	writeFile(wd + output_ancestry_dist_file_name, output_ancestry_dist_string, append=T);
 }
@@ -775,17 +775,17 @@ late()
 		pop_size = p1.individuals.length();
 
 		// calculate the overall farming ancestry
-		farmer_ancestry_all = mean(all_inds.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+		farmer_ancestry_all = mean(all_inds.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
 
 		// calculate the farming ancestry in all farmers
 		if (length(farmers) != 0)
-			farmer_ancestry_farmers = mean(farmers.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+			farmer_ancestry_farmers = mean(farmers.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
 		else
 			farmer_ancestry_farmers = 0.0;
 
 		// calculate the farming ancestry in all HGs
 		if (length(HGs) != 0)
-			farmer_ancestry_HGs = mean(HGs.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2));
+			farmer_ancestry_HGs = mean(HGs.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2 + 2));
 		else
 			farmer_ancestry_HGs = 0.0;
 
