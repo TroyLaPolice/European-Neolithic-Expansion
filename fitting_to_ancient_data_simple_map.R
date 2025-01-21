@@ -107,7 +107,7 @@ for (param in param_file$WithinGroup_Mating_n)
   #individual_param_run = simulation_data_filtered[Learning_Prob_n == param]
   individual_param_run = simulation_data_filtered[WithinGroup_Mating_n == param]
   
-  sim_farming_ancestry = (individual_param_run$Farmer_Ancestry_Partition_All)
+  sim_farming_ancestry = (individual_param_run$Farmer_Ancestry_Bin_All)
   sim_x_dist = individual_param_run$Mid_Point_km
   ancient_x_dist = filtered_inds$distFromAnkara_km
   
