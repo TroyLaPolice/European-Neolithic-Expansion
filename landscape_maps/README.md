@@ -50,3 +50,7 @@ The following parameters handle the map size in km. If using provided EEA maps f
 	
 	// Map citation: https://www.eea.europa.eu/ds_resolveuid/558D91E1-3DB0-4639-9F70-2012CC4453A5
 ```
+
+**SPECIAL MAPS**
+
+*corridor_map.png* and *coastline_map.png* are special maps that are used in the *agent-based_model_multiple_maps.slim* model. These are extra maps overlaid on the main map that correspond to areas with different step sizes.
