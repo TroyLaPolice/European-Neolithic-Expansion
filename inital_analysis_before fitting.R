@@ -9,7 +9,10 @@ library(dplyr)
 # ----------------------------------------------------------------------------------------------------------------
 
 # Set input params
-setwd("file/path/here")
+wd = ("/path/to/simulation/data")
+
+setwd(wd)
+
 map_size_km = 3700
 
 # -------------------------------
@@ -98,16 +101,16 @@ all_sim_data = lapply(1:length(files), function(x)
   
   if (length(square_file_names) != 0)
   {
-    binedVariablesID = grepl("\\d", names(data))
-    binedVariables = names(data)[binedVariablesID]
-    binedVariablesUnique = unique(gsub(names(data)[binedVariablesID], pattern = "\\d+", replacement = ""))
-    binNumber = as.numeric(gsub(names(data)[binedVariablesID], pattern = "[a-zA-Z_]", replacement = ""))
-    numberOfBins = max(binNumber)
+    partitionedVariablesID = grepl("\\d", names(data))
+    partitionedVariables = names(data)[partitionedVariablesID]
+    partitionedVariablesUnique = unique(gsub(names(data)[partitionedVariablesID], pattern = "\\d+", replacement = ""))
+    partitionNumber = as.numeric(gsub(names(data)[partitionedVariablesID], pattern = "[a-zA-Z_]", replacement = ""))
+    numberOfPartitions = max(partitionNumber)
     
-    separate_bins_ID = rep(1:length(binedVariablesUnique), each = numberOfBins)
-    separate_bins_list = lapply(1:length(binedVariablesUnique), function(x) binedVariables[separate_bins_ID == x])
+    separate_partitions_ID = rep(1:length(partitionedVariablesUnique), each = numberOfPartitions)
+    separate_partitions_list = lapply(1:length(partitionedVariablesUnique), function(x) partitionedVariables[separate_partitions_ID == x])
     
-    data_melted = data.table::melt(data = data.table(data), measure = separate_bins_list, value.name = binedVariablesUnique, variable.name = "Bin")
+    data_melted = data.table::melt(data = data.table(data), measure = separate_partitions_list, value.name = partitionedVariablesUnique, variable.name = "Partition")
   }
   
   if (length(non_square_file_names) != 0){
@@ -121,19 +124,31 @@ all_sim_data = lapply(1:length(files), function(x)
 # Create data table with simulation output data
 all_sim_data = rbindlist(all_sim_data)
 
-# Add columns that remove extra strings in parameter set 
-    # Uncomment as necessary based on parameters tested in dataset 
+all_sim_data$Farmer_Ancestry_All = all_sim_data$Farmer_Ancestry_All * (494/496)
+all_sim_data$Farmer_Ancestry_All_Farmers = all_sim_data$Farmer_Ancestry_All_Farmers * (494/496)
+all_sim_data$Farmer_Ancestry_All_HGs = all_sim_data$Farmer_Ancestry_All_HGs * (494/496)
+all_sim_data$Farmer_Ancestry_Partition_Farmers = all_sim_data$Farmer_Ancestry_Partition_Farmers * (494/496)
+all_sim_data$Farmer_Ancestry_Partition_HGs = all_sim_data$Farmer_Ancestry_Partition_HGs * (494/496)
+all_sim_data$Farmer_Ancestry_Partition_All = all_sim_data$Farmer_Ancestry_Partition_All * (494/496)
+
+# Set > 1 Values to 1
+all_sim_data$Farmer_Ancestry_All[all_sim_data$Farmer_Ancestry_All > 1] = 1
+all_sim_data$Farmer_Ancestry_All_Farmers[all_sim_data$Farmer_Ancestry_All_Farmers > 1] = 1
+all_sim_data$Farmer_Ancestry_All_HGs[all_sim_data$Farmer_Ancestry_All_HGs > 1] = 1
+all_sim_data$Farmer_Ancestry_Partition_Farmers[all_sim_data$Farmer_Ancestry_Partition_Farmers > 1] = 1
+all_sim_data$Farmer_Ancestry_Partition_HGs[all_sim_data$Farmer_Ancestry_Partition_HGs > 1] = 1
+all_sim_data$Farmer_Ancestry_Partition_All[all_sim_data$Farmer_Ancestry_Partition_All > 1] = 1
+
+# Add columns that remove extra strings in parameter set
 #all_sim_data[, Downscale_n := as.numeric(gsub(Downscale, pattern = ".*\\s(.+)", replacement = "\\1"))]
 all_sim_data[, Learning_Prob_n := as.numeric(gsub(Learning_Prob, pattern = ".*\\s(.+)", replacement = "\\1"))]
 all_sim_data[, Assortative_Mating_n := as.numeric(gsub(Assortative_Mating, pattern = ".*\\s(.+)", replacement = "\\1"))]
-#all_sim_data[, Movement_n := as.numeric(gsub(Movement, pattern = ".*\\s(.+)", replacement = "\\1"))]
-all_sim_data[, Movement_X_n := as.numeric(gsub(Movement_X, pattern = ".*\\s(.+)", replacement = "\\1"))]
-all_sim_data[, Movement_Y_n := as.numeric(gsub(Movement_Y, pattern = ".*\\s(.+)", replacement = "\\1"))]
+all_sim_data[, Movement_n := as.numeric(gsub(Movement, pattern = ".*\\s(.+)", replacement = "\\1"))]
+#all_sim_data[, Movement_X_n := as.numeric(gsub(Movement_X, pattern = ".*\\s(.+)", replacement = "\\1"))]
+#all_sim_data[, Movement_Y_n := as.numeric(gsub(Movement_Y, pattern = ".*\\s(.+)", replacement = "\\1"))]
 all_sim_data[, Map_Style_n := as.numeric(gsub(Map_Style, pattern = ".*\\s(.+)", replacement = "\\1"))]
 #all_sim_data[, Water_Crossings_n := as.numeric(gsub(Water_Crossings, pattern = ".*\\s(.+)", replacement = "\\1"))]
 #all_sim_data[, Replicate_n := as.numeric(gsub(Replicate, pattern = ".*\\s(.+)", replacement = "\\1"))]
-
-colnames(all_sim_data)[colnames(all_sim_data) == "Farmer_Ancestry_Farmers"] = "Farmer_Ancestry_All_Farmers"
 
 # ----------------------------------------------------------------------------------------------------------------
 # Adding parameter combinations to the ancestry distribution table
@@ -155,9 +170,7 @@ if (length(ancestry_dist_files_names) != 0)
   # Create data table with simulation output data
   ancestry_dist_data = rbindlist(ancestry_dist_data)
   
-  # Add columns that remove extra strings in parameter set        
-    # Uncomment as necessary based on parameters tested in dataset 
-                            
+  # Add columns that remove extra strings in parameter set
   #ancestry_dist_data[, Downscale_n := as.numeric(gsub(Downscale, pattern = ".*\\s(.+)", replacement = "\\1"))]
   #ancestry_dist_data[, Learning_Prob_n := as.numeric(gsub(Learning_Prob, pattern = ".*\\s(.+)", replacement = "\\1"))]
   #ancestry_dist_data[, Assortative_Mating_n := as.numeric(gsub(Assortative_Mating, pattern = ".*\\s(.+)", replacement = "\\1"))]
@@ -189,7 +202,6 @@ if (length(ancestry_sample_names) != 0)
   ancestry_sample_data = rbindlist(ancestry_sample_data)
   
   # Add columns that remove extra strings in parameter set
-    # Uncomment as necessary based on parameters tested in dataset 
   #ancestry_sample_data[, Downscale_n := as.numeric(gsub(Downscale, pattern = ".*\\s(.+)", replacement = "\\1"))]
   #ancestry_sample_data[, Learning_Prob_n := as.numeric(gsub(Learning_Prob, pattern = ".*\\s(.+)", replacement = "\\1"))]
   #ancestry_sample_data[, Assortative_Mating_n := as.numeric(gsub(Assortative_Mating, pattern = ".*\\s(.+)", replacement = "\\1"))]
@@ -201,18 +213,18 @@ if (length(ancestry_sample_names) != 0)
 }
 
 # ----------------------------------------------------------------------------------------------------------------
-# Transforming data to include km values for bins
+# Transforming data to include km values for partitions
 # ----------------------------------------------------------------------------------------------------------------
 
 if (length(square_file_names) != 0)
 {
-  # Calculate the number of bins used
-  num_bins = max(as.integer(all_sim_data$Bin))
+  # Calculate the number of partitions used
+  num_parts = max(as.integer(all_sim_data$Partition))
   
-  # Calculate where the first bin midpoint point is
-  bin_size = (map_size_km / num_bins)
+  # Calculate where the first partition midpoint point is
+  partition_size = (map_size_km / num_parts)
   
-  all_sim_data[, Mid_Point_km := as.numeric(Bin)*bin_size - bin_size/2]
+  all_sim_data[, Mid_Point_km := as.numeric(Partition)*partition_size - partition_size/2]
 }
 
 # ----------------------------------------------------------------------------------------------------------------
@@ -243,7 +255,7 @@ if (length(square_file_names) != 0)
 {
   # Add column to data for the distance traveled on the x-axis in km when the ratio of farmers to HGs is 50/50
   all_sim_data[, km_50perc := as.numeric(0)]
-  all_sim_data[, km_50perc := interpolate(Mid_Point_km, RatioFarmerToHG_Bin), 
+  all_sim_data[, km_50perc := interpolate(Mid_Point_km, RatioFarmerToHG_Partition), 
                .(Year, Learning_Prob, Assortative_Mating, Movement)]
   
   # Run a linear model to calculate the speed of wave and add as a column
@@ -270,9 +282,6 @@ if (length(square_file_names) != 0)
   all_sim_data$cultural_effect[all_sim_data$cultural_effect < 0.0] = 0.0
 }
 
-# Set > 1 Values to 1
-all_sim_data$Farmer_Ancestry_All[all_sim_data$Farmer_Ancestry_All > 1] = 1
-
 # Write to output file
 fwrite(all_sim_data, file = "all_sim_data.csv", append = FALSE, quote = "auto", sep = ",")
 
@@ -283,3 +292,23 @@ first_complete_year =  subset(first_complete_year,
               subset = !duplicated(first_complete_year[c("TotalHGs","Learning_Prob_n", "Movement_n", "Assortative_Mating_n", "Mid_Point_km")]))
               
 first_complete_year = setDT(first_complete_year)
+
+setwd("/home/tml5905/Documents/figures_to_import_to_pptTEMP/latest_round_of_revisions")
+
+# ----------------------------------------------------------------------------------------------------------------
+# Plot data
+# ----------------------------------------------------------------------------------------------------------------
+
+custom_palette <- c(
+  "#3cb371",  # Medium Sea Green,
+  "#0077ff",  # Electric Blue
+  "#e41a1c",  # Vibrant Red
+  "#ff9980",  # Light Coral Orange
+  "#d95f02",  # Burnt Orange
+  "#f9a8d4",  # Light Pastel Pink
+  "#e7298a",  # Bright Magenta
+  "#927fbf",  # Cool Lavender
+  "#008080",  # Deep Teal
+  "#99d6d6",  # Light Teal
+  "#4b297b"   # Darker Eggplant
+)
