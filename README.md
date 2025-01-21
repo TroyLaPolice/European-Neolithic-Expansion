@@ -971,7 +971,7 @@ late()
 ```
 Outputs 3 and 4 print out information regarding the ancestry distribution in the population. 
 
-The output 3 function runs every 200 years and samples 1000 random individuals' ancestry and saves this information to a file for plotting and analysis of ancestry distribution.
+The output 3 function runs once. This happens once the landscape is only made up of farmers. It samples 1000 random individuals' ancestry and saves this information to a file for plotting and analysis of ancestry.
 
 Output 4 runs each year and prints simple summary statistics of the population ancestry distribution.
 
@@ -983,18 +983,23 @@ late()
 	// ------------------------------------------------------------
 	//  OUTPUT3 --> Sample individuals to get ancestry distribution
 	// ------------------------------------------------------------
-
-	if (sim.cycle % 200 == 0) // Runs every 200 Years
+	
+	HGs = p1.individuals[p1.individuals.z == 0];
+	
+	if (length(HGs) == 0 & output_on_off == 1) // Runs once everyone is a Farmer
 	{
-
-		selected_inds = sample(p1.individuals, 1000); // Select 1000 inds from pop to sample ancestry
-
+		
+		selected_inds = sample(p1.individuals, 100000); // Select 1000 inds from pop to sample ancestry
+		
 		for (ind in selected_inds)
 		{
 			output_ancestry_sample_string = paste(sim.cycle, ind, (ind.countOfMutationsOfType(m1) / (sim.chromosome.lastPosition * 2)), ind.x, ind.y, ind.z, sep=",");
 			output_ancestry_sample_file_name = ("/sim_ancestry_sample_" + output_name + ".csv");
 			writeFile(wd + output_ancestry_sample_file_name, output_ancestry_sample_string, append=T);
 		}
+		
+		defineGlobal("output_on_off", 0);
+	
 	}
 }
 
