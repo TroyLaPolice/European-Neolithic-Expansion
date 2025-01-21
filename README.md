@@ -1,6 +1,6 @@
 
 
-# The European Neolithic Expansion: A Model Revealing Intense Assortative Mating and Restricted Cultural Transmission  
+# The European Neolithic Expansion: A Model Revealing Intense Within-Group Mating and Restricted Cultural Transmission  
 *The following document will outline how the **agent-based** simulation code works. Text blocks will explain how the different pieces of the code work. Aside from the text blocks, **please also note comments within the code blocks** (denoted by //) as these **will provide additional information in-line.***
 
 #### Notes Accompanying the Manuscript:
@@ -416,7 +416,7 @@ In the reproduction function the phenotype of new offspring is tagged with the Z
 
 GUI color is also specified here. It can be based on ancestry proportion or simply what the individual is behaviorally- HG or farmer.
 
-Assortative mating is handled here as well. Based on the specified amount of assortative mating above (MP) the probability of the individual choosing a similar mate is calculated and used as weights for the sampling function that selects a mate for the individual.
+Within-Group mating is handled here as well. Based on the specified amount of assortative mating above (MP) the probability of the individual choosing a similar mate is calculated and used as weights for the sampling function that selects a mate for the individual.
 
 ***Please see in-line comments for additional information on assortative mating.***
 
@@ -543,7 +543,7 @@ late()
 		farmer_neighbors = sum(neighbors.z);
 		HG_neighbors = (length(neighbors) - farmer_neighbors);
 		
-		// Calculate the probability that the individual will learn farming based on the behavorial characteristics of its neighbors and its teacher preference.
+		// Calculate the probability that the individual will learn farming based on the behavioral characteristics of its neighbors and its teacher preference.
 		LP = L * (farmer_neighbors) / (farmer_neighbors + gamma * HG_neighbors);
 		
 		// Only ruyn if the probability of learning is greater than zero
@@ -623,13 +623,13 @@ First, we count the number nearby competing individuals within "S" (competition 
 	}
 	
 	// Modify mortality curve to account for population density around the indiviudal
-		dens_scal_farmer = (farmers_num_in_s + 1) / (PI * (S^2) * FK + 1); // Amount of unocupied space under the farmer carrying capactiy in the given area
+		dens_scal_farmer = (farmers_num_in_s + 1) / (PI * (S^2) * FK + 1); // Amount of unoccupied space under the farmer carrying capacity in the given area
 		dens = mean(dens_scal_farmer);
 		defineGlobal("density", dens);
 		
 		// Do the same if there are still HGs left
 		if (length(HGs) != 0)
-			dens_scal_HG = (HG_num_in_s + 1) / (PI * (S^2) * HGK + 1); // Amount of unocupied space under the HG carrying capactiy in the given area ```
+			dens_scal_HG = (HG_num_in_s + 1) / (PI * (S^2) * HGK + 1); // Amount of unoccupied space under the HG carrying capacity in the given area ```
 
 This next part keeps individuals from living beyond realistic limits. Without this individuals in the sim can live hundreds of years because death it not dependent on age, only population density. (See life table above)
 
@@ -641,7 +641,7 @@ This next part keeps individuals from living beyond realistic limits. Without th
 	if (length(HGs) != 0)
 		scaled_mortality_HG = ((dens_scal_HG - 1) * scal_fac + 1) * age_scale[HG_ages]; // Scale by a growth factor if desired. If scaling factor = 0 there isn't any scaling, population grows unrestricted based on the other parameters that govern equalibrium.
 	
-	// Set a maximum age and make sure there are no negative fittnesses
+	// Set a maximum age and make sure there are no negative fitnesses
 	scaled_mortality_farmer[farmer_ages == length(age_scale) - 1] = 1;
 	scaled_mortality_farmer[scaled_mortality_farmer > 1] = 1;
 	
