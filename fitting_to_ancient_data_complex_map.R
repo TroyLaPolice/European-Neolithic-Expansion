@@ -280,7 +280,7 @@ filtered_inds_northern_inds$approximated_x = x_min + (filtered_inds_northern_ind
 param_file = data.table(read.table("param_inputs_clean_filtered_complex_map_with_single_best_fit_run.csv", header = T, sep=","))
 
 # ----------------------------------------------------------------------------------------------------------------
-# 
+#  UNCOMMENT AND COMMENT THE APPLICABLE LINES IF THE FITTING IS FOR WITHIN-GROUP MATING OR LEARNING RATE
 # ----------------------------------------------------------------------------------------------------------------
 
 interpolate = function(ancient_x_dist, sim_x_dist, sim_farming_ancestry){
