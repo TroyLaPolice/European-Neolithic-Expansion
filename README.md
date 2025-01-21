@@ -971,7 +971,7 @@ late()
 ```
 Outputs 3 and 4 print out information regarding the ancestry distribution in the population. 
 
-The output 3 function runs once. This happens once the landscape is only made up of farmers. It samples 1000 random individuals' ancestry and saves this information to a file for plotting and analysis of ancestry.
+The output 3 function runs once in the first year the landscape is only made up of farmers. It samples 1000 random individuals' ancestry and saves this information to a file for plotting and analysis of ancestry.
 
 Output 4 runs each year and prints simple summary statistics of the population ancestry distribution.
 
