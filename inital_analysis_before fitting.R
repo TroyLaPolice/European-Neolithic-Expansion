@@ -101,16 +101,16 @@ all_sim_data = lapply(1:length(files), function(x)
   
   if (length(square_file_names) != 0)
   {
-    partitionedVariablesID = grepl("\\d", names(data))
-    partitionedVariables = names(data)[partitionedVariablesID]
-    partitionedVariablesUnique = unique(gsub(names(data)[partitionedVariablesID], pattern = "\\d+", replacement = ""))
-    partitionNumber = as.numeric(gsub(names(data)[partitionedVariablesID], pattern = "[a-zA-Z_]", replacement = ""))
-    numberOfPartitions = max(partitionNumber)
+    binedVariablesID = grepl("\\d", names(data))
+    binedVariables = names(data)[binedVariablesID]
+    binedVariablesUnique = unique(gsub(names(data)[binedVariablesID], pattern = "\\d+", replacement = ""))
+    binNumber = as.numeric(gsub(names(data)[binedVariablesID], pattern = "[a-zA-Z_]", replacement = ""))
+    numberOfBins = max(binNumber)
     
-    separate_partitions_ID = rep(1:length(partitionedVariablesUnique), each = numberOfPartitions)
-    separate_partitions_list = lapply(1:length(partitionedVariablesUnique), function(x) partitionedVariables[separate_partitions_ID == x])
+    separate_bins_ID = rep(1:length(binedVariablesUnique), each = numberOfBins)
+    separate_bins_list = lapply(1:length(binedVariablesUnique), function(x) binedVariables[separate_bins_ID == x])
     
-    data_melted = data.table::melt(data = data.table(data), measure = separate_partitions_list, value.name = partitionedVariablesUnique, variable.name = "Partition")
+    data_melted = data.table::melt(data = data.table(data), measure = separate_bins_list, value.name = binedVariablesUnique, variable.name = "Bin")
   }
   
   if (length(non_square_file_names) != 0){
@@ -127,17 +127,17 @@ all_sim_data = rbindlist(all_sim_data)
 all_sim_data$Farmer_Ancestry_All = all_sim_data$Farmer_Ancestry_All * (494/496)
 all_sim_data$Farmer_Ancestry_All_Farmers = all_sim_data$Farmer_Ancestry_All_Farmers * (494/496)
 all_sim_data$Farmer_Ancestry_All_HGs = all_sim_data$Farmer_Ancestry_All_HGs * (494/496)
-all_sim_data$Farmer_Ancestry_Partition_Farmers = all_sim_data$Farmer_Ancestry_Partition_Farmers * (494/496)
-all_sim_data$Farmer_Ancestry_Partition_HGs = all_sim_data$Farmer_Ancestry_Partition_HGs * (494/496)
-all_sim_data$Farmer_Ancestry_Partition_All = all_sim_data$Farmer_Ancestry_Partition_All * (494/496)
+all_sim_data$Farmer_Ancestry_Bin_Farmers = all_sim_data$Farmer_Ancestry_Bin_Farmers * (494/496)
+all_sim_data$Farmer_Ancestry_Bin_HGs = all_sim_data$Farmer_Ancestry_Bin_HGs * (494/496)
+all_sim_data$Farmer_Ancestry_Bin_All = all_sim_data$Farmer_Ancestry_Bin_All * (494/496)
 
 # Set > 1 Values to 1
 all_sim_data$Farmer_Ancestry_All[all_sim_data$Farmer_Ancestry_All > 1] = 1
 all_sim_data$Farmer_Ancestry_All_Farmers[all_sim_data$Farmer_Ancestry_All_Farmers > 1] = 1
 all_sim_data$Farmer_Ancestry_All_HGs[all_sim_data$Farmer_Ancestry_All_HGs > 1] = 1
-all_sim_data$Farmer_Ancestry_Partition_Farmers[all_sim_data$Farmer_Ancestry_Partition_Farmers > 1] = 1
-all_sim_data$Farmer_Ancestry_Partition_HGs[all_sim_data$Farmer_Ancestry_Partition_HGs > 1] = 1
-all_sim_data$Farmer_Ancestry_Partition_All[all_sim_data$Farmer_Ancestry_Partition_All > 1] = 1
+all_sim_data$Farmer_Ancestry_Bin_Farmers[all_sim_data$Farmer_Ancestry_Bin_Farmers > 1] = 1
+all_sim_data$Farmer_Ancestry_Bin_HGs[all_sim_data$Farmer_Ancestry_Bin_HGs > 1] = 1
+all_sim_data$Farmer_Ancestry_Bin_All[all_sim_data$Farmer_Ancestry_Bin_All > 1] = 1
 
 # Add columns that remove extra strings in parameter set
 #all_sim_data[, Downscale_n := as.numeric(gsub(Downscale, pattern = ".*\\s(.+)", replacement = "\\1"))]
@@ -213,18 +213,18 @@ if (length(ancestry_sample_names) != 0)
 }
 
 # ----------------------------------------------------------------------------------------------------------------
-# Transforming data to include km values for partitions
+# Transforming data to include km values for bins
 # ----------------------------------------------------------------------------------------------------------------
 
 if (length(square_file_names) != 0)
 {
-  # Calculate the number of partitions used
-  num_parts = max(as.integer(all_sim_data$Partition))
+  # Calculate the number of bins used
+  num_parts = max(as.integer(all_sim_data$Bin))
   
-  # Calculate where the first partition midpoint point is
-  partition_size = (map_size_km / num_parts)
+  # Calculate where the first bin midpoint point is
+  bin_size = (map_size_km / num_parts)
   
-  all_sim_data[, Mid_Point_km := as.numeric(Partition)*partition_size - partition_size/2]
+  all_sim_data[, Mid_Point_km := as.numeric(Bin)*bin_size - bin_size/2]
 }
 
 # ----------------------------------------------------------------------------------------------------------------
@@ -255,7 +255,7 @@ if (length(square_file_names) != 0)
 {
   # Add column to data for the distance traveled on the x-axis in km when the ratio of farmers to HGs is 50/50
   all_sim_data[, km_50perc := as.numeric(0)]
-  all_sim_data[, km_50perc := interpolate(Mid_Point_km, RatioFarmerToHG_Partition), 
+  all_sim_data[, km_50perc := interpolate(Mid_Point_km, RatioFarmerToHG_Bin), 
                .(Year, Learning_Prob, Assortative_Mating, Movement)]
   
   # Run a linear model to calculate the speed of wave and add as a column
