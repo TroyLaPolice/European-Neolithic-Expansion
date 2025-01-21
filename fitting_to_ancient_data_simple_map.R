@@ -198,7 +198,7 @@ formatted_prediction_with_conf = paste(prediction_rounded, sprintf("[%s, %s]", c
 #wd_refit = paste0(wd, "/refit")
 
 #setwd(wd)
-setwd("/home/tml5905/Documents/figures_to_import_to_pptTEMP/latest_round_of_revisions/re_refits")
+setwd("/path/to/plotting/output/directory")
 
 #if (!file.exists("refit")) {
 #dir.create("refit")
