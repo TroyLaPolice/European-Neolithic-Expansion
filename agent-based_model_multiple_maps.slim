@@ -157,10 +157,6 @@ initialize()
 		mapImage = Image(square); //square
 	else if (map_style == 6)
 		mapImage = Image(mapfile_island_removed); //no islands
-	else if (map_style == 8)
-		mapImage = Image(wd + "/topo_no_islands.png"); //topo no islands
-	else if (map_style == 10)
-		mapImage = Image(wd + "/topo_only_large_islands.png"); // topo some islands and no water crossings
 	else if (map_style == 7)
 		mapImage = Image(custom_map); //custom
 	
@@ -463,8 +459,8 @@ late()
 			
 			if (travel_pref == 1)
 			{
-				water_travel_F_SDX = F_SDX*5;
-				water_travel_F_SDY = F_SDY*5;
+				water_travel_F_SDX = F_SDX*5; // If along the cooridor route modify the step size, in this example case by 5 times
+				water_travel_F_SDY = F_SDY*5; // If along the cooridor route modify the step size, in this example case by 5 times
 				
 				do
 				{
@@ -501,8 +497,8 @@ late()
 			
 			if (travel_pref == 1)
 			{
-				water_travel_F_SDX = F_SDX*10;
-				water_travel_F_SDY = F_SDY*10;
+				water_travel_F_SDX = F_SDX*10; // If along the coastal route modify the step size, in this example case by 10 times
+				water_travel_F_SDY = F_SDY*10; // If along the coastal route modify the step size, in this example case by 10 times
 				
 				do
 				{
