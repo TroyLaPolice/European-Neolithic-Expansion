@@ -108,8 +108,6 @@ if (length(ancestry_sample_names) != 0)
   ancestry_sample_data[, Map_Style_n := as.numeric(gsub(Map_Style, pattern = ".*\\s(.+)", replacement = "\\1"))]
   #ancestry_sample_data[, Water_Crossings_n := as.numeric(gsub(Water_Crossings, pattern = ".*\\s(.+)", replacement = "\\1"))]
   
-  ancestry_sample_data$Farming_Ancestry = ancestry_sample_data$Farming_Ancestry * (494/496)
-  
   # Set > 1 Values to 1
   ancestry_sample_data$Farming_Ancestry[ancestry_sample_data$Farming_Ancestry > 1] = 1.0
   
