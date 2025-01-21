@@ -53,4 +53,4 @@ The following parameters handle the map size in km. If using provided EEA maps f
 
 **SPECIAL MAPS**
 
-*corridor_map.png* and *coastline_map.png* are special maps that are used in the *agent-based_model_multiple_maps.slim* model. These are extra maps overlaid on the main map that correspond to areas with different step sizes.
+*corridor_map.png* and *coastline_map.png* are special maps that are used in the *agent-agent-based_model_multiple_maps_distinct_routes.slim* model. These are extra maps overlaid on the main map that correspond to areas with different step sizes.
