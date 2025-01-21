@@ -79,7 +79,7 @@ filtered_inds[,.(distFromAnkara_km, weight.p3)]
 
 # Read in Param File
 #param_file = data.table(read.table("param_inputs_clean_filtered_run_for_fitting_learning.txt", header = T, sep=","))
-param_file = data.table(read.table("param_inputs_clean_filtered_within-group_mating.csv", header = T, sep=","))
+param_file = data.table(read.table("param_inputs_clean_filtered_WithinGroup_mating.csv", header = T, sep=","))
 
 # ----------------------------------------------------------------------------------------------------------------
 #  UNCOMMENT AND COMMENT THE APPLICABLE LINES IF THE FITTING IS FOR WITHIN-GROUP MATING OR LEARNING RATE
@@ -102,10 +102,10 @@ interpolate = function(ancient_x_dist, sim_x_dist, sim_farming_ancestry){
 main_ancestry_dt = headers
 
 #for (param in param_file$Learning_Prob_n)
-for (param in param_file$Within-Group_Mating_n)
+for (param in param_file$WithinGroup_Mating_n)
 {
   #individual_param_run = simulation_data_filtered[Learning_Prob_n == param]
-  individual_param_run = simulation_data_filtered[Within-Group_Mating_n == param]
+  individual_param_run = simulation_data_filtered[WithinGroup_Mating_n == param]
   
   sim_farming_ancestry = (individual_param_run$Farmer_Ancestry_Partition_All)
   sim_x_dist = individual_param_run$Mid_Point_km
@@ -137,26 +137,26 @@ for (param in param_file$Within-Group_Mating_n)
   #filtered_inds[, Learning_Prob_n := as.numeric(0)]
   #filtered_inds[, Learning_Prob_n := param]
   
-  filtered_inds[, Within-Group_Mating_n := as.numeric(0)]
-  filtered_inds[, Within-Group_Mating_n := param]
+  filtered_inds[, WithinGroup_Mating_n := as.numeric(0)]
+  filtered_inds[, WithinGroup_Mating_n := param]
   
   main_ancestry_dt = rbind(main_ancestry_dt, filtered_inds)
   
 }
 
 #ggplot(main_ancestry_dt) + geom_point(aes(Learning_Prob_n, sum_log_likelihood))
-ggplot(main_ancestry_dt) + geom_point(aes(Within-Group_Mating_n, sum_log_likelihood))
+ggplot(main_ancestry_dt) + geom_point(aes(WithinGroup_Mating_n, sum_log_likelihood))
 
 ggplot(main_ancestry_dt) + geom_point(aes(distFromAnkara_km, weight.p3))
 
 #main_ancestry_dt_best_fit_quad = main_ancestry_dt[Learning_Prob_n <= 0.0025]
-main_ancestry_dt_best_fit_quad = main_ancestry_dt[Within-Group_Mating_n >= 0.9]
+main_ancestry_dt_best_fit_quad = main_ancestry_dt[WithinGroup_Mating_n >= 0.9]
 
 #quadraticModel = lm(sum_log_likelihood ~ Learning_Prob_n + I(Learning_Prob_n^2), data=main_ancestry_dt_best_fit_quad)
-quadraticModel = lm(sum_log_likelihood ~ Within-Group_Mating_n + I(Within-Group_Mating_n^2), data=main_ancestry_dt_best_fit_quad)
+quadraticModel = lm(sum_log_likelihood ~ WithinGroup_Mating_n + I(WithinGroup_Mating_n^2), data=main_ancestry_dt_best_fit_quad)
 
 #l_doubleprime = -(quadraticModel[["coefficients"]][["I(Learning_Prob_n^2)"]])
-l_doubleprime = -(quadraticModel[["coefficients"]][["I(Within-Group_Mating_n^2)"]])
+l_doubleprime = -(quadraticModel[["coefficients"]][["I(WithinGroup_Mating_n^2)"]])
 
 confidence_interval = 1.96*(1/(sqrt(l_doubleprime)))
 
@@ -164,7 +164,7 @@ confidence_interval = 1.96*(1/(sqrt(l_doubleprime)))
 WGMValues = seq(0.9, 1, 0.001)
 
 #sum_log_likelihoodPredict = predict(quadraticModel,list(Learning_Prob_n=LearningValues, Learning_Prob_n2=LearningValues^2))
-sum_log_likelihoodPredict = predict(quadraticModel,list(Within-Group_Mating_n=WGMValues, Within-Group_Mating_n2=WGMValues^2))
+sum_log_likelihoodPredict = predict(quadraticModel,list(WithinGroup_Mating_n=WGMValues, WithinGroup_Mating_n2=WGMValues^2))
 
 # This just gets an approximate best fitting value- which of your tested params fits the best:
            #approximate_prediction = LearningValues[match(max(sum_log_likelihoodPredict), sum_log_likelihoodPredict)]
@@ -207,8 +207,8 @@ setwd("/home/tml5905/Documents/figures_to_import_to_pptTEMP/latest_round_of_revi
 #setwd(wd_refit)
 
 #create scatterplot of original data values
-png(file="sum_log_likelihoodPredict_Within-Group_Mating.png", width = 6, height = 6, units = "in", res = 900)
-plot(main_ancestry_dt_best_fit_quad$Within-Group_Mating_n, main_ancestry_dt_best_fit_quad$sum_log_likelihood, pch=16, xlab="Within-Group Mating", ylab="Sum Log Likelihood")
+png(file="sum_log_likelihoodPredict_WithinGroup_Mating.png", width = 6, height = 6, units = "in", res = 900)
+plot(main_ancestry_dt_best_fit_quad$WithinGroup_Mating_n, main_ancestry_dt_best_fit_quad$sum_log_likelihood, pch=16, xlab="WithinGroup Mating", ylab="Sum Log Likelihood")
 #add predicted lines based on quadratic regression model
 lines(WGMValues, sum_log_likelihoodPredict, col='blue')
 dev.off()
