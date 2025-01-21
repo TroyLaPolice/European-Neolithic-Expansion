@@ -822,7 +822,7 @@ late()
 	
 	HGs = p1.individuals[p1.individuals.z == 0];
 	
-	if (length(HGs) < 450 & output_on_off == 1) // Runs once everyone is a Farmer
+	if (length(HGs) == 0 & output_on_off == 1) // Runs once everyone is a Farmer
 	{
 		
 		selected_inds = sample(p1.individuals, 100000); // Select 1000 inds from pop to sample ancestry
