@@ -1,6 +1,6 @@
 
 
-# The European Neolithic Expansion: A Model Revealing Intense Within-Group Mating and Restricted Cultural Transmission  
+# Modeling the European Neolithic Expansion: Predominant Within-Group Mating and Limited Cultural Transmission  
 *The following document will outline how the **agent-based** simulation code works. Text blocks will explain how the different pieces of the code work. Aside from the text blocks, **please also note comments within the code blocks** (denoted by //) as these **will provide additional information in-line.***
 
 #### Notes Accompanying the Manuscript:
