@@ -101,7 +101,7 @@ if (length(ancestry_sample_names) != 0)
   # Add columns that remove extra strings in parameter set
   ancestry_sample_data[, Downscale_n := as.numeric(gsub(Downscale, pattern = ".*\\s(.+)", replacement = "\\1"))]
   ancestry_sample_data[, Learning_Prob_n := as.numeric(gsub(Learning_Prob, pattern = ".*\\s(.+)", replacement = "\\1"))]
-  ancestry_sample_data[, Assortative_Mating_n := as.numeric(gsub(Assortative_Mating, pattern = ".*\\s(.+)", replacement = "\\1"))]
+  ancestry_sample_data[, WithinGroup_Mating_n := as.numeric(gsub(WithinGroup_Mating, pattern = ".*\\s(.+)", replacement = "\\1"))]
   ancestry_sample_data[, Movement_n := as.numeric(gsub(Movement, pattern = ".*\\s(.+)", replacement = "\\1"))]
   #ancestry_sample_data[, Movement_X_n := as.numeric(gsub(Movement_X, pattern = ".*\\s(.+)", replacement = "\\1"))]
   #ancestry_sample_data[, Movement_Y_n := as.numeric(gsub(Movement_Y, pattern = ".*\\s(.+)", replacement = "\\1"))]
@@ -300,7 +300,7 @@ interpolate = function(ancient_x_dist, sim_x_dist, sim_farming_ancestry){
 main_ancestry_dt = headers
 
 for (param in param_file$Learning_Prob_n)
-  #for (param in param_file$Assortative_Mating_n)
+  #for (param in param_file$WithinGroup_Mating_n)
 {
   individual_param_run = ancestry_sample_data_farmers_only[Learning_Prob_n == param]
   
@@ -334,34 +334,34 @@ for (param in param_file$Learning_Prob_n)
   filtered_inds[, Learning_Prob_n := as.numeric(0)]
   filtered_inds[, Learning_Prob_n := param]
   
-  #filtered_inds[, Assortative_Mating_n := as.numeric(0)]
-  #filtered_inds[, Assortative_Mating_n := param]
+  #filtered_inds[, WithinGroup_Mating_n := as.numeric(0)]
+  #filtered_inds[, WithinGroup_Mating_n := param]
   
   main_ancestry_dt = rbind(main_ancestry_dt, filtered_inds)
   
 }
 
 ggplot(main_ancestry_dt) + geom_point(aes(Learning_Prob_n, sum_log_likelihood))
-#ggplot(main_ancestry_dt) + geom_point(aes(Assortative_Mating_n, sum_log_likelihood))
+#ggplot(main_ancestry_dt) + geom_point(aes(WithinGroup_Mating_n, sum_log_likelihood))
 
 ggplot(main_ancestry_dt) + geom_point(aes(distFromAnkara_km, weight.p3))
 
 main_ancestry_dt_best_fit_quad = main_ancestry_dt[Learning_Prob_n <= 0.0025]
-#main_ancestry_dt_best_fit_quad = main_ancestry_dt[Assortative_Mating_n >= 0.9]
+#main_ancestry_dt_best_fit_quad = main_ancestry_dt[WithinGroup_Mating_n >= 0.9]
 
 quadraticModel = lm(sum_log_likelihood ~ Learning_Prob_n + I(Learning_Prob_n^2), data=main_ancestry_dt_best_fit_quad)
-#quadraticModel = lm(sum_log_likelihood ~ Assortative_Mating_n + I(Assortative_Mating_n^2), data=main_ancestry_dt_best_fit_quad)
+#quadraticModel = lm(sum_log_likelihood ~ WithinGroup_Mating_n + I(WithinGroup_Mating_n^2), data=main_ancestry_dt_best_fit_quad)
 
 l_doubleprime = -(quadraticModel[["coefficients"]][["I(Learning_Prob_n^2)"]])
-#l_doubleprime = -(quadraticModel[["coefficients"]][["I(Assortative_Mating_n^2)"]])
+#l_doubleprime = -(quadraticModel[["coefficients"]][["I(WithinGroup_Mating_n^2)"]])
 
 confidence_interval = 1.96*(1/(sqrt(l_doubleprime)))
 
 LearningValues = seq(0, 0.006, 0.0001)
-#AMValues = seq(0.9, 1, 0.001)
+#WGMValues = seq(0.9, 1, 0.001)
 
 sum_log_likelihoodPredict = predict(quadraticModel,list(Learning_Prob_n=LearningValues, Learning_Prob_n2=LearningValues^2))
-#sum_log_likelihoodPredict = predict(quadraticModel,list(Assortative_Mating_n=AMValues, Assortative_Mating_n2=AMValues^2))
+#sum_log_likelihoodPredict = predict(quadraticModel,list(WithinGroup_Mating_n=WGMValues, WithinGroup_Mating_n2=WGMValues^2))
 
 # This just gets an approximate best fitting value- which of your tested params fits the best:
 approximate_prediction = LearningValues[match(max(sum_log_likelihoodPredict), sum_log_likelihoodPredict)]
