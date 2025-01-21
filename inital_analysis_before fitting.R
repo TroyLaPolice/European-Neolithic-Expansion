@@ -124,13 +124,6 @@ all_sim_data = lapply(1:length(files), function(x)
 # Create data table with simulation output data
 all_sim_data = rbindlist(all_sim_data)
 
-all_sim_data$Farmer_Ancestry_All = all_sim_data$Farmer_Ancestry_All * (494/496)
-all_sim_data$Farmer_Ancestry_All_Farmers = all_sim_data$Farmer_Ancestry_All_Farmers * (494/496)
-all_sim_data$Farmer_Ancestry_All_HGs = all_sim_data$Farmer_Ancestry_All_HGs * (494/496)
-all_sim_data$Farmer_Ancestry_Bin_Farmers = all_sim_data$Farmer_Ancestry_Bin_Farmers * (494/496)
-all_sim_data$Farmer_Ancestry_Bin_HGs = all_sim_data$Farmer_Ancestry_Bin_HGs * (494/496)
-all_sim_data$Farmer_Ancestry_Bin_All = all_sim_data$Farmer_Ancestry_Bin_All * (494/496)
-
 # Set > 1 Values to 1
 all_sim_data$Farmer_Ancestry_All[all_sim_data$Farmer_Ancestry_All > 1] = 1
 all_sim_data$Farmer_Ancestry_All_Farmers[all_sim_data$Farmer_Ancestry_All_Farmers > 1] = 1
