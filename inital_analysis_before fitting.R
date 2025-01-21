@@ -293,7 +293,7 @@ first_complete_year =  subset(first_complete_year,
               
 first_complete_year = setDT(first_complete_year)
 
-setwd("/home/tml5905/Documents/figures_to_import_to_pptTEMP/latest_round_of_revisions")
+setwd("/path/to/plotting/output/directory")
 
 # ----------------------------------------------------------------------------------------------------------------
 # Plot data
