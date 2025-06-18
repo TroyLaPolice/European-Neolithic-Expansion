@@ -7,7 +7,7 @@
 
 ```
 1) System Requirements:
-Dependencies/versions- Simulation run on version 4.0 of SLiM simulation framework, no non-standard hardware required, 30Gb RAM
+Dependencies/versions- Simulation run on version 4.0 of SLiM simulation framework, no non-standard hardware required, 20Gb RAM
 
 2) Installation:
 Instructions- Once SLiM framework is installed following SLiM instructions, the code from LaPolice et al., (provided in this repositiory) can be downloaded and imediately run standalone in the GUI or on a computing cluster. Installation instuctions for SLiM can be found on its respective website (see citation below).
