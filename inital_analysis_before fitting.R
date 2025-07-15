@@ -287,21 +287,3 @@ first_complete_year =  subset(first_complete_year,
 first_complete_year = setDT(first_complete_year)
 
 setwd("/path/to/plotting/output/directory")
-
-# ----------------------------------------------------------------------------------------------------------------
-# Plot data
-# ----------------------------------------------------------------------------------------------------------------
-
-custom_palette <- c(
-  "#3cb371",  # Medium Sea Green,
-  "#0077ff",  # Electric Blue
-  "#e41a1c",  # Vibrant Red
-  "#ff9980",  # Light Coral Orange
-  "#d95f02",  # Burnt Orange
-  "#f9a8d4",  # Light Pastel Pink
-  "#e7298a",  # Bright Magenta
-  "#927fbf",  # Cool Lavender
-  "#008080",  # Deep Teal
-  "#99d6d6",  # Light Teal
-  "#4b297b"   # Darker Eggplant
-)
